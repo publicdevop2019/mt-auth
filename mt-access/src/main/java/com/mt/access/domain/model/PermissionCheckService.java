@@ -17,6 +17,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PermissionCheckService {
+    private static void checkIfOwnsProject(Set<ProjectId> ids) {
+        //first check access to tenant project, query projectId must be one of jwt tenant ids
+        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
+        boolean b = authorizedTenantId.containsAll(ids);
+        if (!b) {
+            throw new DefinedRuntimeException("not allowed project", "1029",
+                HttpResponseCode.FORBIDDEN);
+        }
+    }
+
     public void canAccess(Set<ProjectId> ids, String permissionName) {
         Validator.notNull(ids);
         Validator.notEmpty(ids);
@@ -34,16 +44,6 @@ public class PermissionCheckService {
         if (!hasPermissions) {
             throw new DefinedRuntimeException("no required access permission: " + permissionName,
                 "1030",
-                HttpResponseCode.FORBIDDEN);
-        }
-    }
-
-    private static void checkIfOwnsProject(Set<ProjectId> ids) {
-        //first check access to tenant project, query projectId must be one of jwt tenant ids
-        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
-        boolean b = authorizedTenantId.containsAll(ids);
-        if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "1029",
                 HttpResponseCode.FORBIDDEN);
         }
     }

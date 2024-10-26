@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class TokenGrantContext {
-    private boolean isMFARequired=true;
+    private boolean isMFARequired = true;
     private UserTokenRepresentation userInfo;
 }

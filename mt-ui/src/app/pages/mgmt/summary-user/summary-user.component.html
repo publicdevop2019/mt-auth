@@ -1,7 +1,6 @@
 <div class="default-background">
     <h2>{{'USER_DASHBOARD'|translate}}</h2>
-    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
-    </app-search>
+    <app-user-search (search)="doSearch($event)"></app-user-search>
     <div>
         <div class="table-container">
 

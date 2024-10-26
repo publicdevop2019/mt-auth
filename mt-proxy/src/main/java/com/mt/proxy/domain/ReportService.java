@@ -39,7 +39,7 @@ public class ReportService {
     public static final String REPORT_DIR = "./reports";
     private static final String SENT_SUFFIX = "_send";
     private static final String SENT_ERROR_SUFFIX = "_error";
-    private static final String REPORT_URL ="reports/proxy";
+    private static final String REPORT_URL = "reports/proxy";
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EndpointService endpointService;
@@ -49,6 +49,7 @@ public class ReportService {
     private String instanceId;
     @Autowired
     private HttpUtility httpHelper;
+
     /**
      * log response access record.
      * response is linked to request via span id, method & path is not logged because

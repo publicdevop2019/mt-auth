@@ -9,6 +9,10 @@ public enum Language implements Serializable {
     MANDARIN("mandarin");
     private final String label;
 
+    Language(String label) {
+        this.label = label;
+    }
+
     public static Language parse(String language) {
         if ("english".equalsIgnoreCase(language)) {
             return ENGLISH;
@@ -16,9 +20,5 @@ public enum Language implements Serializable {
             return MANDARIN;
         }
         return null;
-    }
-
-    Language(String label) {
-        this.label = label;
     }
 }

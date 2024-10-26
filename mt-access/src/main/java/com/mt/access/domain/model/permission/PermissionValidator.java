@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.permission;
 
-import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;

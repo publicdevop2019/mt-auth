@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProxyCacheService {
     public static final String CACHE_LOG_PREFIX = "cache-sync";
+    @Autowired
+    LogService logService;
     private volatile Long reloadRequestedAt = 0L;
     private volatile Long completedReloadRequestAt = 0L;
     private volatile boolean reloadInProgressLock = false;
@@ -20,9 +22,6 @@ public class ProxyCacheService {
     public void triggerReload() {
         reloadRequestedAt = Instant.now().toEpochMilli();
     }
-
-    @Autowired
-    LogService logService;
 
     @EventListener(ApplicationReadyEvent.class)
     public void onAppStartReload() {
@@ -43,7 +42,8 @@ public class ProxyCacheService {
             return;
         }
         reloadInProgressLock = true;
-        final long nextCompletedReloadRequestAt = reloadRequestedAt;//copy value, make sure it will not change
+        final long nextCompletedReloadRequestAt =
+            reloadRequestedAt;//copy value, make sure it will not change
         log.info("{} start refresh cached endpoints", CACHE_LOG_PREFIX);
         try {
             DomainRegistry.getEndpointService().refreshCache();

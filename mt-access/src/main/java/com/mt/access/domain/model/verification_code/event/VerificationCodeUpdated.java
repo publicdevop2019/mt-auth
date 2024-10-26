@@ -17,15 +17,6 @@ public class VerificationCodeUpdated extends DomainEvent {
     private String email;
     private String countryCode;
     private String mobileNumber;
-
-    private void setCountryCode(String countryCode) {
-        this.countryCode = countryCode;
-    }
-
-    private void setMobileNumber(String mobileNumber) {
-        this.mobileNumber = mobileNumber;
-    }
-
     private String code;
 
     {
@@ -45,6 +36,14 @@ public class VerificationCodeUpdated extends DomainEvent {
         setCountryCode(mobile.getCountryCode());
         setMobileNumber(mobile.getMobileNumber());
         setCode(code);
+    }
+
+    private void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    private void setMobileNumber(String mobileNumber) {
+        this.mobileNumber = mobileNumber;
     }
 
     private void setEmail(RegistrationEmail registrationEmail) {

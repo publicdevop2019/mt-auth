@@ -18,14 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json", path = "verification-code")
 public class VerificationCodeResource {
     @PostMapping
-    public ResponseEntity<Void> create(
+    public ResponseEntity<Void> sendCode(
         @RequestBody VerificationCodeCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         ClientId clientId = new ClientId(JwtUtility.getClientId(jwt));
         command.setClientId(clientId);
-        ApplicationServiceRegistry.getVerificationCodeApplicationService().create(command, changeId);
+        ApplicationServiceRegistry.getVerificationCodeApplicationService()
+            .create(command, changeId);
         return ResponseEntity.ok().build();
     }
 }

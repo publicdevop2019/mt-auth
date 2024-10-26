@@ -6,7 +6,6 @@ import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_LOG;
 
 import com.mt.proxy.domain.UniqueIdGeneratorService;
 import com.mt.proxy.domain.Utility;
-import java.util.function.Consumer;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.server.reactive.ServerHttpRequest;

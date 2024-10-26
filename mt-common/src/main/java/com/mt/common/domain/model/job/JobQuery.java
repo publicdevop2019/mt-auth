@@ -19,7 +19,7 @@ public class JobQuery extends QueryCriteria {
     }
 
     public JobQuery(JobId id) {
-        this.id=id;
+        this.id = id;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
     }

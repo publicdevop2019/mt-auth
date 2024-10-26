@@ -12,7 +12,7 @@ import com.mt.access.application.permission.representation.PermissionCardReprese
 import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
-import com.mt.access.infrastructure.Utility;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -55,7 +55,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectIds(queryParam, projectId);
+        queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<Permission> rep =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .tenantQuery(queryParam, pageParam, skipCount);

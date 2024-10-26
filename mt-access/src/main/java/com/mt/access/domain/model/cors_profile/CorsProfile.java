@@ -86,6 +86,23 @@ public class CorsProfile extends Auditable {
         return corsProfile;
     }
 
+    private static void validateHeaderName(Set<String> headerNames) {
+        headerNames.forEach(header -> {
+            boolean pass = false;
+            Matcher matcher = HEADER_NAME_REGEX.matcher(header);
+            if (matcher.find()) {
+                if (!header.startsWith("-") && !header.endsWith("-") &&
+                    !header.equalsIgnoreCase("-")) {
+                    pass = true;
+                }
+            }
+            if (!pass) {
+                throw new DefinedRuntimeException("invalid header format", "1085",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        });
+    }
+
     public CorsProfile update(
         String name,
         String description,
@@ -178,23 +195,6 @@ public class CorsProfile extends Auditable {
         }
         CommonUtility.updateCollection(this.allowedHeaders, allowedHeaders,
             () -> this.allowedHeaders = allowedHeaders);
-    }
-
-    private static void validateHeaderName(Set<String> headerNames) {
-        headerNames.forEach(header -> {
-            boolean pass = false;
-            Matcher matcher = HEADER_NAME_REGEX.matcher(header);
-            if (matcher.find()) {
-                if (!header.startsWith("-") && !header.endsWith("-") &&
-                    !header.equalsIgnoreCase("-")) {
-                    pass = true;
-                }
-            }
-            if (!pass) {
-                throw new DefinedRuntimeException("invalid header format", "1085",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-        });
     }
 
     private void setAllowOrigin(Set<Origin> origins) {

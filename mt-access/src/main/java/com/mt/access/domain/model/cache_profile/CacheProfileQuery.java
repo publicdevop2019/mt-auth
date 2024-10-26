@@ -22,24 +22,6 @@ public class CacheProfileQuery extends QueryCriteria {
     private Set<CacheProfileId> ids;
     private ProjectId projectId;
 
-    public static CacheProfileQuery tenantQuery(String queryParam, String pageParam,
-                                                String config) {
-        return new CacheProfileQuery(queryParam, pageParam, config);
-    }
-
-    public static CacheProfileQuery tenantQuery(ProjectId projectId,
-                                                CacheProfileId cacheProfileId) {
-        return new CacheProfileQuery(projectId, cacheProfileId);
-    }
-
-    public static CacheProfileQuery internalQuery(Set<CacheProfileId> ids) {
-        return new CacheProfileQuery(ids);
-    }
-
-    public static CacheProfileQuery internalQuery(CacheProfileId id) {
-        return new CacheProfileQuery(Collections.singleton(id));
-    }
-
     private CacheProfileQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap =
             QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS,
@@ -68,5 +50,23 @@ public class CacheProfileQuery extends QueryCriteria {
         this.ids = ids;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
+    }
+
+    public static CacheProfileQuery tenantQuery(String queryParam, String pageParam,
+                                                String config) {
+        return new CacheProfileQuery(queryParam, pageParam, config);
+    }
+
+    public static CacheProfileQuery tenantQuery(ProjectId projectId,
+                                                CacheProfileId cacheProfileId) {
+        return new CacheProfileQuery(projectId, cacheProfileId);
+    }
+
+    public static CacheProfileQuery internalQuery(Set<CacheProfileId> ids) {
+        return new CacheProfileQuery(ids);
+    }
+
+    public static CacheProfileQuery internalQuery(CacheProfileId id) {
+        return new CacheProfileQuery(Collections.singleton(id));
     }
 }

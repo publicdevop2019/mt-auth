@@ -7,7 +7,7 @@ import static com.mt.access.domain.model.permission.Permission.USER_MGMT;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
 
-import com.mt.access.application.user.command.UpdateUserRelationCommand;
+import com.mt.access.application.user.command.AssignRoleCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -28,6 +28,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -132,8 +133,10 @@ public class UserRelationApplicationService {
         return userRelation.get();
     }
 
-    public void tenantUpdate(String rawProjectId, String userId, UpdateUserRelationCommand command,
-                             String changeId) {
+    public void tenantRoleAssign(String rawProjectId, String userId, AssignRoleCommand command,
+                                 String changeId) {
+        Validator.notNull(command.getRoleIds());
+        Validator.notEmpty(command.getRoleIds());
         ProjectId projectId = new ProjectId(rawProjectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, USER_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -141,7 +144,24 @@ public class UserRelationApplicationService {
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
                         .get(new UserId(userId), projectId);
-                UserRelation userRelation = relation.tenantUpdate(command.getRoles());
+                UserRelation userRelation = relation.assignRole(command.getRoleIds());
+                DomainRegistry.getUserRelationRepository().update(relation, userRelation);
+                return null;
+            }, USER_RELATION);
+    }
+
+    public void tenantRoleRemove(String rawProjectId, String rawUserId, String rawRoleId,
+                                 String changeId) {
+        ProjectId projectId = new ProjectId(rawProjectId);
+        RoleId roleId = new RoleId(rawRoleId);
+        UserId userId = new UserId(rawUserId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, USER_MGMT);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (context) -> {
+                UserRelation relation =
+                    DomainRegistry.getUserRelationRepository()
+                        .get(userId, projectId);
+                UserRelation userRelation = relation.removeRole(roleId);
                 DomainRegistry.getUserRelationRepository().update(relation, userRelation);
                 return null;
             }, USER_RELATION);

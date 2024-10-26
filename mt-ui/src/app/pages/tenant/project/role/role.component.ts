@@ -76,7 +76,7 @@ export class RoleComponent implements OnDestroy {
   getParents(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.roleUrl, num, size, `types:PROJECT.USER`, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.roleUrl, num, size, `types:USER`, by, order, header)
       }
     } as IQueryProvider
   }

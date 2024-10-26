@@ -54,11 +54,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class TokenService {
-    @Autowired
-    private JwtInfoProviderService jwtInfoProviderService;
     private static final String NOT_USED = "not_used";
     private static final String CLIENT_ID = "client_id";
     private static final String PROJECT_ID = "projectId";
+    @Autowired
+    private JwtInfoProviderService jwtInfoProviderService;
 
     public JwtToken grant(Map<String, String> parameters,
                           ClientOAuth2Representation clientDetails,

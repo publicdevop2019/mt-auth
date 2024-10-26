@@ -2,25 +2,24 @@ package com.mt.access.domain.model.notification;
 
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
-import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
-import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
+import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
-import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
-import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceived;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceived;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
-import com.mt.common.domain.model.job.event.JobNotFoundEvent;
-import com.mt.common.domain.model.job.event.JobPausedEvent;
-import com.mt.common.domain.model.job.event.JobStarvingEvent;
-import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
+import com.mt.common.domain.model.job.event.JobNotFound;
+import com.mt.common.domain.model.job.event.JobPaused;
+import com.mt.common.domain.model.job.event.JobStarving;
+import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.validate.Checker;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
@@ -82,31 +81,31 @@ public class Notification {
         descriptions.add(event.getProjectName());
     }
 
-    public Notification(ProxyCacheCheckFailedEvent event) {
+    public Notification(ProxyCacheCheckFailed event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         type = NotificationType.BELL;
-        title = ProxyCacheCheckFailedEvent.name;
+        title = ProxyCacheCheckFailed.name;
     }
 
-    public Notification(CrossDomainValidationService.ValidationFailedEvent event) {
+    public Notification(CrossDomainValidationService.ValidationFailed event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = CrossDomainValidationService.ValidationFailedEvent.name;
+        title = CrossDomainValidationService.ValidationFailed.name;
         type = NotificationType.BELL;
         descriptions.addAll(event.getMessage());
     }
 
-    public Notification(UserMfaNotificationEvent event) {
+    public Notification(UserMfaNotification event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = UserMfaNotificationEvent.name;
+        title = UserMfaNotification.name;
         type = NotificationType.SMS;
     }
 
@@ -141,85 +140,75 @@ public class Notification {
         type = NotificationType.EMAIL;
     }
 
-    public Notification(UnrountableMsgReceivedEvent event) {
+    public Notification(UnrountableMsgReceived event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = UnrountableMsgReceivedEvent.name;
+        title = UnrountableMsgReceived.name;
         type = NotificationType.BELL;
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());
         descriptions.add(event.getSourceName());
     }
 
-    public Notification(SubscribedEndpointExpireEvent event,
+    public Notification(SubscribedEndpointExpired event,
                         DomainId e) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = SubscribedEndpointExpireEvent.name;
+        title = SubscribedEndpointExpired.name;
         type = NotificationType.BELL;
         userId = new UserId(e.getDomainId());
     }
 
 
-    public Notification(JobPausedEvent event) {
+    public Notification(JobPaused event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = JobPausedEvent.name;
+        title = JobPaused.name;
         type = NotificationType.BELL;
     }
 
-    public Notification(JobNotFoundEvent event) {
+    public Notification(JobNotFound event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = JobNotFoundEvent.name;
+        title = JobNotFound.name;
         descriptions.add(event.getJobName());
         type = NotificationType.BELL;
     }
 
-    public Notification(JobThreadStarvingEvent event) {
+    public Notification(JobThreadStarving event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = JobThreadStarvingEvent.name;
+        title = JobThreadStarving.name;
         descriptions.add(event.getJobName());
         descriptions.add(String.valueOf(event.getInstanceId()));
         type = NotificationType.BELL;
     }
 
-    public Notification(JobStarvingEvent event) {
+    public Notification(JobStarving event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         descriptions.add(event.getJobName());
-        title = JobStarvingEvent.name;
+        title = JobStarving.name;
         type = NotificationType.BELL;
     }
 
-    public Notification(VerificationCodeCreated event) {
-        super();
+    public Notification(RejectedMsgReceived event) {
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = event.getName();
-        descriptions.add(event.getDomainId().getDomainId());
-        type = NotificationType.BELL;
-    }
-
-    public Notification(RejectedMsgReceivedEvent event) {
-        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        notificationId = new NotificationId();
-        timestamp = event.getTimestamp();
-        title = RejectedMsgReceivedEvent.name;
+        title = RejectedMsgReceived.name;
         type = NotificationType.BELL;
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());

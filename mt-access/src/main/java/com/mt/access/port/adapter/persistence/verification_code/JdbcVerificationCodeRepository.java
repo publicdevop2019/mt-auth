@@ -2,10 +2,10 @@ package com.mt.access.port.adapter.persistence.verification_code;
 
 import com.mt.access.domain.model.activation_code.Code;
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.verification_code.VerificationCode;
-import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
 import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
+import com.mt.access.domain.model.verification_code.VerificationCode;
+import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
@@ -80,6 +80,7 @@ public class JdbcVerificationCodeRepository implements VerificationCodeRepositor
             );
         DatabaseUtility.checkUpdate(update);
     }
+
     @Override
     public void updateCode(ClientId clientId, RegistrationMobile mobile,
                            Code code) {

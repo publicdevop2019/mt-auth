@@ -127,11 +127,17 @@ public class RoleRepresentation {
         }
     }
 
+    private enum PermissionType {
+        SHARED,
+        API,
+        COMMON;
+    }
+
     @Getter
     private static class PermissionDetail {
         private final String id;
-        private String name;
         private final PermissionType type;
+        private String name;
 
         public PermissionDetail(PermissionId permissionId, String name) {
             id = permissionId.getDomainId();
@@ -149,11 +155,5 @@ public class RoleRepresentation {
                 .findFirst().ifPresent(e -> this.name = e.getName());
             this.type = type;
         }
-    }
-
-    private enum PermissionType {
-        SHARED,
-        API,
-        COMMON;
     }
 }

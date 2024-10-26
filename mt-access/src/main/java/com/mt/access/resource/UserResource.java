@@ -7,17 +7,16 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.user.command.AssignRoleCommand;
 import com.mt.access.application.user.command.UpdateUserCommand;
-import com.mt.access.application.user.command.UpdateUserRelationCommand;
-import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
+import com.mt.access.application.user.representation.UserTenantCardRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.User;
-import com.mt.access.infrastructure.Utility;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -74,7 +73,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantQuery(
+    public ResponseEntity<SumPagedRep<UserTenantCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -82,10 +81,10 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectIds(queryParam, projectId);
+        queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep<>(users, UserTenantCardRepresentation::new));
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")
@@ -102,25 +101,48 @@ public class UserResource {
     }
 
     /**
-     * update user role for project.
+     * assign role to user for project.
      *
      * @param projectId project id
      * @param id        user id
      * @param jwt       jwt
-     * @param command   update command
+     * @param command   assign command
      * @return http response 200
      */
-    @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<Void> tenantUpdate(
+    @PostMapping(path = "projects/{projectId}/users/{id}/roles")
+    public ResponseEntity<Void> tenantRoleAssign(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestBody UpdateUserRelationCommand command
+        @RequestBody AssignRoleCommand command
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .tenantUpdate(projectId, id, command, changeId);
+            .tenantRoleAssign(projectId, id, command, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * remove role from user for project.
+     *
+     * @param projectId project id
+     * @param id        user id
+     * @param jwt       jwt
+     * @param roleId    roleId
+     * @return http response 200
+     */
+    @DeleteMapping(path = "projects/{projectId}/users/{id}/roles/{roleId}")
+    public ResponseEntity<Void> tenantRoleRemove(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @PathVariable String roleId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getUserRelationApplicationService()
+            .tenantRoleRemove(projectId, id, roleId, changeId);
         return ResponseEntity.ok().build();
     }
 

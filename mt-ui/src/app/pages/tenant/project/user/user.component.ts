@@ -1,90 +1,72 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { map, tap } from 'rxjs/operators';
 import { Utility } from 'src/app/misc/utility';
-import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { IProjectUser } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { IRole } from '../my-roles/my-roles.component';
 import { DeviceService } from 'src/app/services/device.service';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
+import { AddRoleDialogComponent } from 'src/app/components/add-role-dialog/add-role-dialog.component';
+import { Logger } from 'src/app/misc/logger';
+interface IRoleTable {
+  id: string,
+  name: string,
+}
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
 export class UserComponent {
-  public projectId = this.routerWrapper.getProjectIdFromUrl()
-  private userId = this.routerWrapper.getUserIdFromUrl()
+  public projectId = this.router.getProjectIdFromUrl()
+  private userId = this.router.getUserIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.USERS)
-  private roleUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ROLES)
-  public loadRoot;
-  public changeId = Utility.getChangeId();
   private data: IProjectUser = undefined
-  public loadChildren = (id: string) => this.httpSvc.readEntityByQuery(this.roleUrl, 0, 1000, "parentId:" + id).pipe(map(e => {
-    e.data.forEach(ee => {
-      (ee as INode).editable = true;
-    })
-    return e
-  }))
-  public formGroup: FormGroup = new FormGroup({
+  columnList = {
+    name: 'NAME',
+    delete: 'DELETE',
+  };
+  displayedColumns() {
+    return ['name', 'delete']
+  };
+  dataSource: MatTableDataSource<IRoleTable> = new MatTableDataSource([]);
+  public fg: FormGroup = new FormGroup({
     name: new FormControl({ value: '', disabled: true }),
   })
   constructor(
-    public routerWrapper: RouterWrapperService,
+    public router: RouterWrapperService,
     public httpSvc: HttpProxyService,
     public deviceSvc: DeviceService,
-    public cdr: ChangeDetectorRef
+    public dialog: MatDialog,
   ) {
     this.deviceSvc.updateDocTitle('USER_DOC_TITLE')
-    this.loadRoot = this.httpSvc.readEntityByQuery<IRole>(this.roleUrl, 0, 1000, "parentId:null,types:PROJECT.USER").pipe(map(e => {
-      e.data.forEach(ee => {
-        if (ee.roleType === 'PROJECT') {
-          (ee as INode).editable = false;
-        } else {
-          (ee as INode).editable = true;
-        }
-      })
-      return e
-    })).pipe(tap(() => this.cdr.markForCheck()));
-
-
-    this.httpSvc.readEntityById<IProjectUser>(this.url, this.userId).subscribe(next => {
-      this.formGroup.get('name').setValue(next.displayName);
-      this.data = next;
-      (next.roles || []).forEach(p => {
-        if (!this.formGroup.get(p)) {
-          this.formGroup.addControl(p, new FormControl('checked'))
-        } else {
-          this.formGroup.get(p).setValue('checked', { emitEvent: false })
-        }
-      })
-    });
-
+    this.loadUser()
   }
-  convertToPayload(): IProjectUser {
-    const value = this.formGroup.value
-    return {
-      id: this.userId,//value is ignored
-      roles: Object.keys(value).filter(e => value[e] === 'checked'),
-      projectId: this.projectId,
-      version: 0
-    }
-  }
-  update() {
-    this.httpSvc.updateEntity(this.url, this.userId, this.convertToPayload(), this.changeId).subscribe(next=>{
+  removeRole(row: IRoleTable) {
+    this.httpSvc.removeUserRole(this.projectId, this.userId, row.id, Utility.getChangeId()).subscribe(next => {
       this.deviceSvc.notify(next)
+      this.loadUser()
     })
   }
-  removeRole(key: string) {
-    this.formGroup.get(key).setValue('unchecked')
+  addRole() {
+    const dialogRef = this.dialog.open(AddRoleDialogComponent, { data: {} });
+    dialogRef.afterClosed().subscribe(data => {
+      if (data !== undefined) {
+        Logger.debug("role ids {}", data)
+        this.httpSvc.adddUserRole(this.projectId, this.userId, data.roleIds, Utility.getChangeId()).subscribe(next => {
+          this.deviceSvc.notify(next)
+          this.loadUser()
+        })
+      }
+    })
   }
-  roles() {
-    const api = this.formGroup.value
-    return Object.keys(api).filter(e => api[e] === 'checked').filter(e => e)
-  }
-  parseId(id: string) {
-    return this.data.roleDetails.find(e => e.id === id)?.name || id
+  loadUser() {
+    this.httpSvc.readEntityById<IProjectUser>(this.url, this.userId).subscribe(next => {
+      this.fg.get('name').setValue(next.displayName);
+      this.data = next;
+      this.dataSource = new MatTableDataSource(this.data.roleDetails || []);
+    });
   }
 }

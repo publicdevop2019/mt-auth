@@ -20,11 +20,11 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Service
 public class HttpRemoteProxyService implements RemoteProxyService {
+    private static final String PROXY_CHECKSUM_URL = "info/checkSum";
     @Autowired
     private EurekaClient discoveryClient;
     @Autowired
     private RestTemplate restTemplate;
-    private static final String PROXY_CHECKSUM_URL ="info/checkSum";
 
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {

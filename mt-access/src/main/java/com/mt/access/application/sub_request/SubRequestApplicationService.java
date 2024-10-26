@@ -21,7 +21,7 @@ import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.access.domain.model.sub_request.event.SubRequestApprovedEvent;
-import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.UserRelationQuery;
@@ -231,7 +231,7 @@ public class SubRequestApplicationService {
                         return allByQuery.stream().map(UserRelation::getUserId);
                     }).collect(Collectors.toSet());
                     context
-                        .append(new SubscribedEndpointExpireEvent(endpointId, allAdmins));
+                        .append(new SubscribedEndpointExpired(endpointId, allAdmins));
                 } else {
                     log.debug("skip sending SubscriberEndpointExpireEvent due to not subscribed");
                 }

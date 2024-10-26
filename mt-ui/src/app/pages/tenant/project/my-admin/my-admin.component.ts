@@ -6,7 +6,7 @@ import { combineLatest } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { IOption, IProjectAdmin, IProjectUser } from 'src/app/misc/interface';
+import { IOption, IProjectSimpleUser, IProjectUser } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -22,11 +22,11 @@ export class MyAdminComponent {
   private adminUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ADMINS)
   private tenantUserUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.USERS)
   searchValue = new FormControl('', []);
-  searchKey = new FormControl('', []);
+  searchKey = new FormControl('email', []);
   columnList: any = {
-    id: 'ID',
-    name: 'NAME',
+    name: 'USERNAME',
     email: 'EMAIL',
+    mobile: 'MOBILE_NUMBER',
     delete: 'DELETE',
   };
   searchConfigs: { searchLabel: string, searchValue: string }[] = [
@@ -46,12 +46,11 @@ export class MyAdminComponent {
   private searchPageNumber = 0;
   private searchPageSize = 10;
   loading: boolean = false;
-  separatorKeysCodes: number[] = [ENTER, COMMA];
   allLoaded: boolean = false;
   options: IOption[] = [];
   newAdmins: IOption[] = [];
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
-  public tableSource: TableHelper<IProjectAdmin> = new TableHelper(this.columnList, 10, this.httpSvc, this.adminUrl);
+  public tableSource: TableHelper<IProjectSimpleUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.adminUrl);
   constructor(
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
@@ -68,11 +67,26 @@ export class MyAdminComponent {
   }
   private searchAdminCandidate(searchValue: string) {
     this.loading = true;
-    this.httpSvc.readEntityByQuery<IProjectUser>(this.tenantUserUrl, this.searchPageNumber, this.searchPageSize, searchValue ? (this.searchKey.value + ':' + searchValue) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
+    this.httpSvc.readEntityByQuery<IProjectSimpleUser>(this.tenantUserUrl, this.searchPageNumber, this.searchPageSize, searchValue ? (this.searchKey.value + ':' + searchValue) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
       this.loading = false;
       const temp = result.data.map(e => {
+        let lable: string;
+        if (this.searchKey.value === 'email') {
+          if (this.searchValue.value) {
+            lable = e.email;
+          } else {
+            //empty search
+            lable = e.username || e.email || e.mobile;
+          }
+        }
+        else if (this.searchKey.value === 'mobile') {
+          lable = e.mobile;
+        }
+        else if (this.searchKey.value === 'username') {
+          lable = e.username;
+        }
         return <IOption>{
-          label: e.displayName,
+          label: lable,
           value: e.id
         }
       });

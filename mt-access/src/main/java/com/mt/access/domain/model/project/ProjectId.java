@@ -12,12 +12,12 @@ public class ProjectId extends GeneratedDomainId implements Serializable {
         super(domainId);
     }
 
+    public static String getIdPrefix() {
+        return "0P";
+    }
+
     @Override
     protected String getPrefix() {
         return getIdPrefix();
-    }
-
-    public static String getIdPrefix() {
-        return "0P";
     }
 }

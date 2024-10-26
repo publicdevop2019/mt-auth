@@ -6,13 +6,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @EqualsAndHashCode
-public class MfaId  implements Serializable {
+public class MfaId implements Serializable {
     @Getter
     private final String value;
 
     public MfaId() {
         value = UUID.randomUUID().toString();
     }
+
     public MfaId(String value) {
         this.value = value;
     }

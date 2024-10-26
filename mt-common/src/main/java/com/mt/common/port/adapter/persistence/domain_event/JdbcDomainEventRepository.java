@@ -3,7 +3,6 @@ package com.mt.common.port.adapter.persistence.domain_event;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
-import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -14,7 +13,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
@@ -44,8 +42,10 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
         "se.send = ?, " +
         "se.routable = ? " +
         "WHERE se.id = ?";
-    private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM stored_event se WHERE %s ORDER BY se.id ASC LIMIT ? OFFSET ?";
-    private static final String DYNAMIC_COUNT_QUERY_SQL = "SELECT COUNT(*) AS count FROM stored_event se WHERE %s";
+    private static final String DYNAMIC_DATA_QUERY_SQL =
+        "SELECT * FROM stored_event se WHERE %s ORDER BY se.id ASC LIMIT ? OFFSET ?";
+    private static final String DYNAMIC_COUNT_QUERY_SQL =
+        "SELECT COUNT(*) AS count FROM stored_event se WHERE %s";
 
     @Override
     public void append(StoredEvent event) {

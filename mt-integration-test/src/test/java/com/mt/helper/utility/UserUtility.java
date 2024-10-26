@@ -5,6 +5,7 @@ import static com.mt.helper.AppConstant.USER_MGMT;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.TenantContext;
+import com.mt.helper.pojo.AssignRoleReq;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
@@ -143,6 +144,15 @@ public class UserUtility {
             );
     }
 
+    public static ResponseEntity<DefaultOAuth2AccessToken> emailCodeLogin(User user, String code) {
+        user.setCode(code);
+        return OAuth2Utility
+            .getPasswordFlowEmailCodeToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                AppConstant.COMMON_CLIENT_SECRET,
+                user.getEmail(), user.getCode()
+            );
+    }
+
     public static ResponseEntity<DefaultOAuth2AccessToken> mobileCodeLogin(User user) {
         sendVerifyCode(user);
         user.setCode("123456");
@@ -188,6 +198,10 @@ public class UserUtility {
                 oAuth2PasswordToken.getStatusCode().value());
         }
         return token;
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> emailPwdLoginRaw(User user) {
+        return emailPwdLogin(user.getEmail(), user.getPassword());
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
@@ -242,6 +256,39 @@ public class UserUtility {
         //create new user then login to created project
         User tenantUser = createEmailPwdUser();
         String user1Token = emailPwdLogin(tenantUser);
+        return loginTenant(project, client, tenantUser, user1Token);
+    }
+
+    /**
+     * create mobile code user whom login to tenant project
+     *
+     * @param project tenant project
+     * @param client  sso client
+     * @return user logged in
+     */
+    public static User userMobileCodeLoginToTenant(Project project, Client client) {
+        //create new user then login to created project
+        User tenantUser = randomMobileOnlyUser();
+        String user1Token = mobileCodeLogin(tenantUser).getBody().getValue();
+        return loginTenant(project, client, tenantUser, user1Token);
+    }
+
+    /**
+     * create username pwd user whom login to tenant project
+     *
+     * @param project tenant project
+     * @param client  sso client
+     * @return user logged in
+     */
+    public static User userUsernamePwdLoginToTenant(Project project, Client client) {
+        //create new user then login to created project
+        User tenantUser = randomUsernamePwdUser();
+        String user1Token = usernamePwdLogin(tenantUser).getBody().getValue();
+        return loginTenant(project, client, tenantUser, user1Token);
+    }
+
+    private static User loginTenant(Project project, Client client, User tenantUser,
+                                    String user1Token) {
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(project.getId(), client.getId(), user1Token,
                 AppConstant.TEST_REDIRECT_URL);
@@ -261,10 +308,18 @@ public class UserUtility {
         return tenantUser;
     }
 
-    public static ResponseEntity<Void> updateTenantUser(TenantContext tenantContext,
-                                                        User user) {
-        String url = getUrl(tenantContext.getProject());
-        return Utility.updateResource(tenantContext.getCreator(), url, user, user.getId());
+    public static ResponseEntity<Void> assignTenantUserRole(TenantContext tenantContext, User user,
+                                                            AssignRoleReq req) {
+        String userIdUrl = HttpUtility.appendPath(getUrl(tenantContext.getProject()), user.getId());
+        String url = HttpUtility.appendPath(userIdUrl, "roles");
+        return Utility.createResource(tenantContext.getCreator(), url, req);
+    }
+
+    public static ResponseEntity<Void> removeTenantUserRole(TenantContext tenantContext, User user,
+                                                            String roleId) {
+        String userIdUrl = HttpUtility.appendPath(getUrl(tenantContext.getProject()), user.getId());
+        String userRoleUrl = HttpUtility.appendPath(userIdUrl, "roles");
+        return Utility.deleteResource(tenantContext.getCreator(), userRoleUrl, roleId);
     }
 
     public static ResponseEntity<User> readTenantUser(TenantContext tenantContext,

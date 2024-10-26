@@ -129,13 +129,12 @@ public class TenantAdminTest{
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //2. try to remove admin when total admin equal to 2
         //check admin count
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange =
-            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
-        SumTotal<ProjectAdmin> body = exchange.getBody();
-        Integer adminCount = body.getTotalItemCount();
+        SumTotal<ProjectAdmin> allAdmins =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject()).getBody();
+        Integer adminCount = allAdmins.getTotalItemCount();
         int numOfAdminToRemove = adminCount - 2;
-        List<ProjectAdmin> otherAdmins = body.getData().stream()
-            .filter(e -> !e.getEmail().equalsIgnoreCase(tenantContext.getCreator().getEmail()))
+        List<ProjectAdmin> otherAdmins = allAdmins.getData().stream()
+            .filter(e -> !e.getId().equalsIgnoreCase(tenantContext.getCreator().getId()))
             .collect(
                 Collectors.toList());
         log.info("num of admin to remove is {}", numOfAdminToRemove);

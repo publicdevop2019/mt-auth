@@ -3,7 +3,7 @@ package com.mt.access.domain.model.user;
 import java.io.Serializable;
 import lombok.Getter;
 
-public class MfaInfo  implements Serializable {
+public class MfaInfo implements Serializable {
     @Getter
     private MfaCode code;
     @Getter

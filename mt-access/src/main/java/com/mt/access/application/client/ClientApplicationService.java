@@ -48,19 +48,6 @@ public class ClientApplicationService {
 
     private static final String CLIENT = "Client";
 
-    public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
-                                                             String configParam) {
-        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(clientQuery.getProjectIds(), CLIENT_MGMT);
-        SumPagedRep<Client> clients =
-            DomainRegistry.getClientRepository().query(clientQuery);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        updateDetails(rep.getData());
-        return rep;
-    }
-
     private static void updateDetails(List<ClientCardRepresentation> data) {
         Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
             .flatMap(e -> e.getResourceIds().stream()).map(ClientId::new)
@@ -86,6 +73,19 @@ public class ClientApplicationService {
                 }
             });
         }
+    }
+
+    public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
+                                                             String configParam) {
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(clientQuery.getProjectIds(), CLIENT_MGMT);
+        SumPagedRep<Client> clients =
+            DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<ClientCardRepresentation> rep =
+            new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        updateDetails(rep.getData());
+        return rep;
     }
 
     /**

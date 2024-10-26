@@ -43,13 +43,13 @@ public class Endpoint extends Auditable {
     private static final Set<String> HTTP_METHODS =
         Arrays.stream(HttpMethod.values()).map(Enum::name).collect(
             Collectors.toSet());
+    private static final Pattern PATH_REGEX =
+        Pattern.compile("^[a-z\\-/*]*$");
 
     static {
         HTTP_METHODS.add("WEB_SOCKET");
     }
 
-    private static final Pattern PATH_REGEX =
-        Pattern.compile("^[a-z\\-/*]*$");
     private Boolean secured;
 
     private String description;

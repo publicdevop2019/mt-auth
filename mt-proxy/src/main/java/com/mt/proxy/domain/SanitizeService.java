@@ -1,11 +1,11 @@
 package com.mt.proxy.domain;
 
 import com.google.json.JsonSanitizer;
-import com.mt.proxy.infrastructure.filter.ScgCustomFilter;
 import java.nio.charset.StandardCharsets;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+
 @Slf4j
 public class SanitizeService {
     public static byte[] sanitizeResp(byte[] responseBody, HttpHeaders headers) {

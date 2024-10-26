@@ -1,24 +1,21 @@
 package com.mt.access.resource;
 
-import static com.mt.access.infrastructure.Utility.updateProjectIds;
+import static com.mt.access.infrastructure.HttpUtility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
 import com.mt.access.application.cache_profile.representation.CacheProfileCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;

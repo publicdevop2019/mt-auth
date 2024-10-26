@@ -6,13 +6,10 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Collections;
-import java.util.Map;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -32,8 +29,10 @@ public class CustomBeanFactory {
     private KeyPair keyPair(@Autowired Environment env) {
         KeyStoreKeyFactory keyStoreKeyFactory =
             new KeyStoreKeyFactory(
-                new ClassPathResource(Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.key-store"))),
-                Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.password")).toCharArray());
+                new ClassPathResource(
+                    Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.key-store"))),
+                Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.password"))
+                    .toCharArray());
 
         return keyStoreKeyFactory.getKeyPair(env.getProperty("mt.feature.oauth.jwt.alias"));
     }

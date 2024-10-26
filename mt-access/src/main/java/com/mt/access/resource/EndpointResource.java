@@ -1,6 +1,6 @@
 package com.mt.access.resource;
 
-import static com.mt.access.infrastructure.Utility.updateProjectIds;
+import static com.mt.access.infrastructure.HttpUtility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
@@ -13,9 +13,9 @@ import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProtectedRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
-import com.mt.access.application.endpoint.representation.EndpointProtectedRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -60,8 +60,9 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<EndpointCardRepresentation> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantQuery(queryParam, pageParam, config);
+        SumPagedRep<EndpointCardRepresentation> endpoints =
+            ApplicationServiceRegistry.getEndpointApplicationService()
+                .tenantQuery(queryParam, pageParam, config);
         return ResponseEntity.ok(endpoints);
     }
 
@@ -73,8 +74,9 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<EndpointCardRepresentation> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
-            .mgmtQuery(queryParam, pageParam, config);
+        SumPagedRep<EndpointCardRepresentation> endpoints =
+            ApplicationServiceRegistry.getEndpointApplicationService()
+                .mgmtQuery(queryParam, pageParam, config);
         return ResponseEntity.ok(endpoints);
     }
 
@@ -127,7 +129,8 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getEndpointApplicationService().tenantUpdate(id, command, changeId);
+        ApplicationServiceRegistry.getEndpointApplicationService()
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -172,8 +175,9 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        SumPagedRep<EndpointSharedCardRepresentation> shared = ApplicationServiceRegistry.getEndpointApplicationService()
-            .marketQuery(queryParam, pageParam, config);
+        SumPagedRep<EndpointSharedCardRepresentation> shared =
+            ApplicationServiceRegistry.getEndpointApplicationService()
+                .marketQuery(queryParam, pageParam, config);
         return ResponseEntity.ok(shared);
     }
 
@@ -187,8 +191,9 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<EndpointProtectedRepresentation> protectedEp = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantQueryProtected(queryParam, pageParam, config);
+        SumPagedRep<EndpointProtectedRepresentation> protectedEp =
+            ApplicationServiceRegistry.getEndpointApplicationService()
+                .tenantQueryProtected(queryParam, pageParam, config);
         return ResponseEntity.ok(protectedEp);
     }
 }

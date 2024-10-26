@@ -36,11 +36,7 @@
 | mt-integration-test | 测试  | Spring Boot Test                                             |
 
  
-# 配置
-
-- Ubuntu 18.04 64bit
-- Java: java version "11.0.14" 2022-01-18 LTS
-- Maven: maven:3.6.3-jdk-11
+# 其他
 - 测试分辨率：360x660px, 1920x852px
 - 测试浏览器：Chrome
  

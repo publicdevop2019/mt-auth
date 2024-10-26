@@ -14,6 +14,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
+    private static void updatePwd(UserPassword newPassword, PasswordResetCode token,
+                                  TransactionContext context, User user) {
+        if (user.getPwdResetToken() == null) {
+            throw new DefinedRuntimeException("token not exist", "1003",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        if (!user.getPwdResetToken().equals(token)) {
+            throw new DefinedRuntimeException("token mismatch", "1004",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        User user1 = user.updatePassword(newPassword);
+        DomainRegistry.getUserRepository().update(user, user1);
+        context
+            .append(new UserPasswordChanged(user.getUserId()));
+    }
+
     public void updatePassword(User user, @Nullable CurrentPassword currentPwd,
                                UserPassword password,
                                TransactionContext context) {
@@ -39,7 +55,6 @@ public class UserService {
 
     }
 
-
     public void forgetPassword(UserMobile mobile, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(mobile);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
@@ -57,22 +72,6 @@ public class UserService {
                               TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(mobile);
         updatePwd(newPassword, token, context, user);
-    }
-
-    private static void updatePwd(UserPassword newPassword, PasswordResetCode token,
-                                  TransactionContext context, User user) {
-        if (user.getPwdResetToken() == null) {
-            throw new DefinedRuntimeException("token not exist", "1003",
-                HttpResponseCode.BAD_REQUEST);
-        }
-        if (!user.getPwdResetToken().equals(token)) {
-            throw new DefinedRuntimeException("token mismatch", "1004",
-                HttpResponseCode.BAD_REQUEST);
-        }
-        User user1 = user.updatePassword(newPassword);
-        DomainRegistry.getUserRepository().update(user, user1);
-        context
-            .append(new UserPasswordChanged(user.getUserId()));
     }
 
     public void updateLastLogin(UserLoginRequest command, ProjectId loginProjectId) {

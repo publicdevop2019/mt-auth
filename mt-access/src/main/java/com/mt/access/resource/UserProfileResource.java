@@ -133,8 +133,8 @@ public class UserProfileResource {
     /**
      * add username.
      *
-     * @param jwt     user jwt
-     * @param command add command
+     * @param jwt      user jwt
+     * @param command  add command
      * @param changeId change id
      * @return void
      */
@@ -152,7 +152,7 @@ public class UserProfileResource {
     /**
      * delete username.
      *
-     * @param jwt user jwt
+     * @param jwt      user jwt
      * @param changeId change id
      * @return void
      */
@@ -169,8 +169,8 @@ public class UserProfileResource {
     /**
      * add mobile.
      *
-     * @param jwt     user jwt
-     * @param command add command
+     * @param jwt      user jwt
+     * @param command  add command
      * @param changeId change id
      * @return void
      */
@@ -188,7 +188,7 @@ public class UserProfileResource {
     /**
      * delete mobile.
      *
-     * @param jwt user jwt
+     * @param jwt      user jwt
      * @param changeId change id
      * @return void
      */
@@ -201,11 +201,12 @@ public class UserProfileResource {
         ApplicationServiceRegistry.getUserApplicationService().deleteMobile(changeId);
         return ResponseEntity.ok().build();
     }
+
     /**
      * add email.
      *
-     * @param jwt     user jwt
-     * @param command add command
+     * @param jwt      user jwt
+     * @param command  add command
      * @param changeId change id
      * @return void
      */
@@ -223,7 +224,7 @@ public class UserProfileResource {
     /**
      * delete email.
      *
-     * @param jwt user jwt
+     * @param jwt      user jwt
      * @param changeId change id
      * @return void
      */
@@ -240,7 +241,7 @@ public class UserProfileResource {
     /**
      * update language.
      *
-     * @param jwt user jwt
+     * @param jwt     user jwt
      * @param command update command
      * @return void
      */

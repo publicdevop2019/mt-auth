@@ -5,7 +5,7 @@ import com.mt.access.application.proxy.representation.CheckSumRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
-import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -48,13 +48,13 @@ public class ProxyService {
         if (values.size() != 1) {
             log.debug("failed check due to different proxy value found");
             context
-                .append(new ProxyCacheCheckFailedEvent());
+                .append(new ProxyCacheCheckFailed());
             return;
         }
         if (!values.stream().findFirst().get().equals(hostValue)) {
             log.debug("failed check due to proxy value not matching host value");
             context
-                .append(new ProxyCacheCheckFailedEvent());
+                .append(new ProxyCacheCheckFailed());
         }
         log.debug("[checking proxy cache value] completed");
     }

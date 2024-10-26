@@ -100,35 +100,6 @@ public class Permission extends Auditable {
         return permission;
     }
 
-    private void setPermissionId(PermissionId permissionId) {
-        Validator.notNull(permissionId);
-        this.permissionId = permissionId;
-    }
-
-    private void setProjectId(ProjectId projectId) {
-        Validator.notNull(projectId);
-        this.projectId = projectId;
-    }
-
-    private void setTenantId(ProjectId tenantId) {
-        this.tenantId = tenantId;
-    }
-
-    private void setShared(Boolean shared) {
-        Validator.notNull(shared);
-        this.shared = shared;
-    }
-
-    private void setType(PermissionType type) {
-        Validator.notNull(type);
-        this.type = type;
-    }
-
-    private void setSystemCreate(Boolean systemCreate) {
-        Validator.notNull(systemCreate);
-        this.systemCreate = systemCreate;
-    }
-
     /**
      * create api with one linked api permission
      *
@@ -252,19 +223,6 @@ public class Permission extends Auditable {
         return permission;
     }
 
-    private void setName(String name) {
-        Validator.validRequiredString(1, 50, name);
-        this.name = name;
-    }
-
-    private void setDescription(String description) {
-        Validator.validOptionalString(50, description);
-        if (Checker.notNull(description)) {
-            description = description.trim();
-        }
-        this.description = description;
-    }
-
     /**
      * create permissions for new project
      *
@@ -331,7 +289,10 @@ public class Permission extends Auditable {
             .autoCreateForProjectMulti(projectId, new PermissionId(), USER_MGMT,
                 tenantId,
                 Stream.of(
-                        new PermissionId("0Y8HK4ZLA03Q"), new PermissionId("0Y8HKEMUH34B"),
+                        new PermissionId("0Y8HK4ZLA03Q"),
+                        new PermissionId("0Y8HKEMUH34B"),
+                        new PermissionId("0Y8X961RUK20"),
+                        new PermissionId("0Y8X9628PDDY"),
                         new PermissionId("0Y8HKEMWNQX7")
                     )
                     .collect(Collectors.toSet()));
@@ -400,6 +361,48 @@ public class Permission extends Auditable {
         Permission apiPermission = Permission
             .autoCreateForEndpoint(projectId, permissionId, endpointId.getDomainId(), shared);
         DomainRegistry.getPermissionRepository().add(apiPermission);
+    }
+
+    private void setPermissionId(PermissionId permissionId) {
+        Validator.notNull(permissionId);
+        this.permissionId = permissionId;
+    }
+
+    private void setProjectId(ProjectId projectId) {
+        Validator.notNull(projectId);
+        this.projectId = projectId;
+    }
+
+    private void setTenantId(ProjectId tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    private void setShared(Boolean shared) {
+        Validator.notNull(shared);
+        this.shared = shared;
+    }
+
+    private void setType(PermissionType type) {
+        Validator.notNull(type);
+        this.type = type;
+    }
+
+    private void setSystemCreate(Boolean systemCreate) {
+        Validator.notNull(systemCreate);
+        this.systemCreate = systemCreate;
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name;
+    }
+
+    private void setDescription(String description) {
+        Validator.validOptionalString(50, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
+        }
+        this.description = description;
     }
 
     private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {

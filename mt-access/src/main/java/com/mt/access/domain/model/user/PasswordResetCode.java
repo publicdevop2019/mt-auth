@@ -7,7 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @EqualsAndHashCode
-public class PasswordResetCode  implements Serializable {
+public class PasswordResetCode implements Serializable {
     @Getter
     private String value;
 

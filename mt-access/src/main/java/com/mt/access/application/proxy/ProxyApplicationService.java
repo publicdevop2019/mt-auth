@@ -22,6 +22,6 @@ public class ProxyApplicationService {
     }
 
     public CheckSumRepresentation checkSumValue() {
-            return DomainRegistry.getProxyService().checkSumValue();
+        return DomainRegistry.getProxyService().checkSumValue();
     }
 }

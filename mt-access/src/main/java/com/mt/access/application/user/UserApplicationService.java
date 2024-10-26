@@ -192,11 +192,14 @@ public class UserApplicationService {
             .idempotent(changeId, (context) -> {
                 if (Checker.notNull(command.getEmail())) {
                     DomainRegistry.getUserService()
-                        .resetPassword(new UserEmail(command.getEmail()), new UserPassword(command.getNewPassword()),
+                        .resetPassword(new UserEmail(command.getEmail()),
+                            new UserPassword(command.getNewPassword()),
                             new PasswordResetCode(command.getToken()), context);
                 } else {
                     DomainRegistry.getUserService()
-                        .resetPassword(new UserMobile(command.getCountryCode(), command.getMobileNumber()), new UserPassword(command.getNewPassword()),
+                        .resetPassword(
+                            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+                            new UserPassword(command.getNewPassword()),
                             new PasswordResetCode(command.getToken()), context);
                 }
                 return null;

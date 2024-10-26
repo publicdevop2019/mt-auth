@@ -2,7 +2,6 @@ package com.mt.common.port.adapter.persistence.job;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobId;
 import com.mt.common.domain.model.job.JobQuery;
@@ -51,7 +50,8 @@ public class JdbcJobRepository implements JobRepository {
         "SELECT * FROM job_detail jd WHERE jd.domain_id = ?";
     private static final String NOTIFY_SQL =
         "UPDATE job_detail jb SET jb.notified_admin = 1 WHERE jb.domain_id = ?";
-    private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM job_detail jd WHERE %s ORDER BY jd.id ASC LIMIT ? OFFSET ?";
+    private static final String DYNAMIC_DATA_QUERY_SQL =
+        "SELECT * FROM job_detail jd WHERE %s ORDER BY jd.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM job_detail jd WHERE %s";
 

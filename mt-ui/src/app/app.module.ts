@@ -40,8 +40,6 @@ import { CustomLoader } from './clazz/locale/custom-loader';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { CardNotificationComponent } from './components/card-notification/card-notification.component';
 import { CopyFieldComponent } from './components/copy-field/copy-field.component';
-import { DynamicNodeComponent } from './components/dynamic-tree/dynamic-node/dynamic-node.component';
-import { DynamicTreeComponent } from './components/dynamic-tree/dynamic-tree.component';
 import { EditableBooleanComponent } from './components/editable-boolean/editable-boolean.component';
 import { EditableFieldComponent } from './components/editable-field/editable-field.component';
 import { EditableInputMultiComponent } from './components/editable-input-multi/editable-input-multi.component';
@@ -121,6 +119,8 @@ import { PaginatedSelectComponent } from './components/paginated-select/paginate
 import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
+import { SearchNewComponent } from './components/user-search/user-search.component';
+import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -150,8 +150,6 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     EditablePageSelectMultiComponent,
     CacheControlComponent,
     MessageCenterComponent,
-    DynamicTreeComponent,
-    DynamicNodeComponent,
     TreeNodeDirective,
     RequirePermissionDirective,
     CardNotificationComponent,
@@ -198,6 +196,8 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     RoleCreateDialogComponent,
     AddPermissionDialogComponent,
     ImageUploadComponent,
+    SearchNewComponent,
+    AddRoleDialogComponent,
   ],
   imports: [
     BrowserAnimationsModule,

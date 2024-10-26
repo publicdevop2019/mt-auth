@@ -9,7 +9,7 @@ public interface ProjectRepository {
 
     SumPagedRep<Project> query(ProjectQuery projectQuery);
 
-    default Project get(ProjectId id){
+    default Project get(ProjectId id) {
         Project project = query(id);
         Validator.notNull(project);
         return project;

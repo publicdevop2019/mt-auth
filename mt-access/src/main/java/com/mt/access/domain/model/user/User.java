@@ -94,6 +94,9 @@ public class User extends Auditable {
         initNewUserParams(userId);
     }
 
+    private User() {
+    }
+
     public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
                                        String modifiedBy, Integer version,
                                        UserEmail email, Boolean locked, UserPassword userPassword,
@@ -146,9 +149,6 @@ public class User extends Auditable {
         this.locked = locked;
     }
 
-    private User() {
-    }
-
     public String getDisplayName() {
         if (Checker.notNull(userName)) {
             return userName.getValue();
@@ -166,14 +166,17 @@ public class User extends Auditable {
     public void validate(ValidationNotificationHandler handler) {
     }
 
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserEmail email, TransactionContext context) {
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserEmail email,
+                                 TransactionContext context) {
         User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         user.pwdResetToken = pwdResetToken;
         context
             .append(new UserPwdResetCodeUpdated(getUserId(), email, pwdResetToken));
         return user;
     }
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserMobile mobile, TransactionContext context) {
+
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserMobile mobile,
+                                 TransactionContext context) {
         User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         user.pwdResetToken = pwdResetToken;
         context

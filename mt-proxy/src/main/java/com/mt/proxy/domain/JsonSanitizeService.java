@@ -5,11 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+
 @Slf4j
 @Service
 public class JsonSanitizeService {
-    public boolean sanitizeRequired(HttpMethod method,MediaType mediaType) {
-       return method != null && !method.equals(HttpMethod.GET)
+    public boolean sanitizeRequired(HttpMethod method, MediaType mediaType) {
+        return method != null && !method.equals(HttpMethod.GET)
             &&
             !method.equals(HttpMethod.OPTIONS)
             &&

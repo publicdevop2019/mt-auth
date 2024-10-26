@@ -4,7 +4,6 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.report.FormattedAccessRecord;
 import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
-import com.mt.access.domain.model.report.RawAccessRecord;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;

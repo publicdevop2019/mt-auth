@@ -21,7 +21,8 @@ public class CsrfService {
         log.debug("refresh csrf config");
         bypassList.clear();
         bypassList =
-            endpoints.stream().filter(e -> !Boolean.TRUE.equals(e.getCsrfEnabled())).collect(Collectors.toSet());
+            endpoints.stream().filter(e -> !Boolean.TRUE.equals(e.getCsrfEnabled()))
+                .collect(Collectors.toSet());
         log.debug("refresh csrf config completed");
     }
 

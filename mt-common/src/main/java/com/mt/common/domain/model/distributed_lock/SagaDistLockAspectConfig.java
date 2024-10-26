@@ -2,7 +2,6 @@ package com.mt.common.domain.model.distributed_lock;
 
 import com.mt.common.domain.model.develop.Analytics;
 import java.lang.reflect.Method;
-import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -44,7 +43,8 @@ public class SagaDistLockAspectConfig {
         Object obj;
         RLock lock = redissonClient.getLock(key + "_" + sagaDistLock.aggregateName());
         Analytics lockAnalytics = Analytics.start(Analytics.Type.LOCK_ACQUIRE);
-        lock.lock(sagaDistLock.unlockAfter(), TimeUnit.SECONDS);//todo check if lock still acquired when task finish
+        lock.lock(sagaDistLock.unlockAfter(),
+            TimeUnit.SECONDS);//todo check if lock still acquired when task finish
         lockAnalytics.stop();
         obj = joinPoint.proceed();
         return obj;

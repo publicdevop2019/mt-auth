@@ -8,7 +8,6 @@ import com.mt.access.application.cross_domain_validation.CrossDomainValidationAp
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
-import com.mt.access.application.verification_code.VerificationCodeApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
@@ -21,7 +20,8 @@ import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.token.TokenApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user.UserRelationApplicationService;
-import com.mt.access.domain.model.operation_cool_down.CoolDownService;
+import com.mt.access.application.verification_code.VerificationCodeApplicationService;
+import com.mt.access.infrastructure.operation_cool_down.JdbcCoolDownService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +60,7 @@ public class ApplicationServiceRegistry {
     @Getter
     private static UserRelationApplicationService userRelationApplicationService;
     @Getter
-    private static CoolDownService emailDeliverApplicationService;
+    private static JdbcCoolDownService emailDeliverApplicationService;
     @Getter
     private static NotificationApplicationService notificationApplicationService;
     @Getter
@@ -119,7 +119,7 @@ public class ApplicationServiceRegistry {
 
     @Autowired
     public void setEmailDeliverApplicationService(
-        CoolDownService emailDeliverApplicationService) {
+        JdbcCoolDownService emailDeliverApplicationService) {
         ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
     }
 

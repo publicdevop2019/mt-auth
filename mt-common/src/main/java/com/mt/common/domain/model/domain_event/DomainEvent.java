@@ -31,22 +31,6 @@ public class DomainEvent implements Serializable {
     private Boolean internal = true;
     private String topic;
 
-    private void setDomainId(DomainId domainId) {
-        this.domainId = domainId;
-    }
-
-    /**
-     * safe for serialization, set domain id of first domain id set
-     * @param domainIds domain id set
-     */
-    private void setDomainIds(Set<DomainId> domainIds) {
-        this.domainIds = domainIds;
-        if (domainIds != null) {
-            Optional<DomainId> first = domainIds.stream().findFirst();
-            first.ifPresent(value -> this.domainId = value);
-        }
-    }
-
     public DomainEvent(DomainId domainId) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
@@ -58,5 +42,22 @@ public class DomainEvent implements Serializable {
         setTimestamp(new Date().getTime());
         Validator.notEmpty(domainIds);//cannot add validator on setter due to serialization
         setDomainIds(domainIds);
+    }
+
+    private void setDomainId(DomainId domainId) {
+        this.domainId = domainId;
+    }
+
+    /**
+     * safe for serialization, set domain id of first domain id set
+     *
+     * @param domainIds domain id set
+     */
+    private void setDomainIds(Set<DomainId> domainIds) {
+        this.domainIds = domainIds;
+        if (domainIds != null) {
+            Optional<DomainId> first = domainIds.stream().findFirst();
+            first.ifPresent(value -> this.domainId = value);
+        }
     }
 }

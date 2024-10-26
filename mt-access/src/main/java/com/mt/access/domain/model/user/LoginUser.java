@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Immutable;
+
 @Getter
 @Immutable
 public class LoginUser {
@@ -17,7 +18,7 @@ public class LoginUser {
     private LoginUser() {
     }
 
-    public static LoginUser deserialize(UserId userId, Boolean locked, UserPassword password){
+    public static LoginUser deserialize(UserId userId, Boolean locked, UserPassword password) {
         LoginUser loginUser = new LoginUser();
         loginUser.setUserId(userId);
         loginUser.setPassword(password);

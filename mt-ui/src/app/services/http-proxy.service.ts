@@ -385,6 +385,24 @@ export class HttpProxyService {
     viewEndpointReport(projectId: string, id: string, type: string) {
         return this._httpClient.get<IAnalysisResult>(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:${type}`)
     }
+    adddUserRole(projectId: string, userId: string, roleIds: string[], changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return new Observable<boolean>(e => {
+            this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/users/${userId}/roles`, { roleIds: roleIds }, { headers: headerConfig }).subscribe(next => {
+                e.next(true)
+            });
+        });
+    }
+    removeUserRole(projectId: string, userId: string, roleId: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return new Observable<boolean>(e => {
+            this._httpClient.delete(environment.serverUri + `/auth-svc/projects/${projectId}/users/${userId}/roles/${roleId}`, { headers: headerConfig }).subscribe(next => {
+                e.next(true)
+            });
+        });
+    }
     private _getAuthHeader(islogin: boolean, token?: string): HttpHeaders {
         return islogin ? new HttpHeaders().append('Authorization',
             'Basic ' + btoa(environment.loginClientId + ':' + environment.clientSecret)) :
@@ -542,7 +560,7 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/email', { email: email }, { headers: headerConfig });
     };
-    addProfileMobile(countryCode: string, mobileNumber:string, changeId: string) {
+    addProfileMobile(countryCode: string, mobileNumber: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { countryCode: countryCode, mobileNumber: mobileNumber }, { headers: headerConfig });

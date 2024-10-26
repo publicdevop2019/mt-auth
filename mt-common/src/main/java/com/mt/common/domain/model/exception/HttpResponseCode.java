@@ -2,6 +2,7 @@ package com.mt.common.domain.model.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+
 @Getter
 public enum HttpResponseCode {
     BAD_REQUEST(HttpStatus.BAD_REQUEST),

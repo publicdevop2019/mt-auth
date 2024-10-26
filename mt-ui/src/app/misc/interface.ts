@@ -144,9 +144,11 @@ export interface IProjectUser {
     roleDetails?: { id: string, name: string }[];
     version: number;
 }
-export interface IProjectAdmin extends IIdBasedEntity {
+export interface IProjectSimpleUser {
+    id: string;
     email: string;
-    name: string;
+    mobile: string;
+    username: string;
 }
 export interface IVerificationCodeRequest {
     countryCode?: string;

@@ -3,6 +3,7 @@ package com.mt.integration.single.access.tenant;
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.AssignRoleReq;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Permission;
@@ -13,13 +14,12 @@ import com.mt.helper.pojo.UpdateType;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
-import java.util.ArrayList;
 import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantRoleTest {
@@ -67,6 +68,7 @@ public class TenantRoleTest {
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void tenant_can_create_role() {
         Role randomRoleObj = RoleUtility.createRandomValidRoleObj();
@@ -116,30 +118,6 @@ public class TenantRoleTest {
         ResponseEntity<Void> voidResponseEntity = RoleUtility.deleteTenantRole(tenantContext,
             randomRoleObj);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-    }
-
-    @Test
-    public void tenant_can_delete_assigned_role() {
-        //create role
-        Role role = RoleUtility.createRandomValidRoleObj();
-        ResponseEntity<Void> tenantRole =
-            RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(HttpUtility.getId(tenantRole));
-        //read user
-        User user = tenantContext.getUsers().get(0);
-        ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);
-        User body = userResponseEntity.getBody();
-        ArrayList<String> strings = new ArrayList<>();
-        strings.add(role.getId());
-        strings.addAll(body.getRoles());
-        body.setRoles(strings);
-        //assign role
-        ResponseEntity<Void> voidResponseEntity = UserUtility.updateTenantUser(tenantContext, body);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-        //delete role
-        ResponseEntity<Void> voidResponseEntity2 = RoleUtility.deleteTenantRole(tenantContext,
-            role);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
     }
 
     @Test
@@ -257,5 +235,26 @@ public class TenantRoleTest {
             RoleUtility.readTenantRoleById(tenantContext, role);
         Assertions.assertEquals(HttpStatus.OK, roleResponseEntity.getStatusCode());
         Assertions.assertEquals(0, roleResponseEntity.getBody().getApiPermissionIds().size());
+    }
+
+    @Test
+    public void tenant_can_delete_assigned_role() {
+        //create role
+        Role role = RoleUtility.createRandomValidRoleObj();
+        ResponseEntity<Void> tenantRole =
+            RoleUtility.createTenantRole(tenantContext, role);
+        role.setId(HttpUtility.getId(tenantRole));
+        //read user
+        User user = tenantContext.getUsers().get(0);
+        AssignRoleReq assignRoleReq = new AssignRoleReq();
+        assignRoleReq.getRoleIds().add(role.getId());
+        //assign role
+        ResponseEntity<Void> response =
+            UserUtility.assignTenantUserRole(tenantContext, user, assignRoleReq);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //delete role
+        ResponseEntity<Void> response1 = RoleUtility.deleteTenantRole(tenantContext,
+            role);
+        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
     }
 }

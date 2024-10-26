@@ -11,10 +11,12 @@ public class HangingTxDetected extends DomainEvent {
     public static final String name = "HANGING_TX_DETECTED";
     @Getter
     private String changeId;
+
     {
         setTopic(HANGING_TX_DETECTED);
         setName(name);
     }
+
     public HangingTxDetected(String changeId) {
         super(new AnyDomainId());
         this.changeId = changeId;

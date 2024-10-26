@@ -1,12 +1,6 @@
 package com.mt.access.application.endpoint.representation;
 
-import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data

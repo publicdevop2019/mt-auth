@@ -1,0 +1,17 @@
+<div class="mobile-view-modal" [formGroup]="fg">
+    <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+        <div style="font-size: 24px; font-weight: 500;">{{'ADD_USER_ROLE'|translate}}</div>
+        <button mat-button (click)="close($event)">
+            <mat-icon>close </mat-icon>
+        </button>
+    </div>
+    <app-paginated-select [fg]="fg" [label]="'PLS_SELECT'|translate" [key]="'roleIds'"
+        [multiple]="true" [loadElements]="getRoles()" style="flex: 1;" [options]="options">
+    </app-paginated-select>
+    <div *ngIf="errorMsg" style="font-size: 12px; color: red; margin-top: -8px;">{{errorMsg|translate}}</div>
+    <div style="display: flex; justify-content: end;">
+        <button mat-raised-button color="primary" (click)="dismiss($event)">
+            <div>{{'ADD_USER_ROLE_DIALOG'|translate}}</div>
+        </button>
+    </div>
+</div>

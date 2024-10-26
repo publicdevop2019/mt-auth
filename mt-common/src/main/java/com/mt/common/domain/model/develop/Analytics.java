@@ -70,16 +70,6 @@ public class Analytics {
         }
     }
 
-    public void stop() {
-        long stopAt = Instant.now().toEpochMilli();
-        long elapsed = stopAt - startAt;
-        if (elapsed > type.getBudget()) {
-            log.warn("{} exceed budget, took {}", type.getLabel(), prettyTime(elapsed));
-        }
-        log.debug("stop {} at {} start at {} elapsed {}", type.getLabel(), stopAt, startAt,
-            elapsed);
-    }
-
     public static void stopEvent(String consumerTag, StoredEvent storedEvent) {
         Long startAt = storedEvent.getTimestamp();
         long elapsed = Instant.now().toEpochMilli() - startAt;
@@ -98,6 +88,16 @@ public class Analytics {
         long l = Math.floorDiv(milli, 1000L);
         long i = Math.floorMod(milli, 1000L);
         return l + "." + i + "s";
+    }
+
+    public void stop() {
+        long stopAt = Instant.now().toEpochMilli();
+        long elapsed = stopAt - startAt;
+        if (elapsed > type.getBudget()) {
+            log.warn("{} exceed budget, took {}", type.getLabel(), prettyTime(elapsed));
+        }
+        log.debug("stop {} at {} start at {} elapsed {}", type.getLabel(), stopAt, startAt,
+            elapsed);
     }
 
     @Getter

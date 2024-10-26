@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserPassword  implements Serializable {
+public class UserPassword implements Serializable {
     @Getter
     private String password;
 

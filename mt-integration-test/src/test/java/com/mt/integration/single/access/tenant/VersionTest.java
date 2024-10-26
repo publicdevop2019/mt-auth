@@ -3,6 +3,7 @@ package com.mt.integration.single.access.tenant;
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.AssignRoleReq;
 import com.mt.helper.pojo.Cache;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Cors;
@@ -17,14 +18,14 @@ import com.mt.helper.utility.CacheUtility;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.CorsUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -78,6 +79,7 @@ public class VersionTest {
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void client_version_will_not_increase() {
         Client client = ClientUtility.createValidBackendClient();
@@ -249,22 +251,23 @@ public class VersionTest {
         role.setId(HttpUtility.getId(tenantRole));
         //read user
         User user = tenantContext.getUsers().get(0);
+        AssignRoleReq assignRoleReq = new AssignRoleReq();
         ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);
-        User body = userResponseEntity.getBody();
-        ArrayList<String> strings = new ArrayList<>();
-        strings.add(role.getId());
-        strings.addAll(body.getRoles());
-        body.setRoles(strings);
+        User currentUser = userResponseEntity.getBody();
+        assignRoleReq.setRoleIds(
+            currentUser.getRoleDetails().stream().map(User.RoleDetail::getId).sorted().collect(
+                Collectors.toCollection(LinkedHashSet::new)));
         //assign role
-        ResponseEntity<Void> voidResponseEntity = UserUtility.updateTenantUser(tenantContext, body);
+        ResponseEntity<Void> voidResponseEntity =
+            UserUtility.assignTenantUserRole(tenantContext, user, assignRoleReq);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         //do same update
         ResponseEntity<Void> voidResponseEntity2 =
-            UserUtility.updateTenantUser(tenantContext, body);
+            UserUtility.assignTenantUserRole(tenantContext, user, assignRoleReq);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
-        //read user
+        //read user, version should be 0
         ResponseEntity<User> response = UserUtility.readTenantUser(tenantContext, user);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertEquals(1, response.getBody().getVersion().intValue());
+        Assertions.assertEquals(0, response.getBody().getVersion().intValue());
     }
 }

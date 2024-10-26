@@ -16,7 +16,7 @@ public interface UserRelationRepository {
 
     SumPagedRep<UserRelation> get(UserId id);
 
-    default UserRelation get(UserId id, ProjectId projectId){
+    default UserRelation get(UserId id, ProjectId projectId) {
         UserRelation userRelation = query(id, projectId).orElse(null);
         Validator.notNull(userRelation);
         return userRelation;
