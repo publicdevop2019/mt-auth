@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   mode: 'online' as 'online' | 'offline',
-  demo:false,
+  demo:true,
   serverUri: 'http://localhost:4300/proxy',
   loginClientId: '0C8AZZ16LZB4',
   noneLoginClientId: '0C8B00098WLD',
