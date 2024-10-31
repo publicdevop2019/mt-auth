@@ -56,7 +56,10 @@ export class MessageService {
         return protocal;
     }
     private getPath() {
-        if (!environment.demo && environment.serverUri.includes('localhost')) {
+        if (environment.demo) {
+            return 'localhost:4300'
+        }
+        if (environment.serverUri.includes('localhost')) {
             return 'localhost:8111'
         }
         return environment.serverUri.replace('http://', '').replace("https://", "")
