@@ -27,8 +27,8 @@ public class JdbcOperationCoolDownRepository implements OperationCoolDownReposit
         "last_opt_at" +
         ") VALUES(?, ?, ?)";
     private static final String UPDATE_SQL =
-        "UPDATE opt_cool_down AS t SET ocd.last_opt_at = ? WHERE ocd.executor = ? " +
-            "AND ocd.opt_type = ? AND ocd.last_opt_at = ?";
+        "UPDATE opt_cool_down AS t SET t.last_opt_at = ? WHERE t.executor = ? " +
+            "AND t.opt_type = ? AND t.last_opt_at = ?";
 
     @Override
     public Optional<OperationCoolDown> query(String executor, OperationType operationType) {
