@@ -13,8 +13,10 @@ import com.mt.access.application.user.command.UserUpdateLanguageCommand;
 import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
+import com.mt.common.domain.model.jwt.JwtUtility;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -53,13 +55,17 @@ public class UserProfileResource {
      *
      * @param command  forget pwd command
      * @param changeId change id
+     * @param jwt jwt token
      * @return void
      */
     @PostMapping(path = "users/forgetPwd")
     public ResponseEntity<Void> forgetPwd(
         @RequestBody UserForgetPasswordCommand command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
+        ClientId clientId = new ClientId(JwtUtility.getClientId(jwt));
+        command.setClientId(clientId);
         ApplicationServiceRegistry.getUserApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }

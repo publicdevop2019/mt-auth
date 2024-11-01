@@ -6,7 +6,7 @@ import com.mt.access.domain.model.user.LoginUser;
 import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.MfaInfo;
-import com.mt.access.domain.model.user.PasswordResetCode;
+import com.mt.access.domain.model.user.PwdResetCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;
@@ -65,7 +65,6 @@ public class JdbcUserRepository implements UserRepository {
         "email, " +
         "locked, " +
         "password, " +
-        "pwd_reset_code, " +
         "domain_id, " +
         "username, " +
         "country_code, " +
@@ -75,7 +74,7 @@ public class JdbcUserRepository implements UserRepository {
         "mfa_id, " +
         "mfa_code " +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String QUERY_LOGIN_USER_BY_EMAIL_SQL =
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?";
     private static final String QUERY_LOGIN_USER_BY_ID_SQL =
@@ -89,7 +88,6 @@ public class JdbcUserRepository implements UserRepository {
         "u.modified_by = ?, " +
         "u.locked = ?, " +
         "u.password = ?, " +
-        "u.pwd_reset_code = ?, " +
         "u.username = ?, " +
         "u.country_code = ?, " +
         "u.mobile_number = ?, " +
@@ -170,7 +168,6 @@ public class JdbcUserRepository implements UserRepository {
                 Checker.isNull(user.getEmail()) ? null : user.getEmail().getEmail(),
                 user.getLocked(),
                 Checker.isNull(user.getPassword()) ? null : user.getPassword().getPassword(),
-                Checker.isNull(user.getPwdResetToken()) ? null : user.getPwdResetToken().getValue(),
                 user.getUserId().getDomainId(),
                 Checker.isNull(user.getUserName()) ? null : user.getUserName().getValue(),
                 Checker.isNull(user.getMobile()) ? null : user.getMobile().getCountryCode(),
@@ -355,8 +352,6 @@ public class JdbcUserRepository implements UserRepository {
                 updated.getModifiedBy(),
                 updated.getLocked(),
                 Checker.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
-                Checker.isNull(updated.getPwdResetToken()) ? null :
-                    updated.getPwdResetToken().getValue(),
                 Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
                 Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
                 Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
@@ -435,8 +430,6 @@ public class JdbcUserRepository implements UserRepository {
                             new UserEmail(rs.getString("email")),
                         DatabaseUtility.getNullableBoolean(rs, "locked"),
                         userPassword,
-                        Checker.isNull(rs.getString("pwd_reset_code")) ? null :
-                            new PasswordResetCode(rs.getString("pwd_reset_code")),
                         new UserId(rs.getString("domain_id")),
                         Checker.isNull(rs.getString("username")) ? null :
                             new UserName(rs.getString("username")),

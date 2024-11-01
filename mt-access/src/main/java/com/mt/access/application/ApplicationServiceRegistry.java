@@ -79,10 +79,8 @@ public class ApplicationServiceRegistry {
     private static TokenApplicationService tokenApplicationService;
 
     @Autowired
-    public void setTokenApplicationService(
-        TokenApplicationService tokenApplicationService) {
-        ApplicationServiceRegistry.tokenApplicationService =
-            tokenApplicationService;
+    public void setTokenApplicationService(TokenApplicationService service) {
+        ApplicationServiceRegistry.tokenApplicationService = service;
     }
 
     @Autowired

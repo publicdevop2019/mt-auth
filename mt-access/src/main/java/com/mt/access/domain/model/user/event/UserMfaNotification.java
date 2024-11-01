@@ -32,7 +32,7 @@ public class UserMfaNotification extends DomainEvent {
             email = user.getEmail().getEmail();
             deliverMethod = MfaDeliverMethod.EMAIL;
         } else {
-            mobile = user.getMobile().value();
+            mobile = user.getMobile().getValue();
             deliverMethod = MfaDeliverMethod.MOBILE;
         }
     }
@@ -44,7 +44,7 @@ public class UserMfaNotification extends DomainEvent {
             email = user.getEmail().getEmail();
             deliverMethod = MfaDeliverMethod.EMAIL;
         } else {
-            mobile = user.getMobile().value();
+            mobile = user.getMobile().getValue();
             deliverMethod = MfaDeliverMethod.MOBILE;
         }
     }

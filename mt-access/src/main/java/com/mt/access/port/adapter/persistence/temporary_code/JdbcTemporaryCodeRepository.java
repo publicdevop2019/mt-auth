@@ -1,11 +1,8 @@
-package com.mt.access.port.adapter.persistence.verification_code;
+package com.mt.access.port.adapter.persistence.temporary_code;
 
-import com.mt.access.domain.model.activation_code.Code;
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.verification_code.RegistrationEmail;
-import com.mt.access.domain.model.verification_code.RegistrationMobile;
-import com.mt.access.domain.model.verification_code.VerificationCode;
-import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
+import com.mt.access.domain.model.temporary_code.TemporaryCode;
+import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
@@ -22,9 +19,9 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JdbcVerificationCodeRepository implements VerificationCodeRepository {
+public class JdbcTemporaryCodeRepository implements TemporaryCodeRepository {
 
-    private static final String INSERT_SQL = "INSERT INTO verification_code (" +
+    private static final String INSERT_SQL = "INSERT INTO temporary_code (" +
         "id, " +
         "created_at, " +
         "created_by, " +
@@ -32,101 +29,95 @@ public class JdbcVerificationCodeRepository implements VerificationCodeRepositor
         "modified_by, " +
         "version, " +
         "code, " +
+        "operation_type, " +
         "domain_id" +
-        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
-    private static final String FIND_BY_DOMAIN_ID_SQL =
-        "SELECT * FROM verification_code t WHERE t.domain_id = ?";
+        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private static final String FIND_NONE_EXPIRED_SQL =
+        "SELECT * FROM temporary_code t WHERE t.domain_id = ? AND t.operation_type = ? AND t.modified_at >= ?";
+    private static final String FIND_SQL =
+        "SELECT * FROM temporary_code t WHERE t.domain_id = ? AND t.operation_type = ?";
     private static final String UPDATE_CODE_SQL =
-        "UPDATE verification_code t " +
+        "UPDATE temporary_code t " +
             "SET t.code = ?, t.modified_at = ?, t.modified_by = ? " +
-            "WHERE t.domain_id = ?";
+            "WHERE t.domain_id = ? AND t.operation_type = ?";
 
     @Override
-    public Optional<VerificationCode> query(RegistrationEmail email) {
-        List<VerificationCode> query = CommonDomainRegistry.getJdbcTemplate()
+    public Optional<TemporaryCode> query(String operationType, AnyDomainId domainId) {
+        List<TemporaryCode> query = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                FIND_BY_DOMAIN_ID_SQL,
+                FIND_SQL,
                 new RowMapper(),
-                email.getDomainId()
+                domainId.getDomainId(),
+                operationType
             );
         return query.isEmpty() ? Optional.empty() : Optional.ofNullable(query.get(0));
     }
 
     @Override
-    public void add(ClientId clientId, VerificationCode verificationCode) {
+    public Optional<TemporaryCode> queryNoneExpired(String operationType, AnyDomainId domainId,
+                                                    Integer expireInMilli) {
+        List<TemporaryCode> query = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                FIND_NONE_EXPIRED_SQL,
+                new RowMapper(),
+                domainId.getDomainId(),
+                operationType,
+                Instant.now().toEpochMilli() - expireInMilli
+            );
+        return query.isEmpty() ? Optional.empty() : Optional.ofNullable(query.get(0));
+    }
+
+    @Override
+    public void add(ClientId clientId, TemporaryCode temporaryCode) {
         long milli = Instant.now().toEpochMilli();
         CommonDomainRegistry.getJdbcTemplate()
             .update(INSERT_SQL,
-                verificationCode.getId(),
+                temporaryCode.getId(),
                 milli,
                 clientId.getDomainId(),
                 milli,
                 clientId.getDomainId(),
                 0,
-                verificationCode.getCode().getValue(),
-                verificationCode.getDomainId().getDomainId()
+                temporaryCode.getCode(),
+                temporaryCode.getOperationType(),
+                temporaryCode.getDomainId().getDomainId()
             );
     }
 
     @Override
-    public void updateCode(ClientId clientId, RegistrationEmail email,
-                           Code code) {
+    public void updateCode(ClientId clientId, AnyDomainId domainId, String code) {
         int update = CommonDomainRegistry.getJdbcTemplate()
             .update(UPDATE_CODE_SQL,
-                code.getValue(),
+                code,
                 Instant.now().toEpochMilli(),
                 clientId.getDomainId(),
-                email.getDomainId()
+                domainId.getDomainId()
             );
         DatabaseUtility.checkUpdate(update);
     }
 
-    @Override
-    public void updateCode(ClientId clientId, RegistrationMobile mobile,
-                           Code code) {
-        int update = CommonDomainRegistry.getJdbcTemplate()
-            .update(UPDATE_CODE_SQL,
-                code.getValue(),
-                Instant.now().toEpochMilli(),
-                clientId.getDomainId(),
-                mobile.getDomainId()
-            );
-        DatabaseUtility.checkUpdate(update);
-    }
-
-    @Override
-    public Optional<VerificationCode> query(RegistrationMobile userMobile) {
-        List<VerificationCode> query = CommonDomainRegistry.getJdbcTemplate()
-            .query(
-                FIND_BY_DOMAIN_ID_SQL,
-                new RowMapper(),
-                userMobile.getDomainId()
-            );
-        return query.isEmpty() ? Optional.empty() : Optional.ofNullable(query.get(0));
-    }
-
-    private static class RowMapper implements ResultSetExtractor<List<VerificationCode>> {
+    private static class RowMapper implements ResultSetExtractor<List<TemporaryCode>> {
 
         @Override
-        public List<VerificationCode> extractData(ResultSet rs)
+        public List<TemporaryCode> extractData(ResultSet rs)
             throws SQLException, DataAccessException {
             if (!rs.next()) {
                 return Collections.emptyList();
             }
-            List<VerificationCode> results = new ArrayList<>();
+            List<TemporaryCode> results = new ArrayList<>();
             long currentId = -1L;
-            VerificationCode result;
+            TemporaryCode result;
             do {
                 long dbId = rs.getLong(Auditable.DB_ID);
                 if (currentId != dbId) {
-                    result = VerificationCode.fromDatabaseRow(
+                    result = TemporaryCode.fromDatabaseRow(
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_ID),
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_CREATED_AT),
                         rs.getString(Auditable.DB_CREATED_BY),
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        new Code(rs.getString("code")),
+                        rs.getString("code"),
                         new AnyDomainId(rs.getString("domain_id"))
                     );
                     results.add(result);

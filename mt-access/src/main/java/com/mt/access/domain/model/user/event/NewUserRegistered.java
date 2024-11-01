@@ -31,7 +31,7 @@ public class NewUserRegistered extends DomainEvent {
 
     public NewUserRegistered(UserId userId, UserMobile userMobile) {
         super(userId);
-        this.registeredUsing = userMobile.value();
+        this.registeredUsing = userMobile.getValue();
     }
 
     public NewUserRegistered(UserId userId, UserName username) {

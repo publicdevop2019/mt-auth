@@ -26,7 +26,7 @@ public class VerificationCodeResource {
         ClientId clientId = new ClientId(JwtUtility.getClientId(jwt));
         command.setClientId(clientId);
         ApplicationServiceRegistry.getVerificationCodeApplicationService()
-            .create(command, changeId);
+            .sendCode(command, changeId);
         return ResponseEntity.ok().build();
     }
 }

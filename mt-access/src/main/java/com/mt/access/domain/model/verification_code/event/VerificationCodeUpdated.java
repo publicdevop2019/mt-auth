@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.verification_code.event;
 
-import com.mt.access.domain.model.activation_code.Code;
+import com.mt.access.domain.model.verification_code.VerificationCode;
 import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -25,13 +25,13 @@ public class VerificationCodeUpdated extends DomainEvent {
     }
 
     public VerificationCodeUpdated(RegistrationEmail registrationEmail,
-                                   Code code) {
+                                   VerificationCode code) {
         super(registrationEmail);
         setEmail(registrationEmail);
         setCode(code);
     }
 
-    public VerificationCodeUpdated(RegistrationMobile mobile, Code code) {
+    public VerificationCodeUpdated(RegistrationMobile mobile, VerificationCode code) {
         super(mobile);
         setCountryCode(mobile.getCountryCode());
         setMobileNumber(mobile.getMobileNumber());
@@ -52,7 +52,7 @@ public class VerificationCodeUpdated extends DomainEvent {
         }
     }
 
-    private void setCode(Code code) {
+    private void setCode(VerificationCode code) {
         this.code = code.getValue();
     }
 }

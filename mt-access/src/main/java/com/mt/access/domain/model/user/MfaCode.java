@@ -13,7 +13,7 @@ public class MfaCode implements Serializable {
     private String value;
 
     public MfaCode() {
-        setValue(DomainRegistry.getMfaCodeService().generate());
+        setValue(DomainRegistry.getMfaCodeGeneratorService().generate());
     }
 
     public MfaCode(String value) {

@@ -29,6 +29,12 @@ public interface UserRepository {
         return userId;
     }
 
+    default UserId getUserId(UserMobile mobile) {
+        UserId userId = queryUserId(mobile).orElse(null);
+        Validator.notNull(userId);
+        return userId;
+    }
+
     Optional<UserId> queryUserId(UserEmail email);
 
     Optional<User> query(UserEmail email);
@@ -72,4 +78,6 @@ public interface UserRepository {
     }
 
     Optional<User> query(UserMobile mobile);
+
+
 }
