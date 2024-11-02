@@ -55,6 +55,15 @@ public class UserLoginTest {
     }
 
     @Test
+    public void send_code_to_new_email_twice() throws InterruptedException {
+        User user = UserUtility.randomEmailOnlyUser();
+        ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
+        //sleep to wait for operation has cool down
+        Thread.sleep(65*1000);
+        Assertions.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
+    }
+
+    @Test
     public void send_code_to_new_mobile() {
         User user = UserUtility.randomMobileOnlyUser();
         ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);

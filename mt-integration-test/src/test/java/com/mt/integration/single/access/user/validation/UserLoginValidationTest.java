@@ -5,7 +5,6 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.UserUtility;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -418,6 +417,16 @@ public class UserLoginValidationTest {
         //mismatch value
         ResponseEntity<DefaultOAuth2AccessToken> response6 =
             UserUtility.emailCodeLogin(user, "654322");
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+
+    @Test
+    public void validation_email_code_login_expired_code() throws InterruptedException {
+        User user = UserUtility.randomEmailOnlyUser();
+        UserUtility.sendVerifyCode(user);
+        Thread.sleep(5 * 60 * 1000);
+        ResponseEntity<DefaultOAuth2AccessToken> response6 =
+            UserUtility.emailCodeLogin(user, "123456");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
