@@ -49,7 +49,7 @@ import com.mt.access.domain.model.token.TokenService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeGenerator;
-import com.mt.access.domain.model.user.MfaService;
+import com.mt.access.domain.model.MfaService;
 import com.mt.access.domain.model.user.PwdResetTokenGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRepository;

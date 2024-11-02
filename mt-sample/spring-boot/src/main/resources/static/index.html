@@ -96,9 +96,8 @@
             }
             fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
                 next.json().then(resp => {
-                    if (resp.mfaId) {
+                    if (resp.message) {
                         mfaRequired = true;
-                        document.getElementById('mfa_id').value = resp.mfaId;
                         document.getElementById('token').innerText = 'Enter MFA 654321 and try again';
                     } else {
                         document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);

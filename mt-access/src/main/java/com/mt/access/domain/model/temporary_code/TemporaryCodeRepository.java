@@ -16,4 +16,5 @@ public interface TemporaryCodeRepository {
                     String code);
 
 
+    void consume(String operationType, AnyDomainId domainId);
 }

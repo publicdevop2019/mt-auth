@@ -10,7 +10,6 @@ public class LoginResult {
     private Boolean mfaRequired;
     private boolean selectRequired = false;
     private Boolean invalidMfa;
-    private MfaId mfaId;
     private String partialEmail;
     private String partialMobile;
     private MfaDeliverMethod deliverMethod;
@@ -21,8 +20,8 @@ public class LoginResult {
         return loginResult;
     }
 
-    public static LoginResult mfaMissing(MfaId id, User user) {
-        LoginResult loginResult = mfaMissing(id);
+    public static LoginResult mfaMissing(User user) {
+        LoginResult loginResult = mfaMissing();
         if (Checker.notNull(user.getEmail())) {
             loginResult.partialEmail = user.getEmail().getPartialValue();
         } else {
@@ -31,11 +30,10 @@ public class LoginResult {
         return loginResult;
     }
 
-    private static LoginResult mfaMissing(MfaId id) {
+    private static LoginResult mfaMissing() {
         LoginResult loginResult = new LoginResult();
         loginResult.setAllowed(false);
         loginResult.setMfaRequired(true);
-        loginResult.setMfaId(id);
         return loginResult;
     }
 
@@ -56,9 +54,11 @@ public class LoginResult {
         return loginResult;
     }
 
-    public static LoginResult mfaMissingAfterSelect(MfaId mfaId, MfaDeliverMethod deliverMethod,
-                                                    User user) {
-        LoginResult loginResult = mfaMissing(mfaId);
+    public static LoginResult mfaMissingAfterSelect(
+        MfaDeliverMethod deliverMethod,
+        User user
+    ) {
+        LoginResult loginResult = mfaMissing();
         if (MfaDeliverMethod.EMAIL.equals(deliverMethod)) {
             loginResult.partialEmail = user.getEmail().getPartialValue();
         } else {

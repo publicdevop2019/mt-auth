@@ -56,9 +56,6 @@ public class User extends Auditable {
     @Getter
     private Boolean locked;
 
-    @Getter
-    private MfaInfo mfaInfo;
-
     private User(UserId userId, UserMobile mobile) {
         super();
         setMobile(mobile);
@@ -101,7 +98,7 @@ public class User extends Auditable {
                                        UserId domainId,
                                        UserName userName,
                                        UserMobile userMobile, UserAvatar userAvatar,
-                                       Language language, MfaInfo mfaInfo) {
+                                       Language language) {
         User user = new User();
         user.setId(id);
         user.setCreatedAt(createdAt);
@@ -117,7 +114,6 @@ public class User extends Auditable {
         user.setMobile(userMobile);
         user.setUserAvatar(userAvatar);
         user.setLanguage(language);
-        user.mfaInfo = mfaInfo;
         return user;
     }
 
@@ -188,8 +184,7 @@ public class User extends Auditable {
             Objects.equals(userAvatar, update.userAvatar) &&
             Objects.equals(userName, update.userName) && language == update.language &&
             Objects.equals(userId, update.userId) &&
-            Objects.equals(locked, update.locked) &&
-            Objects.equals(mfaInfo, update.mfaInfo);
+            Objects.equals(locked, update.locked);
     }
 
     public User updatePassword(UserPassword password) {

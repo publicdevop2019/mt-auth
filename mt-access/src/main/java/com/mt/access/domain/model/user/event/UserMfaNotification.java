@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.user.event;
 
 import com.mt.access.domain.model.user.MfaCode;
-import com.mt.access.domain.model.user.MfaInfo;
 import com.mt.access.domain.model.user.User;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.validate.Checker;
@@ -25,9 +24,9 @@ public class UserMfaNotification extends DomainEvent {
         setName(name);
     }
 
-    public UserMfaNotification(User user, MfaInfo mfaInfo) {
+    public UserMfaNotification(User user, MfaCode mfaCode) {
         super(user.getUserId());
-        code = mfaInfo.getCode();
+        code = mfaCode;
         if (Checker.notNull(user.getEmail())) {
             email = user.getEmail().getEmail();
             deliverMethod = MfaDeliverMethod.EMAIL;
@@ -37,9 +36,9 @@ public class UserMfaNotification extends DomainEvent {
         }
     }
 
-    public UserMfaNotification(User user, MfaInfo mfaInfo, MfaDeliverMethod method) {
+    public UserMfaNotification(User user, MfaCode code, MfaDeliverMethod method) {
         super(user.getUserId());
-        code = mfaInfo.getCode();
+        this.code = code;
         if (MfaDeliverMethod.EMAIL.equals(method)) {
             email = user.getEmail().getEmail();
             deliverMethod = MfaDeliverMethod.EMAIL;

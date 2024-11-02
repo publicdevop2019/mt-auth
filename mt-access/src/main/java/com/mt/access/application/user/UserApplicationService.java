@@ -29,7 +29,6 @@ import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.access.domain.model.user.LoginUser;
-import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.PwdResetCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
@@ -238,7 +237,7 @@ public class UserApplicationService {
 
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,
                                       String rawUserId, @Nullable String mfaCode,
-                                      @Nullable String mfaId, @Nullable String mfaMethod,
+                                      @Nullable String mfaMethod,
                                       ProjectId loginProjectId) {
         UserId userId = new UserId(rawUserId);
         log.debug("user id {}", userId.getDomainId());
@@ -257,7 +256,7 @@ public class UserApplicationService {
         } else {
             if (mfaCode != null) {
                 log.debug("mfa code present");
-                if (DomainRegistry.getMfaService().validateMfa(userId, mfaCode, mfaId)) {
+                if (DomainRegistry.getMfaService().validateMfa(userId, mfaCode)) {
                     log.debug("mfa check passed, record current login information");
                     recordLoginInfo(ipAddress, agentInfo, userId, loginProjectId);
                     return LoginResult.allow();
@@ -269,12 +268,12 @@ public class UserApplicationService {
                 MfaDeliverMethod deliverMethod = MfaDeliverMethod.parse(mfaMethod);
                 if (Checker.notNull(deliverMethod)) {
                     log.debug("mfa required and user selected deliver method");
-                    MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
-                        .returnedTransactionalEvent(
+                    CommonDomainRegistry.getTransactionService()
+                        .transactionalEvent(
                             (context) -> DomainRegistry.getMfaService()
                                 .triggerSelectedMfa(user1, context, deliverMethod));
                     return LoginResult
-                        .mfaMissingAfterSelect(mfaId1, deliverMethod, user1);
+                        .mfaMissingAfterSelect(deliverMethod, user1);
                 } else {
                     log.debug("mfa required and need input by user");
                     if (user1.hasMultipleMfaOptions()) {
@@ -282,12 +281,12 @@ public class UserApplicationService {
                         return LoginResult
                             .askUserSelect(user1);
                     } else {
-                        MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
-                            .returnedTransactionalEvent(
+                        CommonDomainRegistry.getTransactionService()
+                            .transactionalEvent(
                                 (context) -> DomainRegistry.getMfaService()
                                     .triggerDefaultMfa(user1, context));
                         return LoginResult
-                            .mfaMissing(mfaId1, user1);
+                            .mfaMissing(user1);
                     }
                 }
             }

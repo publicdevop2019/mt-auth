@@ -24,6 +24,20 @@ public class TemporaryCodeService {
             throw new DefinedRuntimeException("code mismatch", "1004",
                 HttpResponseCode.BAD_REQUEST);
         }
+        DomainRegistry.getTemporaryCodeRepository().consume(operationType, domainId);
+    }
+
+    public boolean checkCode(String rawCode, Integer expireAfterMilli, String operationType,
+                             String rawDomainId) {
+        AnyDomainId domainId = new AnyDomainId(rawDomainId);
+        Optional<TemporaryCode> query =
+            DomainRegistry.getTemporaryCodeRepository()
+                .queryNoneExpired(operationType, domainId, expireAfterMilli);
+        if (query.isPresent() && query.get().getCode().equals(rawCode)) {
+            DomainRegistry.getTemporaryCodeRepository().consume(operationType, domainId);
+            return true;
+        }
+        return false;
     }
 
     public void issueCode(ClientId clientId, String rawCode, String operationType,

@@ -13,8 +13,6 @@ public interface UserRepository {
         return user;
     }
 
-    MfaInfo getUserMfaInfo(UserId userId);
-
     Optional<User> query(UserId userId);
 
     default User get(UserEmail email) {
@@ -46,8 +44,6 @@ public interface UserRepository {
     long countTotal();
 
     Set<UserId> getIds();
-
-    void updateMfaInfo(MfaInfo mfaInfo, UserId userId);
 
     Optional<LoginUser> queryLoginUser(UserEmail email);
 

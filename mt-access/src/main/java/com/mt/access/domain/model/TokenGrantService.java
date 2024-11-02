@@ -116,7 +116,6 @@ public class TokenGrantService {
                 loginResult.set(ApplicationServiceRegistry.getUserApplicationService()
                     .userLoginCheck(clientIpAddress, agentInfo, finalUserInfo1.getId(),
                         parameters.get("mfa_code"),
-                        parameters.get("mfa_id"),
                         parameters.get("mfa_method"),
                         hasScope(scope) ? new ProjectId(scope) :
                             new ProjectId(AppConstant.MT_AUTH_PROJECT_ID)
@@ -136,8 +135,6 @@ public class TokenGrantService {
                     stringStringHashMap.put("partialEmail", loginResult1.getPartialEmail());
                     if (loginResult1.isSelectRequired()) {
                         stringStringHashMap.put("deliveryMethod", true);
-                    } else {
-                        stringStringHashMap.put("mfaId", loginResult1.getMfaId().getValue());
                     }
                     return ResponseEntity.ok().body(stringStringHashMap);
                 }

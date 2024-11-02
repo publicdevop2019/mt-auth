@@ -1,10 +1,14 @@
-package com.mt.access.domain.model.user;
+package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.user.LoginHistory;
+import com.mt.access.domain.model.user.MfaCode;
+import com.mt.access.domain.model.user.User;
+import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserSession;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Validator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,33 +43,33 @@ public class MfaService {
         }
     }
 
-    public boolean validateMfa(UserId userId, String mfaCode,
-                               String mfaId) {
-        Validator.notNull(mfaId);
-        MfaInfo mfaInfo = DomainRegistry.getUserRepository().getUserMfaInfo(userId);
-        if (mfaInfo == null) {
-            log.debug("mfa info not found");
-            return false;
-        }
-        log.debug("comparing mfa");
-        return mfaInfo.validate(mfaCode, mfaId);
+    public boolean validateMfa(UserId userId, String mfaCode) {
+        return DomainRegistry.getTemporaryCodeService()
+            .checkCode(mfaCode, MfaCode.EXPIRE_AFTER_MILLI, MfaCode.OPERATION_TYPE,
+                userId.getDomainId());
     }
 
-    public MfaId triggerDefaultMfa(User user, TransactionContext context) {
-        MfaInfo mfaInfo = MfaInfo.create();
-        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
+    public void triggerDefaultMfa(User user, TransactionContext context) {
+        MfaCode mfaCode = new MfaCode();
+        DomainRegistry.getTemporaryCodeService()
+            .issueCode(null, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
+                user.getUserId().getDomainId());
         context
-            .append(new UserMfaNotification(user, mfaInfo));
-        return mfaInfo.getId();
+            .append(new UserMfaNotification(user, mfaCode));
     }
 
-    public MfaId triggerSelectedMfa(User user, TransactionContext context,
-                                    MfaDeliverMethod deliverMethod) {
-        MfaInfo mfaInfo = MfaInfo.create();
-        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
+    public void triggerSelectedMfa(
+        User user,
+        TransactionContext context,
+        MfaDeliverMethod deliverMethod
+    ) {
+        MfaCode mfaCode = new MfaCode();
+        DomainRegistry.getTemporaryCodeService()
+            .issueCode(null, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
+                user.getUserId().getDomainId());
+
         context
-            .append(new UserMfaNotification(user, mfaInfo, deliverMethod));
-        return mfaInfo.getId();
+            .append(new UserMfaNotification(user, mfaCode, deliverMethod));
     }
 
     private <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> mostFrequentIp(Map<K, V> map) {

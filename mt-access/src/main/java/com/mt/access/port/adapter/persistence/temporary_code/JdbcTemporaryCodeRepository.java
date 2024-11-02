@@ -40,6 +40,9 @@ public class JdbcTemporaryCodeRepository implements TemporaryCodeRepository {
         "UPDATE temporary_code t " +
             "SET t.code = ?, t.modified_at = ?, t.modified_by = ? " +
             "WHERE t.domain_id = ? AND t.operation_type = ?";
+    private static final String DELETE_CODE_SQL =
+        "DELETE FROM temporary_code t " +
+            "WHERE t.domain_id = ? AND t.operation_type = ?";
 
     @Override
     public Optional<TemporaryCode> query(String operationType, AnyDomainId domainId) {
@@ -92,6 +95,16 @@ public class JdbcTemporaryCodeRepository implements TemporaryCodeRepository {
                 Instant.now().toEpochMilli(),
                 clientId.getDomainId(),
                 domainId.getDomainId()
+            );
+        DatabaseUtility.checkUpdate(update);
+    }
+
+    @Override
+    public void consume(String operationType, AnyDomainId domainId) {
+        int update = CommonDomainRegistry.getJdbcTemplate()
+            .update(DELETE_CODE_SQL,
+                domainId.getDomainId(),
+                operationType
             );
         DatabaseUtility.checkUpdate(update);
     }
