@@ -48,3 +48,5 @@ db/
 
 #ignore specific directory
 # mt-sample/nodejs/public
+#ignore jks file
+*.jks
