@@ -56,10 +56,14 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-<!--        <Logger name="org.springframework.jdbc.core.JdbcTemplate" level="debug" additivity="false">-->
-<!--            <appender-ref ref="console"/>-->
-<!--            <appender-ref ref="fileLogger"/>-->
-<!--        </Logger>-->
+        <Logger name="com.zaxxer.hikari" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="org.springframework.jdbc.core.JdbcTemplate" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <Root level="info" additivity="false" includeLocation="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

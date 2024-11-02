@@ -15,7 +15,6 @@
 --spring.datasource.url=jdbc:mysql://localhost:3306/auth_dev?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
 --spring.datasource.username=
 --spring.datasource.password=
---spring.profiles.active=dev
 ```
 # Environment
 - Ubuntu 18.04 64bit

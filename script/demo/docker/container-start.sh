@@ -11,7 +11,6 @@ ACCESS_ARGS="
 --spring.datasource.url=jdbc:h2:tcp://localhost:9092/./demo
 --spring.datasource.username=sa
 --spring.datasource.password=
---spring.profiles.active=dev
 --spring.rabbitmq.port=5672
 "
 PROXY_ARG="
