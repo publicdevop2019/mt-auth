@@ -13,7 +13,7 @@ public interface TemporaryCodeRepository {
     void add(ClientId clientId, TemporaryCode temporaryCode);
 
     void updateCode(ClientId clientId, AnyDomainId domainId,
-                    String code);
+                    String code, String operationType);
 
 
     void consume(String operationType, AnyDomainId domainId);

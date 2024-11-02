@@ -88,13 +88,15 @@ public class JdbcTemporaryCodeRepository implements TemporaryCodeRepository {
     }
 
     @Override
-    public void updateCode(ClientId clientId, AnyDomainId domainId, String code) {
+    public void updateCode(ClientId clientId, AnyDomainId domainId, String code,
+                           String operationType) {
         int update = CommonDomainRegistry.getJdbcTemplate()
             .update(UPDATE_CODE_SQL,
                 code,
                 Instant.now().toEpochMilli(),
                 clientId.getDomainId(),
-                domainId.getDomainId()
+                domainId.getDomainId(),
+                operationType
             );
         DatabaseUtility.checkUpdate(update);
     }

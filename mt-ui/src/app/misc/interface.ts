@@ -222,7 +222,6 @@ export interface IAuditable {
     createdBy: string;
 }
 export interface IMfaResponse {
-    mfaId: string;
     message: string;
     partialMobile: string;
     partialEmail: string;

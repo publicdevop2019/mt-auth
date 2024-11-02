@@ -1,6 +1,7 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.User;
@@ -49,23 +50,24 @@ public class MfaService {
                 userId.getDomainId());
     }
 
-    public void triggerDefaultMfa(User user, TransactionContext context) {
+    public void triggerDefaultMfa(ClientId clientId, User user, TransactionContext context) {
         MfaCode mfaCode = new MfaCode();
         DomainRegistry.getTemporaryCodeService()
-            .issueCode(null, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
+            .issueCode(clientId, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
                 user.getUserId().getDomainId());
         context
             .append(new UserMfaNotification(user, mfaCode));
     }
 
     public void triggerSelectedMfa(
+        ClientId clientId,
         User user,
         TransactionContext context,
         MfaDeliverMethod deliverMethod
     ) {
         MfaCode mfaCode = new MfaCode();
         DomainRegistry.getTemporaryCodeService()
-            .issueCode(null, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
+            .issueCode(clientId, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
                 user.getUserId().getDomainId());
 
         context

@@ -144,7 +144,7 @@ export class LoginComponent {
         }
       }
       response.subscribe(next => {
-        if ((next as IMfaResponse).mfaId || (next as IMfaResponse).deliveryMethod) {
+        if ((next as IMfaResponse).message || (next as IMfaResponse).deliveryMethod) {
           this.authSvc.loginFormValue = this.form;
           this.authSvc.loginNextUrl = this.nextUrl;
           this.authSvc.mfaResponse = (next as IMfaResponse);
@@ -187,7 +187,7 @@ export class LoginComponent {
     if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
       let payload: IForgetPasswordRequest
-      if (this.loginContext === 'EMAIL_CODE') {
+      if (this.forgetContext === 'EMAIL') {
         payload = { email: this.forgetForm.get('email').value }
       } else {
         payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value }

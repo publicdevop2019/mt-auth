@@ -5,6 +5,7 @@ import com.mt.access.application.client.representation.ClientOAuth2Representatio
 import com.mt.access.application.token.representation.JwtTokenRepresentation;
 import com.mt.access.application.user.representation.UserTokenRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.JwtToken;
 import com.mt.access.domain.model.token.LoginType;
@@ -114,7 +115,7 @@ public class TokenGrantService {
             UserTokenRepresentation finalUserInfo1 = userInfo;
             CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                 loginResult.set(ApplicationServiceRegistry.getUserApplicationService()
-                    .userLoginCheck(clientIpAddress, agentInfo, finalUserInfo1.getId(),
+                    .userLoginCheck(new ClientId(clientId),clientIpAddress, agentInfo, finalUserInfo1.getId(),
                         parameters.get("mfa_code"),
                         parameters.get("mfa_method"),
                         hasScope(scope) ? new ProjectId(scope) :
@@ -128,15 +129,15 @@ public class TokenGrantService {
                     return ResponseEntity.badRequest().build();
                 } else {
                     log.debug("asking mfa");
-                    HashMap<String, Object> stringStringHashMap = new HashMap<>();
-                    stringStringHashMap.put("message", MFA_REQUIRED);
-                    LoginResult loginResult1 = loginResult.get();
-                    stringStringHashMap.put("partialMobile", loginResult1.getPartialMobile());
-                    stringStringHashMap.put("partialEmail", loginResult1.getPartialEmail());
-                    if (loginResult1.isSelectRequired()) {
-                        stringStringHashMap.put("deliveryMethod", true);
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("message", MFA_REQUIRED);
+                    LoginResult result = loginResult.get();
+                    map.put("partialMobile", result.getPartialMobile());
+                    map.put("partialEmail", result.getPartialEmail());
+                    if (result.isSelectRequired()) {
+                        map.put("deliveryMethod", true);
                     }
-                    return ResponseEntity.ok().body(stringStringHashMap);
+                    return ResponseEntity.ok().body(map);
                 }
             }
         }

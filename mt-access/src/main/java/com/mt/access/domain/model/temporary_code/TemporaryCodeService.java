@@ -50,7 +50,7 @@ public class TemporaryCodeService {
                 .add(clientId, new TemporaryCode(domainId, rawCode, operationType));
         } else {
             DomainRegistry.getTemporaryCodeRepository()
-                .updateCode(clientId, domainId, rawCode);
+                .updateCode(clientId, domainId, rawCode, operationType);
         }
     }
 }

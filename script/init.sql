@@ -1174,13 +1174,13 @@ INSERT INTO `validation_result` VALUES (865884807626753,0,_binary '\0');
 UNLOCK TABLES;
 
 --
--- Table structure for table `verification_code`
+-- Table structure for table `temporary_code`
 --
 
-DROP TABLE IF EXISTS `verification_code`;
+DROP TABLE IF EXISTS `temporary_code`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `verification_code` (
+CREATE TABLE `temporary_code` (
   `id` bigint NOT NULL,
   `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
@@ -1188,19 +1188,20 @@ CREATE TABLE `verification_code` (
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `code` varchar(255) NOT NULL,
+  `operation_type` varchar(255) NOT NULL,
   `domain_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UKjj1emkwcgmfwdbrftunxxaanh` (`domain_id`)
+  UNIQUE KEY `UKjj1emkwcgmfwdbrftunxxaanh` (`domain_id`,`operation_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `verification_code`
+-- Dumping data for table `temporary_code`
 --
 
-LOCK TABLES `verification_code` WRITE;
-/*!40000 ALTER TABLE `verification_code` DISABLE KEYS */;
-/*!40000 ALTER TABLE `verification_code` ENABLE KEYS */;
+LOCK TABLES `temporary_code` WRITE;
+/*!40000 ALTER TABLE `temporary_code` DISABLE KEYS */;
+/*!40000 ALTER TABLE `temporary_code` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

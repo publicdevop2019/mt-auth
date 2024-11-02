@@ -235,7 +235,7 @@ public class UserApplicationService {
         return imageId;
     }
 
-    public LoginResult userLoginCheck(String ipAddress, String agentInfo,
+    public LoginResult userLoginCheck(ClientId clientId, String ipAddress, String agentInfo,
                                       String rawUserId, @Nullable String mfaCode,
                                       @Nullable String mfaMethod,
                                       ProjectId loginProjectId) {
@@ -271,7 +271,7 @@ public class UserApplicationService {
                     CommonDomainRegistry.getTransactionService()
                         .transactionalEvent(
                             (context) -> DomainRegistry.getMfaService()
-                                .triggerSelectedMfa(user1, context, deliverMethod));
+                                .triggerSelectedMfa(clientId, user1, context, deliverMethod));
                     return LoginResult
                         .mfaMissingAfterSelect(deliverMethod, user1);
                 } else {
@@ -284,7 +284,7 @@ public class UserApplicationService {
                         CommonDomainRegistry.getTransactionService()
                             .transactionalEvent(
                                 (context) -> DomainRegistry.getMfaService()
-                                    .triggerDefaultMfa(user1, context));
+                                    .triggerDefaultMfa(clientId, user1, context));
                         return LoginResult
                             .mfaMissing(user1);
                     }
