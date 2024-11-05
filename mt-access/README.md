@@ -18,8 +18,7 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 --spring.datasource.username=
 --spring.datasource.password=
 ```
-- run ```mvn clean compile``` of mt-common if you are unable to build mt-access
-
+- (optional)run ```mvn clean compile``` of mt-common if you are unable to build mt-access
 # Environment
 - Ubuntu 18.04 64bit
 - Java: java version "11.0.14" 2022-01-18 LTS
