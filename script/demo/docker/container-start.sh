@@ -4,6 +4,7 @@ ACCESS_ARGS="
 --mt.common.url.message-queue=localhost:5672
 --mt.common.instance-id=0
 --mt.mgmt.email=admin@sample.com
+--mt.feature.oauth.jwt.password=localdev
 --eureka.client.serviceUrl.defaultZone=http://localhost:8080/eureka
 --eureka.instance.ip-address=localhost
 --spring.redis.host=localhost
