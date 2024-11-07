@@ -33,8 +33,6 @@ public class EndpointMqListener {
             channel.basicQos(1);
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
-                MT_ACCESS_ID + ".external.started_access");
-            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.endpoint_reload_requested");
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.endpoint_collection_modified");

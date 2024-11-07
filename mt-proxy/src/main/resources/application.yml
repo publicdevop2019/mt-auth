@@ -4,6 +4,7 @@ mt:
     instance-id:
     url:
       message-queue:
+      access:
 server:
   port: 8111
 spring:

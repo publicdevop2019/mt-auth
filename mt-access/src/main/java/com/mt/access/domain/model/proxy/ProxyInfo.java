@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class ProxyInfo {
-    private final String id;
+    private final String url;
 
-    public ProxyInfo(int i) {
-        id = String.valueOf(i);
+    public ProxyInfo(String url) {
+        this.url = url;
     }
 }

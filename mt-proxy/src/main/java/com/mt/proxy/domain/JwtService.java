@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class JwtService {
-    private static final String JWT_KEY_URL = ".well-known/jwks.json";
+    private static final String JWT_KEY_URL = "/.well-known/jwks.json";
 
     private RSAPublicKey publicKey;
     @Autowired
@@ -55,7 +55,7 @@ public class JwtService {
     }
 
     public String getJwtKeyUrl() {
-        return httpHelper.resolveAccessPath() + JWT_KEY_URL;
+        return httpHelper.getAccessUrl() + JWT_KEY_URL;
     }
 
     public boolean verify(String jwt) {

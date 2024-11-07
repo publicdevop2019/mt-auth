@@ -16,13 +16,13 @@ public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyServ
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private HttpUtility httpHelper;
+    private HttpUtility httpUtility;
 
 
     @Override
     public JWKSet loadKeys() {
         log.debug("loading jwt keys");
-        ResponseEntity<String> exchange = httpHelper.getRestTemplate()
+        ResponseEntity<String> exchange = httpUtility.getRestTemplate()
             .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null,
                 String.class);
         try {

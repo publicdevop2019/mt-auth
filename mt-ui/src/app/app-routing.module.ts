@@ -4,7 +4,6 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.component';
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
-import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { MyCacheComponent } from './pages/tenant/project/my-cache/my-cache.component';
 import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
 import { MyCorsComponent } from './pages/tenant/project/my-cors/my-cors.component';
@@ -57,7 +56,6 @@ const routes: Routes = [
       { path: 'welcome', component: WelcomeComponent },
       { path: 'mgmt/insights', component: DashboardComponent },
       { path: 'mgmt/projects', component: SummaryProjectComponent },
-      { path: 'mgmt/registry', component: RegistryComponent },
       { path: 'mgmt/jobs', component: JobComponent },
       { path: 'mgmt/clients', component: SummaryClientComponent },
       { path: 'mgmt/clients/:clientId', component: MgmtClientComponent },

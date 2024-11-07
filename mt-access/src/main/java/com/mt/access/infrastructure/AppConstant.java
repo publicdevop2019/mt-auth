@@ -15,7 +15,6 @@ public class AppConstant {
     public static final String QUERY_ID = "id";
     public static final Pattern COUNTRY_CODE_REGEX = Pattern.compile("^[0-9]{1,3}$");
     public static final Pattern MOBILE_NUMBER_REGEX = Pattern.compile("^[0-9]{10,11}$");
-    public static String MT_AUTH_PROXY_APP_ID = "0C8AZYTQ5W5C";
     public static String MT_AUTH_USER_ROLE_ID = "0Z8HHJ489SEE";
     public static String MT_AUTH_PROJECT_ID = "0P8HE307W6IO";
     public static String MT_AUTH_DEFAULT_USER_ROLE = "0Z8HHJ489SEE";

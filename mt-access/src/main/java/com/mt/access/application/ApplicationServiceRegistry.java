@@ -11,7 +11,6 @@ import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
-import com.mt.access.application.registry.RegistryApplicationService;
 import com.mt.access.application.report.ReportApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
@@ -64,8 +63,6 @@ public class ApplicationServiceRegistry {
     @Getter
     private static NotificationApplicationService notificationApplicationService;
     @Getter
-    private static RegistryApplicationService registryApplicationService;
-    @Getter
     private static ImageApplicationService imageApplicationService;
     @Getter
     private static CrossDomainValidationApplicationService crossDomainValidationApplicationService;
@@ -107,12 +104,6 @@ public class ApplicationServiceRegistry {
     public void setAuditApplicationService(
         AuditApplicationService auditApplicationService) {
         ApplicationServiceRegistry.auditApplicationService = auditApplicationService;
-    }
-
-    @Autowired
-    public void setRegistryApplicationService(
-        RegistryApplicationService registryApplicationService) {
-        ApplicationServiceRegistry.registryApplicationService = registryApplicationService;
     }
 
     @Autowired

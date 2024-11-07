@@ -1,12 +1,11 @@
 echo "running start script"
 ACCESS_ARGS="
 --mt.common.url.lock=redis://localhost:6379
+--mt.common.url.proxy=http://localhost:8111
 --mt.common.url.message-queue=localhost:5672
 --mt.common.instance-id=0
 --mt.mgmt.email=admin@sample.com
 --mt.feature.oauth.jwt.password=localdev
---eureka.client.serviceUrl.defaultZone=http://localhost:8080/eureka
---eureka.instance.ip-address=localhost
 --spring.redis.host=localhost
 --spring.redis.port=6379
 --spring.datasource.url=jdbc:h2:tcp://localhost:9092/./demo
@@ -15,8 +14,7 @@ ACCESS_ARGS="
 --spring.rabbitmq.port=5672
 "
 PROXY_ARG="
---eureka.client.serviceUrl.defaultZone=http://localhost:8080/eureka
---eureka.instance.ip-address=localhost
+--mt.common.url.access=http://localhost:8080
 --mt.common.url.message-queue=localhost:5672
 --mt.common.domain-name=
 --mt.common.instance-id=1
@@ -32,10 +30,6 @@ nginx &
 rabbitmq-server &
 redis-server &
 java -cp h2*.jar org.h2.tools.Server -tcpAllowOthers -webAllowOthers &
-java $VM_ARGS -jar Access.jar $ACCESS_ARGS &
-echo "sleeping start" &
-# must sleep 150
-sleep 150
-echo "sleeping end" &
-java $VM_ARGS -jar Proxy.jar $PROXY_ARG &
+java $VM_ARGS -jar access.jar $ACCESS_ARGS &
+java $VM_ARGS -jar proxy.jar $PROXY_ARG &
 tail -f /dev/null

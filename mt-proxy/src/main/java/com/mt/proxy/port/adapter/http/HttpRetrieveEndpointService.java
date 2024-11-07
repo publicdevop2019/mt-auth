@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class HttpRetrieveEndpointService implements RetrieveEndpointService {
-    private static final String ENDPOINT_URL = "endpoints/proxy";
+    private static final String ENDPOINT_URL = "/endpoints/proxy";
 
     @Autowired
     private HttpUtility httpHelper;
 
     @Override
     public Set<Endpoint> loadAllEndpoints() {
-        return httpHelper.loadAllData(httpHelper.resolveAccessPath() + ENDPOINT_URL,
+        return httpHelper.loadAllData(httpHelper.getAccessUrl() + ENDPOINT_URL,
             40, false, new ParameterizedTypeReference<>() {
             });
     }

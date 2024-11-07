@@ -32,12 +32,12 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>11</java.version>
-        <spring-cloud.version>2021.0.7</spring-cloud.version>
     </properties>
     <dependencies>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -72,13 +72,11 @@
             <artifactId>json-patch</artifactId>
             <version>1.12</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
         <dependency>
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
             <version>5.9.0</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/commons-validator/commons-validator -->
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
@@ -90,17 +88,6 @@
             <version>3.15.4</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <profiles>
         <profile>
             <id>ossrh</id>

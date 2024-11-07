@@ -33,9 +33,6 @@ import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.StoredEvent;
-import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -45,9 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +49,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class EndpointApplicationService {
     private static final String ENDPOINT = "Endpoint";
-    @Value("${mt.feature.proxy-reload}")
-    private Boolean reloadOnAppStart;
 
     private static SumPagedRep<EndpointCardRepresentation> updateDetail(
         SumPagedRep<Endpoint> rep2) {
@@ -106,24 +98,6 @@ public class EndpointApplicationService {
                     e.setProjectName(ee.getName());
                 });
             });
-        }
-    }
-
-    /**
-     * send app started event with a delay of 60s to wait for registry complete.
-     */
-    @EventListener(ApplicationReadyEvent.class)
-    protected void reloadProxy() {
-        CommonDomainRegistry.getLogService().initTrace();
-        if (reloadOnAppStart) {
-            try {
-                Thread.sleep(90 * 1000);
-            } catch (InterruptedException e) {
-                log.error("wait is interrupted due to", e);
-            }
-            log.debug("sending reload proxy endpoint message");
-            CommonDomainRegistry.getEventStreamService()
-                .next(StoredEvent.skipStoredEvent(new ApplicationStartedEvent()));
         }
     }
 
