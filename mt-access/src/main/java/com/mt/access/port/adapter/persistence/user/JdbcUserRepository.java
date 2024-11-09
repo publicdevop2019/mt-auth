@@ -63,7 +63,7 @@ public class JdbcUserRepository implements UserRepository {
         "country_code, " +
         "mobile_number, " +
         "avatar_link, " +
-        "language, " +
+        "language " +
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String QUERY_LOGIN_USER_BY_EMAIL_SQL =

@@ -26,6 +26,10 @@ public class ClientValidationService {
             if (b) {
                 handler.handleError("resource(s) not accessible");
             }
+            if (allByQuery.stream().map(Client::getProjectId)
+                .anyMatch(e -> !client.getProjectId().equals(e))) {
+                handler.handleError("client belongs to another project");
+            }
         }
     }
 
