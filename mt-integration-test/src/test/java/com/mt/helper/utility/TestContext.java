@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.UUID;
 import lombok.Getter;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 public class TestContext {
@@ -27,6 +28,8 @@ public class TestContext {
         TestRestTemplate testRestTemplate = new TestRestTemplate();
         testRestTemplate.getRestTemplate()
             .setInterceptors(Collections.singletonList(new OutgoingReqInterceptor(testId.get())));
+        testRestTemplate.getRestTemplate()
+            .setRequestFactory(new HttpComponentsClientHttpRequestFactory());
         restTemplate.set(testRestTemplate);
     }
 
