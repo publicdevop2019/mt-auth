@@ -1,319 +1,132 @@
 package com.mt.access.domain.model;
 
-import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.client.representation.ClientOAuth2Representation;
-import com.mt.access.application.token.representation.JwtTokenRepresentation;
-import com.mt.access.application.user.representation.UserTokenRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.token.JwtToken;
 import com.mt.access.domain.model.token.LoginType;
 import com.mt.access.domain.model.token.TokenGrantContext;
 import com.mt.access.domain.model.token.TokenGrantType;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.domain.model.user.LoginUser;
+import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.UserName;
 import com.mt.access.domain.model.user.UserPassword;
-import com.mt.access.domain.model.verification_code.VerificationCode;
-import com.mt.access.domain.model.verification_code.RegistrationEmail;
+import com.mt.access.domain.model.user.UserSession;
+import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
-import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.access.domain.model.verification_code.VerificationCode;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class TokenGrantService {
-
-    private static final String MFA_REQUIRED = "mfa required";
-
-    public ResponseEntity<?> grantToken(String clientId, String clientSecret,
-                                        Map<String, String> parameters,
-                                        String agentInfo, String clientIpAddress,
-                                        String changeId) {
-        TokenGrantType grantType = TokenGrantType.parse(parameters.get("grant_type"));
-        boolean validParams = false;
-        TokenGrantContext tokenGrantContext = null;
-        UserTokenRepresentation userInfo = null;
-        ClientOAuth2Representation client = null;
-        String scope = parameters.get("scope");
-        if (Checker.notNull(grantType)) {
-            //check client first
-            client =
-                ApplicationServiceRegistry.getClientApplicationService()
-                    .getClientBy(clientId);
-            if (client == null) {
-                throw new DefinedRuntimeException("client not found", "1091",
-                    HttpResponseCode.UNAUTHORIZED);
-            }
-            if (!Checker.equals(clientSecret, client.getClientSecret())) {
-                throw new DefinedRuntimeException("wrong client password", "1070",
-                    HttpResponseCode.UNAUTHORIZED);
-            }
-            if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
-                if (!client.getAuthorizedGrantTypes().contains("refresh_token")) {
-                    throw new DefinedRuntimeException("invalid params", "1089",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-                Integer expInSec = JwtUtility.getField("exp", parameters.get("refresh_token"));
-                if (Instant.now().isAfter(Instant.ofEpochSecond(expInSec))) {
-                    throw new DefinedRuntimeException("refresh token expired", "1090",
-                        HttpResponseCode.UNAUTHORIZED);
-                }
-            }
-
-            if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
-                validParams = validAuthorizationCodeGrant(scope,
-                    parameters.get("view_tenant_id"));
-            } else {
-                if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)) {
-                    validParams = true;
-                } else if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
-                    validParams = validRefreshGrant(parameters.get("refresh_token"));
-                } else if (grantType.equals(TokenGrantType.PASSWORD)) {
-                    validParams = true;
-                    tokenGrantContext = checkPasswordGrant(
-                        parameters.get("type"),
-                        parameters.get("mobile_number"),
-                        parameters.get("country_code"),
-                        parameters.get("code"),
-                        parameters.get("email"),
-                        parameters.get("username"),
-                        parameters.get("password"),
-                        changeId
-                    );
-                    userInfo = tokenGrantContext.getUserInfo();
-                }
-            }
-
-        }
-        if (!validParams) {
-            throw new DefinedRuntimeException("invalid params", "1089",
-                HttpResponseCode.BAD_REQUEST);
-        }
-
-        //MFA check
-        if (grantType.equals(TokenGrantType.PASSWORD) && tokenGrantContext.isMFARequired()) {
-            log.debug("checking user mfa");
-            AtomicReference<LoginResult> loginResult = new AtomicReference<>();
-            UserTokenRepresentation finalUserInfo1 = userInfo;
-            CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-                loginResult.set(ApplicationServiceRegistry.getUserApplicationService()
-                    .userLoginCheck(new ClientId(clientId),clientIpAddress, agentInfo, finalUserInfo1.getId(),
-                        parameters.get("mfa_code"),
-                        parameters.get("mfa_method"),
-                        hasScope(scope) ? new ProjectId(scope) :
-                            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID)
-                    )
-                );
-            });
-            if (Checker.isFalse(loginResult.get().getAllowed())) {
-                if (Checker.isTrue(loginResult.get().getInvalidMfa())) {
-                    log.debug("invalid mfa");
-                    return ResponseEntity.badRequest().build();
-                } else {
-                    log.debug("asking mfa");
-                    HashMap<String, Object> map = new HashMap<>();
-                    map.put("message", MFA_REQUIRED);
-                    LoginResult result = loginResult.get();
-                    map.put("partialMobile", result.getPartialMobile());
-                    map.put("partialEmail", result.getPartialEmail());
-                    if (result.isSelectRequired()) {
-                        map.put("deliveryMethod", true);
-                    }
-                    return ResponseEntity.ok().body(map);
-                }
-            }
-        }
-
-        AtomicReference<JwtToken> token = new AtomicReference<>();
-        log.debug("end of all checks");
-        UserTokenRepresentation finalUserInfo = userInfo;
-        ClientOAuth2Representation finalClient = client;
-        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-            JwtToken grant =
-                DomainRegistry.getTokenService().grant(parameters, finalClient, finalUserInfo);
-            token.set(grant);
-        });
-        if (grantType.equals(TokenGrantType.PASSWORD)) {
-            return ResponseEntity.ok().header("Location", userInfo.getId())
-                .body(new JwtTokenRepresentation(token.get()));
-        } else {
-            return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
-        }
-    }
-
-    private TokenGrantContext checkPasswordGrant(String rawType, String mobileNumber,
-                                                 String countryCode,
-                                                 String code, String rawEmail,
-                                                 String rawUsername,
-                                                 String enteredPwd,
-                                                 String changeId) {
-        TokenGrantContext tokenGrantContext = new TokenGrantContext();
-        boolean validParams = false;
-        Optional<UserId> existUserId;
-        LoginType type = LoginType.parse(rawType);
-        if (Checker.notNull(type) && Checker.notNull(changeId)) {
-            if (LoginType.MOBILE_W_CODE.equals(type)) {
-                validParams = Checker.notNull(mobileNumber) &&
-                    Checker.notNull(countryCode) &&
-                    Checker.notNull(code);
-            } else if (LoginType.EMAIL_W_CODE.equals(type)) {
-                validParams = Checker.notNull(rawEmail) &&
-                    Checker.notNull(code);
-            } else if (LoginType.USERNAME_W_PWD.equals(type)) {
-                validParams = Checker.notNull(rawUsername) &&
-                    Checker.notNull(enteredPwd);
-            } else if (LoginType.EMAIL_W_PWD.equals(type)) {
-                validParams = Checker.notNull(rawEmail) &&
-                    Checker.notNull(enteredPwd);
-            } else if (LoginType.MOBILE_W_PWD.equals(type)) {
-                validParams = Checker.notNull(mobileNumber) &&
-                    Checker.notNull(countryCode) &&
-                    Checker.notNull(enteredPwd);
-            }
-        }
-        if (!validParams) {
-            throw new DefinedRuntimeException("invalid params", "1089",
-                HttpResponseCode.BAD_REQUEST);
-        }
-        UserTokenRepresentation userInfo;
-
+    public UserId newUser(TransactionContext txContext, TokenGrantContext context) {
+        UserId userId = new UserId();
+        LoginType type = context.getType();
         if (type.equals(LoginType.MOBILE_W_PWD) || type.equals(LoginType.MOBILE_W_CODE)) {
-            UserMobile userMobile = new UserMobile(countryCode, mobileNumber);
-            existUserId = ApplicationServiceRegistry.getUserApplicationService()
-                .checkExistingUser(userMobile);
-            if (existUserId.isEmpty()) {
-                tokenGrantContext.setMFARequired(false);
-                String createdUserId;
-                if (LoginType.MOBILE_W_PWD.equals(type)) {
-                    createdUserId = ApplicationServiceRegistry.getUserApplicationService()
-                        .createUserUsing(userMobile, new UserPassword(enteredPwd), changeId);
-                } else {
-                    createdUserId = ApplicationServiceRegistry.getUserApplicationService()
-                        .createUserUsingCodeAnd(userMobile, new VerificationCode(code), changeId);
-                }
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(new UserId(createdUserId));
+            UserMobile userMobile = context.getUserMobile();
+            if (LoginType.MOBILE_W_PWD.equals(type)) {
+                DomainRegistry.getNewUserService().create(
+                    userMobile,
+                    new UserPassword(context.getPassword()),
+                    userId, txContext
+                );
             } else {
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(existUserId.get());
-                if (type.equals(LoginType.MOBILE_W_PWD)) {
-                    if (!DomainRegistry.getEncryptionService()
-                        .compare(enteredPwd, userInfo.getUserPassword().getPassword())) {
-                        throw new DefinedRuntimeException("wrong password", "1000",
-                            HttpResponseCode.BAD_REQUEST);
-                    }
-                } else {
-                    tokenGrantContext.setMFARequired(false);
-                    DomainRegistry.getTemporaryCodeService()
-                        .verifyCode(new VerificationCode(code).getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
-                            VerificationCode.OPERATION_TYPE,
-                            new RegistrationMobile(countryCode, mobileNumber).getDomainId());
-                }
+                DomainRegistry.getNewUserService().create(
+                    userMobile,
+                    new VerificationCode(context.getCode()),
+                    userId, txContext
+                );
             }
         } else if (type.equals(LoginType.EMAIL_W_PWD) || type.equals(LoginType.EMAIL_W_CODE)) {
-            UserEmail email = new UserEmail(rawEmail);
-            existUserId = ApplicationServiceRegistry.getUserApplicationService()
-                .checkExistingUser(email);
-            if (existUserId.isEmpty()) {
-                tokenGrantContext.setMFARequired(false);
-                String createdUserId;
-                if (LoginType.EMAIL_W_PWD.equals(type)) {
-                    createdUserId = ApplicationServiceRegistry.getUserApplicationService()
-                        .createUserUsing(email, new UserPassword(enteredPwd), changeId);
-                } else {
-                    createdUserId = ApplicationServiceRegistry.getUserApplicationService()
-                        .createUserUsingCodeAnd(email, new VerificationCode(code), changeId);
-                }
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(new UserId(createdUserId));
+            UserEmail email = context.getEmail();
+            if (LoginType.EMAIL_W_PWD.equals(type)) {
+                DomainRegistry.getNewUserService().create(
+                    email,
+                    new UserPassword(context.getPassword()),
+                    userId, txContext
+                );
             } else {
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(existUserId.get());
-                if (type.equals(LoginType.EMAIL_W_PWD)) {
-                    if (!DomainRegistry.getEncryptionService()
-                        .compare(enteredPwd,
-                            userInfo.getUserPassword().getPassword())) {
-                        throw new DefinedRuntimeException("wrong password", "1000",
-                            HttpResponseCode.BAD_REQUEST);
-                    }
-                } else {
-                    tokenGrantContext.setMFARequired(false);
-                    DomainRegistry.getTemporaryCodeService()
-                        .verifyCode(new VerificationCode(code).getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
-                            VerificationCode.OPERATION_TYPE,
-                            new RegistrationEmail(rawEmail).getDomainId());
-                }
+                DomainRegistry.getNewUserService().create(
+                    email,
+                    new VerificationCode(context.getCode()),
+                    userId, txContext
+                );
             }
         } else {
-            UserName username = new UserName(rawUsername);
-            existUserId = ApplicationServiceRegistry.getUserApplicationService()
-                .checkExistingUser(username);
-            if (existUserId.isEmpty()) {
-                tokenGrantContext.setMFARequired(false);
-                String createdUserId = ApplicationServiceRegistry.getUserApplicationService()
-                    .createUserUsing(username, new UserPassword(enteredPwd), changeId);
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(new UserId(createdUserId));
-            } else {
-                userInfo = ApplicationServiceRegistry.getUserApplicationService()
-                    .getUserBy(existUserId.get());
-                if (!DomainRegistry.getEncryptionService()
-                    .compare(enteredPwd,
-                        userInfo.getUserPassword().getPassword())) {
-                    throw new DefinedRuntimeException("wrong password", "1000",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-            }
+            UserName username = new UserName(context.getUsername());
+            DomainRegistry.getNewUserService().create(
+                username,
+                new UserPassword(context.getPassword()),
+                userId,
+                txContext
+            );
         }
-        if (!userInfo.isAccountNonLocked()) {
+        return userId;
+    }
+
+    public boolean mfaRequired(TokenGrantContext context) {
+        if (
+            context.getGrantType().equals(TokenGrantType.CLIENT_CREDENTIALS) ||
+                context.getGrantType().equals(TokenGrantType.REFRESH_TOKEN) ||
+                context.getGrantType().equals(TokenGrantType.AUTHORIZATION_CODE)
+        ) {
+            return false;
+        } else {
+            //password
+            if (context.getGrantType().equals(TokenGrantType.PASSWORD)) {
+                if (Checker.isTrue(context.getNewUserRequired())) {
+                    return false;
+                }
+                //existing user
+                return !context.getType().equals(LoginType.MOBILE_W_CODE) &&
+                    !context.getType().equals(LoginType.EMAIL_W_CODE);
+            }
+            return true;
+        }
+    }
+
+    public static boolean hasScope(String scope) {
+        return Checker.notNull(scope);
+    }
+
+    public void checkParam(TokenGrantContext context) {
+        TokenGrantType grantType = context.getGrantType();
+        boolean validParams = false;
+        checkClientParam(context.getGrantType(), context.getClientId(), context.getClientSecret());
+        if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)) {
+            validParams = true;
+        } else if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
+            validParams =
+                validAuthorizationCodeGrant(context.getScope(), context.getViewTenantId());
+        } else if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
+            validParams = validRefreshGrant(context.getRefreshToken());
+        } else if (grantType.equals(TokenGrantType.PASSWORD)) {
+            validParams = validPasswordGrant(context);
+        }
+        if (!validParams) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }
-        tokenGrantContext.setUserInfo(userInfo);
-        return tokenGrantContext;
     }
 
-    private boolean validAuthorizationCodeGrant(String scope, String viewTenantId) {
-        return !(Checker.notNull(viewTenantId) && hasScope(scope));
-    }
-
-    private boolean hasScope(String scope) {
-        return Checker.notNull(scope) && !"not_used".equalsIgnoreCase(scope);
-    }
-
-    private boolean validRefreshGrant(String refreshToken) {
-        return Checker.notBlank(refreshToken);
-    }
-
-    /**
-     * consume authorize request.
-     *
-     * @param parameters request params
-     * @return authorization response params
-     */
-    public String authorize(Map<String, String> parameters) {
-        String clientId = parameters.get("client_id");
-        String responseType = parameters.get("response_type");
-        String redirectUri = parameters.get("redirect_uri");
-        Validator.notNull(clientId);
+    public String authorize(ProjectId projectId, ClientId clientId, String responseType,
+                            String redirectUri) {
         Validator.notNull(responseType);
         Validator.notNull(redirectUri);
         if (!"code".equalsIgnoreCase(responseType)) {
@@ -321,26 +134,193 @@ public class TokenGrantService {
                 "1006",
                 HttpResponseCode.BAD_REQUEST);
         }
-
-        ClientOAuth2Representation client =
-            ApplicationServiceRegistry.getClientApplicationService()
-                .getClientBy(clientId);
-
-        if (client == null) {
-            throw new DefinedRuntimeException(
-                "unable to find authorize client", "1005",
-                HttpResponseCode.BAD_REQUEST);
-        }
+        Client client = DomainRegistry.getClientRepository().get(clientId);
         if (!client.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
         }
         return DomainRegistry.getTokenService()
             .authorize(
-                redirectUri, clientId, Collections.singleton(parameters.get("project_id")),
-                new ProjectId(parameters.get("project_id")),
+                redirectUri,
+                clientId,
+                Collections.singleton(projectId.getDomainId()),
+                projectId,
                 DomainRegistry.getCurrentUserService().getPermissionIds(),
                 DomainRegistry.getCurrentUserService().getUserId()
             );
     }
+
+    private boolean validPasswordGrant(TokenGrantContext context) {
+        boolean validParams = false;
+        LoginType type = context.getType();
+        if (Checker.notNull(context.getChangeId())) {
+            if (LoginType.MOBILE_W_CODE.equals(type)) {
+                validParams = Checker.notNull(context.getUserMobile()) &&
+                    Checker.notNull(context.getCode());
+            } else if (LoginType.EMAIL_W_CODE.equals(type)) {
+                validParams = Checker.notNull(context.getEmail()) &&
+                    Checker.notNull(context.getCode());
+            } else if (LoginType.USERNAME_W_PWD.equals(type)) {
+                validParams = Checker.notNull(context.getUsername()) &&
+                    Checker.notNull(context.getPassword());
+            } else if (LoginType.EMAIL_W_PWD.equals(type)) {
+                validParams = Checker.notNull(context.getEmail()) &&
+                    Checker.notNull(context.getPassword());
+            } else if (LoginType.MOBILE_W_PWD.equals(type)) {
+                validParams = Checker.notNull(context.getUserMobile()) &&
+                    Checker.notNull(context.getPassword());
+            }
+        }
+        LoginUser userInfo = null;
+        context.setNewUserRequired(true);
+        if (type.equals(LoginType.MOBILE_W_PWD) || type.equals(LoginType.MOBILE_W_CODE)) {
+            UserMobile userMobile = context.getUserMobile();
+            Optional<UserId> existUserId =
+                DomainRegistry.getUserRepository().queryUserId(userMobile);
+            if (existUserId.isPresent()) {
+                context.setNewUserRequired(false);
+                userInfo = DomainRegistry.getUserRepository().getLoginUser(existUserId.get());
+                if (type.equals(LoginType.MOBILE_W_PWD)) {
+                    if (!DomainRegistry.getEncryptionService()
+                        .compare(context.getPassword(), userInfo.getPassword().getPassword())) {
+                        throw new DefinedRuntimeException("wrong password", "1000",
+                            HttpResponseCode.BAD_REQUEST);
+                    }
+                } else {
+                    DomainRegistry.getTemporaryCodeService()
+                        .verifyCode(context.getCode(),
+                            VerificationCode.EXPIRE_AFTER_MILLI,
+                            VerificationCode.OPERATION_TYPE,
+                            new RegistrationMobile(context.getUserMobile().getCountryCode(),
+                                context.getUserMobile().getMobileNumber()).getDomainId());
+                }
+            }
+        } else if (type.equals(LoginType.EMAIL_W_PWD) || type.equals(LoginType.EMAIL_W_CODE)) {
+            UserEmail email = context.getEmail();
+            Optional<UserId> existUserId = DomainRegistry.getUserRepository().queryUserId(email);
+            if (existUserId.isPresent()) {
+                context.setNewUserRequired(false);
+                userInfo = DomainRegistry.getUserRepository().getLoginUser(existUserId.get());
+                if (type.equals(LoginType.EMAIL_W_PWD)) {
+                    if (!DomainRegistry.getEncryptionService()
+                        .compare(context.getPassword(), userInfo.getPassword().getPassword())) {
+                        throw new DefinedRuntimeException("wrong password", "1000",
+                            HttpResponseCode.BAD_REQUEST);
+                    }
+                } else {
+                    DomainRegistry.getTemporaryCodeService()
+                        .verifyCode(context.getCode(),
+                            VerificationCode.EXPIRE_AFTER_MILLI,
+                            VerificationCode.OPERATION_TYPE,
+                            context.getEmail().getEmail());
+                }
+            }
+        } else {
+            UserName username = new UserName(context.getUsername());
+            Optional<UserId> existUserId = DomainRegistry.getUserRepository().queryUserId(username);
+            if (existUserId.isPresent()) {
+                context.setNewUserRequired(false);
+                userInfo = DomainRegistry.getUserRepository().getLoginUser(existUserId.get());
+                if (!DomainRegistry.getEncryptionService()
+                    .compare(context.getPassword(), userInfo.getPassword().getPassword())) {
+                    throw new DefinedRuntimeException("wrong password", "1000",
+                        HttpResponseCode.BAD_REQUEST);
+                }
+            }
+        }
+        if (Checker.notNull(userInfo) && Checker.isTrue(userInfo.getLocked())) {
+            validParams = false;
+        }
+        context.setLoginUser(userInfo);
+        return validParams;
+    }
+
+    private boolean validAuthorizationCodeGrant(ProjectId scope, ProjectId viewTenantId) {
+        return !(Checker.notNull(viewTenantId) && Checker.notNull(scope));
+    }
+
+    private boolean validRefreshGrant(String refreshToken) {
+        Integer expInSec = JwtUtility.getField("exp", refreshToken);
+        if (Instant.now().isAfter(Instant.ofEpochSecond(expInSec))) {
+            throw new DefinedRuntimeException("refresh token expired", "1090",
+                HttpResponseCode.UNAUTHORIZED);
+        }
+        return Checker.notBlank(refreshToken);
+    }
+
+
+    private void checkClientParam(TokenGrantType type, ClientId clientId, String clientSecret) {
+        Client client = DomainRegistry.getClientRepository().query(clientId);
+        if (client == null) {
+            throw new DefinedRuntimeException("client not found", "1091",
+                HttpResponseCode.UNAUTHORIZED);
+        }
+        if (!Checker.equals(clientSecret, client.getSecret())) {
+            throw new DefinedRuntimeException("wrong client secret", "1070",
+                HttpResponseCode.UNAUTHORIZED);
+        }
+        if (type.equals(TokenGrantType.REFRESH_TOKEN)) {
+            if (!client.getGrantTypes().contains(GrantType.REFRESH_TOKEN)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+    }
+
+
+    public void userLoginCheck(TokenGrantContext context) {
+        String mfaMethod = context.getMfaMethod();
+        String mfaCode = context.getMfaCode();
+        String ipAddress = context.getIpAddress();
+        UserId userId = context.getLoginUser().getUserId();
+        log.debug("user id {}", userId.getDomainId());
+        User user = DomainRegistry.getUserRepository().get(userId);
+        if (user.hasNoMfaOptions()) {
+            log.debug("mfa not found, record current login information");
+            context.setRecordLoginRequired(true);
+            context.setLoginResult(LoginResult.allow());
+        }
+        boolean mfaRequired =
+            DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
+        if (!mfaRequired) {
+            log.debug("mfa not required, record current login information");
+            context.setRecordLoginRequired(true);
+            context.setLoginResult(LoginResult.allow());
+        } else {
+            if (mfaCode != null) {
+                log.debug("mfa code present");
+                if (DomainRegistry.getMfaService().validateMfa(userId, mfaCode)) {
+                    log.debug("mfa check passed, record current login information");
+                    context.setLoginResult(LoginResult.allow());
+                } else {
+                    log.debug("mfa check failed");
+                    context.setLoginResult(LoginResult.mfaMissMatch());
+                }
+            } else {
+                MfaDeliverMethod deliverMethod = MfaDeliverMethod.parse(mfaMethod);
+                if (Checker.notNull(deliverMethod)) {
+                    log.debug("mfa required and user selected deliver method");
+                    context.setTriggerMfaRequired(true);
+                    context.setDeliveryMethod(deliverMethod);
+                    context.setMfaUser(user);
+                    context.setLoginResult(LoginResult
+                        .mfaMissingAfterSelect(deliverMethod, user));
+                } else {
+                    log.debug("mfa required and need input by user");
+                    if (user.hasMultipleMfaOptions()) {
+                        log.debug("asking user to pick mfa deliver method");
+                        context.setLoginResult(LoginResult
+                            .askUserSelect(user));
+                    } else {
+                        context.setTriggerDefaultMfaRequired(true);
+                        context.setMfaUser(user);
+                        context.setLoginResult(LoginResult
+                            .mfaMissing(user));
+                    }
+                }
+            }
+        }
+    }
+
+
 }

@@ -263,11 +263,11 @@ public class ClientApplicationService {
             }, CLIENT);
     }
 
-    public ClientOAuth2Representation getClientBy(String id) {
+    public ClientOAuth2Representation getClientBy(ClientId id) {
         Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
         log.debug("loading client by id started");
         Client client =
-            DomainRegistry.getClientRepository().query(new ClientId(id));
+            DomainRegistry.getClientRepository().query(id);
         log.debug("loading client by id end");
         start.stop();
         if (client == null) {

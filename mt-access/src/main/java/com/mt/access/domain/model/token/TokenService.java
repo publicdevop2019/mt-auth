@@ -6,7 +6,6 @@ import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.representation.ClientOAuth2Representation;
-import com.mt.access.application.user.representation.UserTokenRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -41,7 +40,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -60,33 +58,31 @@ public class TokenService {
     @Autowired
     private JwtInfoProviderService jwtInfoProviderService;
 
-    public JwtToken grant(Map<String, String> parameters,
-                          ClientOAuth2Representation clientDetails,
-                          UserTokenRepresentation userDetails) {
-        String scope = parameters.get("scope");
-        if ("client_credentials".equalsIgnoreCase(parameters.get("grant_type"))
+    public void grant(TokenGrantContext context) {
+        JwtToken jwtToken = null;
+        TokenGrantType grantType = context.getGrantType();
+        ProjectId scope = context.getScope();
+        if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)
             ||
-            "password".equalsIgnoreCase(parameters.get("grant_type"))
+            grantType.equals(TokenGrantType.PASSWORD)
         ) {
-            return grantToken(clientDetails, userDetails,
-                scope != null ? Collections.singleton(scope) : Collections.emptySet());
-        } else if ("refresh_token".equalsIgnoreCase(parameters.get("grant_type"))) {
-            ProjectId viewTenantId = (parameters.get("view_tenant_id") == null ||
-                parameters.get("view_tenant_id").isBlank()) ? null :
-                new ProjectId(parameters.get("view_tenant_id"));
-            return grantRefreshToken(clientDetails, parameters.get("refresh_token"), viewTenantId);
-        } else if ("authorization_code".equalsIgnoreCase(parameters.get("grant_type"))) {
-            return grantAuthorizationCode(clientDetails, parameters.get("code"),
-                parameters.get("redirect_uri"));
-        } else {
-            return null;
+            jwtToken = grantToken(context.getClient(),
+                context.getLoginUser() == null ? null : context.getLoginUser().getUserId(),
+                scope != null ? Collections.singleton(scope.getDomainId()) : Collections.emptySet());
+        } else if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
+            jwtToken = grantRefreshToken(context.getClient(), context.getRefreshToken(),
+                context.getViewTenantId());
+        } else if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
+            jwtToken = grantAuthorizationCode(context.getClient(), context.getCode(),
+                context.getRedirectUri());
         }
+        context.setJwtToken(jwtToken);
     }
 
     private JwtToken grantToken(ClientOAuth2Representation clientDetails,
-                                @Nullable UserTokenRepresentation userDetails,
+                                @Nullable UserId userId,
                                 Set<String> scope) {
-        final boolean isClient = Checker.isNull(userDetails);
+        final boolean isClient = Checker.isNull(userId);
         final boolean hasRefresh =
             clientDetails.getAuthorizedGrantTypes().contains("refresh_token");
         ClientId clientId = new ClientId(clientDetails.getClientId());
@@ -119,8 +115,6 @@ public class TokenService {
             );
         } else {
             log.debug("grant user token");
-            String username = userDetails.getUsername();
-            UserId userId = new UserId(username);
             if (scope != null && scope.size() > 0
                 &&
                 !NOT_USED.equals(scope.stream().findFirst().get())) {
@@ -392,12 +386,12 @@ public class TokenService {
         return signedJWT.serialize();
     }
 
-    public String authorize(String redirectUri, String clientId, Set<String> scope,
+    public String authorize(String redirectUri, ClientId clientId, Set<String> scope,
                             ProjectId projectId,
                             Set<PermissionId> permissionIds, UserId userId) {
         AuthorizeInfo authorizeInfo = new AuthorizeInfo();
         authorizeInfo.setRedirectUri(redirectUri);
-        authorizeInfo.setClientId(new ClientId(clientId));
+        authorizeInfo.setClientId(clientId);
         authorizeInfo.setScope(scope);
         authorizeInfo.setPermissionIds(permissionIds);
         authorizeInfo.setUserId(userId);

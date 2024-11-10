@@ -1,5 +1,8 @@
 package com.mt.access.domain.model.token;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+
 public enum LoginType {
     MOBILE_W_CODE("mobile_w_code"),
     EMAIL_W_CODE("email_w_code"),
@@ -28,6 +31,7 @@ public enum LoginType {
         if (EMAIL_W_PWD.label.equalsIgnoreCase(type)) {
             return LoginType.EMAIL_W_PWD;
         }
-        return null;
+        throw new DefinedRuntimeException("invalid params", "1089",
+            HttpResponseCode.BAD_REQUEST);
     }
 }

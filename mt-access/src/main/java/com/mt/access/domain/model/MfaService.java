@@ -69,7 +69,6 @@ public class MfaService {
         DomainRegistry.getTemporaryCodeService()
             .issueCode(clientId, mfaCode.getValue(), MfaCode.OPERATION_TYPE,
                 user.getUserId().getDomainId());
-
         context
             .append(new UserMfaNotification(user, mfaCode, deliverMethod));
     }
