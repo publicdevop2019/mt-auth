@@ -30,6 +30,7 @@ public class TestContext {
             .setInterceptors(Collections.singletonList(new OutgoingReqInterceptor(testId.get())));
         testRestTemplate.getRestTemplate()
             .setRequestFactory(new HttpComponentsClientHttpRequestFactory());
+
         restTemplate.set(testRestTemplate);
     }
 

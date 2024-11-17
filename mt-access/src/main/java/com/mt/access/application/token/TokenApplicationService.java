@@ -53,14 +53,14 @@ public class TokenApplicationService {
         } else {
             if (DomainRegistry.getTokenGrantService().mfaRequired(context)) {
                 DomainRegistry.getTokenGrantService().userLoginCheck(context);
-                if (context.getTriggerMfaRequired()) {
+                if (Checker.isTrue(context.getTriggerMfaRequired())) {
                     CommonDomainRegistry.getTransactionService()
                         .transactionalEvent(
-                            (txcontext) -> DomainRegistry.getMfaService()
+                            (txContext) -> DomainRegistry.getMfaService()
                                 .triggerSelectedMfa(context.getClientId(), context.getMfaUser(),
-                                    txcontext, context.getDeliveryMethod()));
+                                    txContext, context.getDeliveryMethod()));
                 }
-                if (context.getTriggerDefaultMfaRequired()) {
+                if (Checker.isTrue(context.getTriggerDefaultMfaRequired())) {
                     CommonDomainRegistry.getTransactionService()
                         .transactionalEvent(
                             (txContext) -> DomainRegistry.getMfaService()

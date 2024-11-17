@@ -204,16 +204,6 @@ public class UserUtility {
         return emailPwdLogin(user.getEmail(), user.getPassword());
     }
 
-    public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
-        return emailPwdLogin(AppConstant.ACCOUNT_EMAIL_ADMIN,
-            AppConstant.ACCOUNT_PASSWORD_ADMIN);
-    }
-
-    public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordMallTenant() {
-        return emailPwdLogin(
-            AppConstant.ACCOUNT_EMAIL_MALL_ADMIN, AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
-    }
-
     public static String getJwtUser() {
         return emailPwdLogin(AppConstant.ACCOUNT_USERNAME_USER,
             AppConstant.ACCOUNT_PASSWORD_USER).getBody()

@@ -45,7 +45,6 @@ public class Client extends Auditable {
     private static final String MT_PROXY_ID = "0C8AZYTQ5W5C";
     private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
     private static final String MT_UI_LOGIN_ID = "0C8AZZ16LZB4";
-    private static final String EMPTY_SECRET = "";
     private static final Set<ClientId> reservedClientIds = new HashSet<>();
     private static final Pattern PATH_REGEX = Pattern.compile("^[a-z\\-/]*$");
 

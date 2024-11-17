@@ -50,6 +50,6 @@ public class RegistrationMobile extends DomainId {
     }
 
     private String value() {
-        return countryCode + " " + mobileNumber;
+        return "+" + countryCode + " " + mobileNumber;
     }
 }

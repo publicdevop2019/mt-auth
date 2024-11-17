@@ -6,6 +6,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.LoginType;
+import com.mt.access.domain.model.token.TokenGrantClient;
 import com.mt.access.domain.model.token.TokenGrantContext;
 import com.mt.access.domain.model.token.TokenGrantType;
 import com.mt.access.domain.model.user.LoginResult;
@@ -101,14 +102,10 @@ public class TokenGrantService {
         }
     }
 
-    public static boolean hasScope(String scope) {
-        return Checker.notNull(scope);
-    }
-
     public void checkParam(TokenGrantContext context) {
         TokenGrantType grantType = context.getGrantType();
         boolean validParams = false;
-        checkClientParam(context.getGrantType(), context.getClientId(), context.getClientSecret());
+        checkClientParam(context);
         if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)) {
             validParams = true;
         } else if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
@@ -135,7 +132,8 @@ public class TokenGrantService {
                 HttpResponseCode.BAD_REQUEST);
         }
         Client client = DomainRegistry.getClientRepository().get(clientId);
-        if (!client.getRegisteredRedirectUri().contains(redirectUri)) {
+        TokenGrantClient tokenGrantClient = new TokenGrantClient(client);
+        if (!tokenGrantClient.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
         }
@@ -151,25 +149,29 @@ public class TokenGrantService {
     }
 
     private boolean validPasswordGrant(TokenGrantContext context) {
-        boolean validParams = false;
         LoginType type = context.getType();
-        if (Checker.notNull(context.getChangeId())) {
-            if (LoginType.MOBILE_W_CODE.equals(type)) {
-                validParams = Checker.notNull(context.getUserMobile()) &&
-                    Checker.notNull(context.getCode());
-            } else if (LoginType.EMAIL_W_CODE.equals(type)) {
-                validParams = Checker.notNull(context.getEmail()) &&
-                    Checker.notNull(context.getCode());
-            } else if (LoginType.USERNAME_W_PWD.equals(type)) {
-                validParams = Checker.notNull(context.getUsername()) &&
-                    Checker.notNull(context.getPassword());
-            } else if (LoginType.EMAIL_W_PWD.equals(type)) {
-                validParams = Checker.notNull(context.getEmail()) &&
-                    Checker.notNull(context.getPassword());
-            } else if (LoginType.MOBILE_W_PWD.equals(type)) {
-                validParams = Checker.notNull(context.getUserMobile()) &&
-                    Checker.notNull(context.getPassword());
-            }
+        if (Checker.isNull(type)) {
+            return false;
+        }
+        boolean validParams = false;
+        if (LoginType.MOBILE_W_CODE.equals(type)) {
+            validParams = Checker.notNull(context.getUserMobile()) &&
+                Checker.notNull(context.getCode());
+        } else if (LoginType.EMAIL_W_CODE.equals(type)) {
+            validParams = Checker.notNull(context.getEmail()) &&
+                Checker.notNull(context.getCode());
+        } else if (LoginType.USERNAME_W_PWD.equals(type)) {
+            validParams = Checker.notNull(context.getUsername()) &&
+                Checker.notNull(context.getPassword());
+        } else if (LoginType.EMAIL_W_PWD.equals(type)) {
+            validParams = Checker.notNull(context.getEmail()) &&
+                Checker.notNull(context.getPassword());
+        } else if (LoginType.MOBILE_W_PWD.equals(type)) {
+            validParams = Checker.notNull(context.getUserMobile()) &&
+                Checker.notNull(context.getPassword());
+        }
+        if (Checker.isFalse(validParams)) {
+            return false;
         }
         LoginUser userInfo = null;
         context.setNewUserRequired(true);
@@ -231,6 +233,9 @@ public class TokenGrantService {
         if (Checker.notNull(userInfo) && Checker.isTrue(userInfo.getLocked())) {
             validParams = false;
         }
+        if (context.getNewUserRequired() && Checker.isNull(context.getChangeId())) {
+            validParams = false;
+        }
         context.setLoginUser(userInfo);
         return validParams;
     }
@@ -249,7 +254,10 @@ public class TokenGrantService {
     }
 
 
-    private void checkClientParam(TokenGrantType type, ClientId clientId, String clientSecret) {
+    private void checkClientParam(TokenGrantContext context) {
+        ClientId clientId = context.getClientId();
+        String clientSecret = context.getClientSecret();
+        TokenGrantType grantType = context.getGrantType();
         Client client = DomainRegistry.getClientRepository().query(clientId);
         if (client == null) {
             throw new DefinedRuntimeException("client not found", "1091",
@@ -259,12 +267,13 @@ public class TokenGrantService {
             throw new DefinedRuntimeException("wrong client secret", "1070",
                 HttpResponseCode.UNAUTHORIZED);
         }
-        if (type.equals(TokenGrantType.REFRESH_TOKEN)) {
+        if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
             if (!client.getGrantTypes().contains(GrantType.REFRESH_TOKEN)) {
                 throw new DefinedRuntimeException("invalid params", "1089",
                     HttpResponseCode.BAD_REQUEST);
             }
         }
+        context.setClient(new TokenGrantClient(client));
     }
 
 
@@ -279,6 +288,7 @@ public class TokenGrantService {
             log.debug("mfa not found, record current login information");
             context.setRecordLoginRequired(true);
             context.setLoginResult(LoginResult.allow());
+            return;
         }
         boolean mfaRequired =
             DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));

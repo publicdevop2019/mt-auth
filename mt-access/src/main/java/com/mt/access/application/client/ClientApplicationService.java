@@ -9,7 +9,7 @@ import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
-import com.mt.access.application.client.representation.ClientOAuth2Representation;
+import com.mt.access.domain.model.token.TokenGrantClient;
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -263,7 +263,7 @@ public class ClientApplicationService {
             }, CLIENT);
     }
 
-    public ClientOAuth2Representation getClientBy(ClientId id) {
+    public TokenGrantClient getClientBy(ClientId id) {
         Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
         log.debug("loading client by id started");
         Client client =
@@ -273,7 +273,7 @@ public class ClientApplicationService {
         if (client == null) {
             return null;
         }
-        return new ClientOAuth2Representation(client);
+        return new TokenGrantClient(client);
     }
 
     public void handle(ClientAsResourceDeleted event) {

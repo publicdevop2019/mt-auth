@@ -55,12 +55,13 @@ public class UserLoginTest {
     }
 
     @Test
-    public void send_code_to_new_email_twice() throws InterruptedException {
+    public void send_code_to_new_email_twice(){
         User user = UserUtility.randomEmailOnlyUser();
         ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
-        //sleep to wait for operation has cool down
-        Thread.sleep(65*1000);
         Assertions.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
+        waitForCoolDown();
+        ResponseEntity<Void> pendingUser2 = UserUtility.sendVerifyCode(user);
+        Assertions.assertEquals(HttpStatus.OK, pendingUser2.getStatusCode());
     }
 
     @Test
@@ -142,6 +143,7 @@ public class UserLoginTest {
         ResponseEntity<DefaultOAuth2AccessToken> response =
             UserUtility.emailCodeLogin(user);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        waitForCoolDown();
         ResponseEntity<DefaultOAuth2AccessToken> response2 =
             UserUtility.emailCodeLogin(user);
         Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -161,6 +163,7 @@ public class UserLoginTest {
         ResponseEntity<DefaultOAuth2AccessToken> response =
             UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        waitForCoolDown();
         ResponseEntity<DefaultOAuth2AccessToken> response2 =
             UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
@@ -255,5 +258,13 @@ public class UserLoginTest {
         TestContext.getRestTemplate().exchange(url2, HttpMethod.POST, request2, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
+    }
+    private void waitForCoolDown(){
+        //sleep to wait for operation has cool down
+        try {
+            Thread.sleep(65*1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

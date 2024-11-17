@@ -5,7 +5,6 @@ import static com.mt.access.domain.model.ticket.TicketInfo.USER_ID;
 import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.client.representation.ClientOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -66,9 +65,11 @@ public class TokenService {
             ||
             grantType.equals(TokenGrantType.PASSWORD)
         ) {
-            jwtToken = grantToken(context.getClient(),
-                context.getLoginUser() == null ? null : context.getLoginUser().getUserId(),
-                scope != null ? Collections.singleton(scope.getDomainId()) : Collections.emptySet());
+            UserId userId =
+                context.getLoginUser() == null ? null : context.getLoginUser().getUserId();
+            Set<String> parsedScope =
+                scope != null ? Collections.singleton(scope.getDomainId()) : Collections.emptySet();
+            jwtToken = grantToken(context.getClient(), userId, parsedScope);
         } else if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
             jwtToken = grantRefreshToken(context.getClient(), context.getRefreshToken(),
                 context.getViewTenantId());
@@ -79,7 +80,7 @@ public class TokenService {
         context.setJwtToken(jwtToken);
     }
 
-    private JwtToken grantToken(ClientOAuth2Representation clientDetails,
+    private JwtToken grantToken(TokenGrantClient clientDetails,
                                 @Nullable UserId userId,
                                 Set<String> scope) {
         final boolean isClient = Checker.isNull(userId);
@@ -183,7 +184,7 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantAuthorizationCode(ClientOAuth2Representation clientDetails,
+    private JwtToken grantAuthorizationCode(TokenGrantClient client,
                                             String code,
                                             String redirectUrl) {
         Validator.notNull(code);
@@ -197,17 +198,17 @@ public class TokenService {
         //check redirect url
         Validator.equals(redirectUrl, authorizeInfo.getRedirectUri());
         //check client
-        Validator.equals(clientDetails.getClientId(), authorizeInfo.getClientId().getDomainId());
+        Validator.equals(client.getClientId(), authorizeInfo.getClientId().getDomainId());
 
         UserRelation userRelation =
             createUserRelationIfNotExist(authorizeInfo.getUserId(), authorizeInfo.getProjectId());
         Set<PermissionId> compute =
             DomainRegistry.getComputePermissionService().compute(userRelation, null);
         return createJwtToken(
-            clientDetails.getProjectId(),
-            clientDetails.getAccessTokenValiditySeconds(),
+            client.getProjectId(),
+            client.getAccessTokenValiditySeconds(),
             0,
-            clientDetails.getResourceIds(),
+            client.getResourceIds(),
             authorizeInfo.getScope(),
             authorizeInfo.getClientId(),
             authorizeInfo.getUserId(),
@@ -218,7 +219,7 @@ public class TokenService {
         );
     }
 
-    private JwtToken grantRefreshToken(ClientOAuth2Representation clientDetails,
+    private JwtToken grantRefreshToken(TokenGrantClient client,
                                        String refreshToken, @Nullable ProjectId viewTenantId) {
         UserId userId = new UserId(JwtUtility.getUserId(refreshToken));
         Set<PermissionId> permissionIds = new HashSet<>();
@@ -258,9 +259,9 @@ public class TokenService {
         ProjectId projectId1 = new ProjectId(projectId);
         return createJwtToken(
             projectId1,
-            clientDetails.getAccessTokenValiditySeconds(),
-            clientDetails.getRefreshTokenValiditySeconds(),
-            clientDetails.getResourceIds(),
+            client.getAccessTokenValiditySeconds(),
+            client.getRefreshTokenValiditySeconds(),
+            client.getResourceIds(),
             scope,
             clientId1,
             userId,

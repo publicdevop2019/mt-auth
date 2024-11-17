@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.token;
 
-import com.mt.access.application.client.representation.ClientOAuth2Representation;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.LoginResult;
@@ -10,7 +9,6 @@ import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
-import com.mt.access.domain.model.verification_code.VerificationCode;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.validate.Checker;
 import lombok.Data;
@@ -25,7 +23,7 @@ public class TokenGrantContext {
     private Boolean triggerDefaultMfaRequired;
     private LoginResult loginResult;
     private LoginUser loginUser;
-    private ClientOAuth2Representation client;
+    private TokenGrantClient client;
     private JwtToken jwtToken;
     private ClientId clientId;
     private UserId userId;
@@ -74,7 +72,7 @@ public class TokenGrantContext {
         this.grantType = grantType;
         this.viewTenantId =
             Checker.isBlank(viewTenantId) ? null : new ProjectId(viewTenantId);
-        if (Checker.notNull(countryCode) || Checker.notNull(mobileNumber)) {
+        if (Checker.notNull(countryCode) && Checker.notNull(mobileNumber)) {
             this.userMobile =
                 new UserMobile(countryCode, mobileNumber);
         }
