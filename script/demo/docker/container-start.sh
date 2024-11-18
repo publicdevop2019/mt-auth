@@ -11,7 +11,6 @@ ACCESS_ARGS="
 --spring.datasource.url=jdbc:h2:tcp://localhost:9092/./demo
 --spring.datasource.username=sa
 --spring.datasource.password=
---spring.rabbitmq.port=5672
 "
 PROXY_ARG="
 --mt.common.url.access=http://localhost:8080
@@ -20,7 +19,6 @@ PROXY_ARG="
 --mt.common.instance-id=1
 --spring.redis.host=localhost
 --spring.redis.port=6379
---spring.rabbitmq.port=5672
 "
 VM_ARGS="-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 # prepare h2 db data
