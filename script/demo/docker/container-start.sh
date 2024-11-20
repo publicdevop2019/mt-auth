@@ -31,7 +31,7 @@ java -cp h2*.jar org.h2.tools.Server -tcpAllowOthers -webAllowOthers &
 java $VM_ARGS -jar access.jar $ACCESS_ARGS &
 echo "sleeping start" &
  # sleep to wait for app ready to connect
- sleep 10
- echo "sleeping end" &
+sleep 10
+echo "sleeping end" &
 java $VM_ARGS -jar proxy.jar $PROXY_ARG &
 tail -f /dev/null
