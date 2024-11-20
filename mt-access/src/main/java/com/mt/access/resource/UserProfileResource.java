@@ -55,7 +55,7 @@ public class UserProfileResource {
      *
      * @param command  forget pwd command
      * @param changeId change id
-     * @param jwt jwt token
+     * @param jwt      jwt token
      * @return void
      */
     @PostMapping(path = "users/forgetPwd")

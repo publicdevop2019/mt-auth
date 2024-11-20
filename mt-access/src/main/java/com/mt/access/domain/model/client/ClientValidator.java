@@ -3,7 +3,6 @@ package com.mt.access.domain.model.client;
 
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import org.springframework.util.StringUtils;
 
 public class ClientValidator {
     private final Client client;

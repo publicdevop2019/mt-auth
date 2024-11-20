@@ -6,6 +6,7 @@ import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
+import com.mt.access.domain.model.MfaService;
 import com.mt.access.domain.model.NewUserService;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.PwdResetService;
@@ -42,6 +43,7 @@ import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
+import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
 import com.mt.access.domain.model.temporary_code.TemporaryCodeService;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.token.AuthorizationCodeRepository;
@@ -49,13 +51,11 @@ import com.mt.access.domain.model.token.TokenService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeGenerator;
-import com.mt.access.domain.model.MfaService;
 import com.mt.access.domain.model.user.PwdResetTokenGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
 import com.mt.access.domain.model.verification_code.VerificationCodeGenerator;
-import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
 import com.mt.access.infrastructure.operation_cool_down.OperationCoolDownRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -185,6 +185,7 @@ public class DomainRegistry {
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
     }
+
     @Autowired
     public void setPwdResetService(PwdResetService services) {
         DomainRegistry.pwdResetService = services;

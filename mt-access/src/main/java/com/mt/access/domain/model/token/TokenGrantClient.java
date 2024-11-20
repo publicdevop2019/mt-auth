@@ -39,9 +39,11 @@ public class TokenGrantClient {
         setResourceIds(collect2);
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
     }
+
     public Set<String> getRegisteredRedirectUri() {
         return registeredRedirectUri;
     }
+
     public String getClientId() {
         return clientId.getDomainId();
     }

@@ -3,7 +3,6 @@ package com.mt.access.port.adapter.persistence.user;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.Language;
 import com.mt.access.domain.model.user.LoginUser;
-import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;

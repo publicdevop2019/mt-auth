@@ -22,7 +22,8 @@ public class NewUserService {
     public UserId create(UserMobile userMobile, VerificationCode code, UserId userId,
                          TransactionContext context) {
         DomainRegistry.getTemporaryCodeService()
-            .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI, VerificationCode.OPERATION_TYPE,
+            .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
+                VerificationCode.OPERATION_TYPE,
                 userMobile.getValue());
         UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
             new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
@@ -47,7 +48,8 @@ public class NewUserService {
     public UserId create(UserEmail email, VerificationCode code, UserId userId,
                          TransactionContext context) {
         DomainRegistry.getTemporaryCodeService()
-            .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI, VerificationCode.OPERATION_TYPE,
+            .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
+                VerificationCode.OPERATION_TYPE,
                 email.getEmail());
         UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
             new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
