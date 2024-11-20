@@ -1,6 +1,9 @@
 # enter username and password for docker hub
 docker login
 # run below to use different builder
+if docker buildx ls | grep -q "my-builder"; then
+    docker buildx rm my-builder
+fi
 docker buildx create --name my-builder
 docker buildx use my-builder
 # build access and proxy jar
