@@ -7,8 +7,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-
+@Slf4j
 public class ConcurrentUtility {
     /**
      * copied from https://www.planetgeek.ch/2009/08/25/how-to-find-a-concurrency-bug-with-java/
@@ -36,6 +37,7 @@ public class ConcurrentUtility {
                             afterInitBlocker.await();
                             submittedTestRunnable.run();
                         } catch (final Throwable e) {
+                            log.error("exception during concurrent",e);
                             exceptions.add(e);
                         } finally {
                             allDone.countDown();

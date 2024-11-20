@@ -1,7 +1,5 @@
 package com.mt.proxy.infrastructure.filter;
 
-import static com.mt.proxy.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
-
 import com.mt.proxy.domain.RegisteredApplication;
 import java.net.URI;
 import java.util.Collections;
@@ -42,24 +40,20 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
         if (log.isDebugEnabled()) {
             log.debug("ignore not found ex when delete routes, count {}", count);
         }
-        registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).forEach(e -> {
+        registeredApplicationSet.stream().filter(app -> app.getBasePath() != null).forEach(app -> {
             RouteDefinition definition = new RouteDefinition();
-            definition.setId(e.getId());
-            if (MT_AUTH_PROJECT_ID.equalsIgnoreCase(e.getProjectId())) {
-                definition.setUri(URI.create("lb://" + e.getId()));
-            } else {
-                definition.setUri(URI.create(e.getExternalUrl()));
-            }
+            definition.setId(app.getId());
+            definition.setUri(URI.create(app.getExternalUrl()));
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setName("Path");
             Map<String, String> predicateParams = new HashMap<>(8);
-            predicateParams.put("pattern", "/" + e.getBasePath() + "/**");
+            predicateParams.put("pattern", "/" + app.getBasePath() + "/**");
             predicate.setArgs(predicateParams);
             definition.setPredicates(Collections.singletonList(predicate));
             FilterDefinition filter = new FilterDefinition();
             filter.setName("RewritePath");
             Map<String, String> filterParams = new HashMap<>(8);
-            filterParams.put("regexp", "/" + e.getBasePath() + "(?<segment>/?.*)");
+            filterParams.put("regexp", "/" + app.getBasePath() + "(?<segment>/?.*)");
             filterParams.put("replacement", "${segment}");
             filter.setArgs(filterParams);
             definition.setFilters(List.of(filter));

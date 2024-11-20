@@ -97,7 +97,6 @@ import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/s
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryUserComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
-import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';
 import { JobComponent } from './pages/mgmt/job/job.component';
@@ -177,7 +176,6 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
     WelcomeComponent,
     MgmtEndpointComponent,
     MgmtClientComponent,
-    RegistryComponent,
     JobComponent,
     MfaComponent,
     SummaryNotificationComponent,

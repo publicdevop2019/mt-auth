@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.user.event;
 
-import com.mt.access.domain.model.user.PasswordResetCode;
+import com.mt.access.domain.model.user.PwdResetCode;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
@@ -26,14 +26,14 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
     }
 
     public UserPwdResetCodeUpdated(UserId userId, UserEmail email,
-                                   PasswordResetCode pwdResetToken) {
+                                   PwdResetCode pwdResetToken) {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);
     }
 
     public UserPwdResetCodeUpdated(UserId userId, UserMobile mobile,
-                                   PasswordResetCode pwdResetToken) {
+                                   PwdResetCode pwdResetToken) {
         super(userId);
         countryCode = mobile.getCountryCode();
         mobileNumber = mobile.getMobileNumber();
@@ -46,7 +46,7 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
         }
     }
 
-    public void setCode(PasswordResetCode passwordResetCode) {
-        this.code = passwordResetCode.getValue();
+    public void setCode(PwdResetCode pwdResetCode) {
+        this.code = pwdResetCode.getValue();
     }
 }

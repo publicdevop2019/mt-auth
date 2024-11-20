@@ -3,10 +3,6 @@ package com.mt.access.port.adapter.persistence.user;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.Language;
 import com.mt.access.domain.model.user.LoginUser;
-import com.mt.access.domain.model.user.MfaCode;
-import com.mt.access.domain.model.user.MfaId;
-import com.mt.access.domain.model.user.MfaInfo;
-import com.mt.access.domain.model.user.PasswordResetCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;
@@ -38,14 +34,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcUserRepository implements UserRepository {
 
-    public static final String UPDATE_MFA_SQL =
-        "UPDATE user_ u SET u.mfa_id  = ?, u.mfa_code = ? WHERE u.domain_id = ?";
     public static final String QUERY_USER_BY_EMAIL =
         "SELECT * FROM user_ u WHERE u.email = ?";
     public static final String QUERY_USER_BY_MOBILE =
         "SELECT * FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
-    private static final String GET_MFA_SQL =
-        "SELECT u.mfa_id, u.mfa_code FROM user_ u WHERE u.domain_id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM user_ u " +
         "WHERE %s ORDER BY u.id ASC LIMIT ? OFFSET ? ";
     private static final String DYNAMIC_COUNT_QUERY_SQL = "SELECT COUNT(*) AS count FROM user_ u " +
@@ -65,17 +57,14 @@ public class JdbcUserRepository implements UserRepository {
         "email, " +
         "locked, " +
         "password, " +
-        "pwd_reset_code, " +
         "domain_id, " +
         "username, " +
         "country_code, " +
         "mobile_number, " +
         "avatar_link, " +
-        "language, " +
-        "mfa_id, " +
-        "mfa_code " +
+        "language " +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String QUERY_LOGIN_USER_BY_EMAIL_SQL =
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?";
     private static final String QUERY_LOGIN_USER_BY_ID_SQL =
@@ -89,32 +78,14 @@ public class JdbcUserRepository implements UserRepository {
         "u.modified_by = ?, " +
         "u.locked = ?, " +
         "u.password = ?, " +
-        "u.pwd_reset_code = ?, " +
         "u.username = ?, " +
         "u.country_code = ?, " +
         "u.mobile_number = ?, " +
         "u.email = ?, " +
         "u.avatar_link = ?, " +
         "u.language = ?, " +
-        "u.mfa_id = ?, " +
-        "u.mfa_code = ?, " +
         "u.version = ? " +
         "WHERE u.id = ? AND u.version = ? ";
-
-    @Override
-    public MfaInfo getUserMfaInfo(UserId userId) {
-        return CommonDomainRegistry.getJdbcTemplate()
-            .query(GET_MFA_SQL,
-                rs -> {
-                    if (!rs.next()) {
-                        return null;
-                    }
-                    return MfaInfo.deserialize(new MfaId(rs.getString("mfa_id")),
-                        new MfaCode(rs.getString("mfa_code")));
-                },
-                userId.getDomainId()
-            );
-    }
 
     @Override
     public Optional<User> query(UserId userId) {
@@ -170,15 +141,12 @@ public class JdbcUserRepository implements UserRepository {
                 Checker.isNull(user.getEmail()) ? null : user.getEmail().getEmail(),
                 user.getLocked(),
                 Checker.isNull(user.getPassword()) ? null : user.getPassword().getPassword(),
-                Checker.isNull(user.getPwdResetToken()) ? null : user.getPwdResetToken().getValue(),
                 user.getUserId().getDomainId(),
                 Checker.isNull(user.getUserName()) ? null : user.getUserName().getValue(),
                 Checker.isNull(user.getMobile()) ? null : user.getMobile().getCountryCode(),
                 Checker.isNull(user.getMobile()) ? null : user.getMobile().getMobileNumber(),
                 Checker.isNull(user.getUserAvatar()) ? null : user.getUserAvatar().getValue(),
-                Checker.isNull(user.getLanguage()) ? null : user.getLanguage().name(),
-                Checker.isNull(user.getMfaInfo()) ? null : user.getMfaInfo().getId().getValue(),
-                Checker.isNull(user.getMfaInfo()) ? null : user.getMfaInfo().getCode().getValue()
+                Checker.isNull(user.getLanguage()) ? null : user.getLanguage().name()
             );
     }
 
@@ -297,16 +265,6 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
-    public void updateMfaInfo(MfaInfo mfaInfo, UserId userId) {
-        int update = CommonDomainRegistry.getJdbcTemplate()
-            .update(UPDATE_MFA_SQL,
-                mfaInfo.getId().getValue(),
-                mfaInfo.getCode().getValue(),
-                userId.getDomainId());
-        DatabaseUtility.checkUpdate(update);
-    }
-
-    @Override
     public Optional<LoginUser> queryLoginUser(UserEmail email) {
         LoginUser query = CommonDomainRegistry.getJdbcTemplate()
             .query(QUERY_LOGIN_USER_BY_EMAIL_SQL,
@@ -355,18 +313,12 @@ public class JdbcUserRepository implements UserRepository {
                 updated.getModifiedBy(),
                 updated.getLocked(),
                 Checker.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
-                Checker.isNull(updated.getPwdResetToken()) ? null :
-                    updated.getPwdResetToken().getValue(),
                 Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
                 Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
                 Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
                 Checker.isNull(updated.getEmail()) ? null : updated.getEmail().getEmail(),
                 Checker.isNull(updated.getUserAvatar()) ? null : updated.getUserAvatar().getValue(),
                 Checker.isNull(updated.getLanguage()) ? null : updated.getLanguage().name(),
-                Checker.isNull(updated.getMfaInfo()) ? null :
-                    updated.getMfaInfo().getId().getValue(),
-                Checker.isNull(updated.getMfaInfo()) ? null :
-                    updated.getMfaInfo().getCode().getValue(),
                 updated.getVersion() + 1,
                 updated.getId(),
                 updated.getVersion()
@@ -435,8 +387,6 @@ public class JdbcUserRepository implements UserRepository {
                             new UserEmail(rs.getString("email")),
                         DatabaseUtility.getNullableBoolean(rs, "locked"),
                         userPassword,
-                        Checker.isNull(rs.getString("pwd_reset_code")) ? null :
-                            new PasswordResetCode(rs.getString("pwd_reset_code")),
                         new UserId(rs.getString("domain_id")),
                         Checker.isNull(rs.getString("username")) ? null :
                             new UserName(rs.getString("username")),
@@ -448,11 +398,7 @@ public class JdbcUserRepository implements UserRepository {
                         Checker.isNull(rs.getString("avatar_link")) ? null :
                             new UserAvatar(new ImageId(rs.getString("avatar_link"))),
                         Checker.notNull(rs.getString("language")) ?
-                            Language.valueOf(rs.getString("language")) : null,
-                        Checker.notNull(rs.getString("mfa_id")) &&
-                            Checker.notNull(rs.getString("mfa_code")) ?
-                            MfaInfo.deserialize(new MfaId(rs.getString("mfa_id")),
-                                new MfaCode(rs.getString("mfa_code"))) : null
+                            Language.valueOf(rs.getString("language")) : null
                     );
                     list.add(user);
                     currentId = dbId;

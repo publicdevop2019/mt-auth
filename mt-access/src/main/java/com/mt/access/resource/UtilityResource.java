@@ -1,8 +1,5 @@
 package com.mt.access.resource;
 
-import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.registry.RegistryCardRepresentation;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,18 +10,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class UtilityResource {
-
-    /**
-     * get eureka registry information.
-     *
-     * @return registry info
-     */
-    @GetMapping(path = "registry")
-    public ResponseEntity<List<RegistryCardRepresentation>> registryInfo() {
-        List<RegistryCardRepresentation> info =
-            ApplicationServiceRegistry.getRegistryApplicationService().getInfo();
-        return ResponseEntity.ok(info);
-    }
 
     /**
      * do nothing api, used to attach csrf cookie in response by mt-proxy.

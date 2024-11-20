@@ -1,5 +1,5 @@
 package com.mt.access.domain.model.user;
 
-public interface PasswordResetTokenService {
+public interface MfaCodeGenerator {
     String generate();
 }

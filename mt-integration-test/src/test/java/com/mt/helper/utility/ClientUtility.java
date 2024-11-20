@@ -51,7 +51,7 @@ public class ClientUtility {
         Set<String> strings = new HashSet<>();
         strings.add(ClientType.BACKEND_APP.name());
         client.setTypes(strings);
-        client.setPath(RandomUtility.randomStringNoNum());
+        client.setPath(RandomUtility.randomStringNoNum(10));
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
     }
@@ -194,13 +194,10 @@ public class ClientUtility {
         return Utility.deleteResource(tenantContext.getCreator(), url, client.getId());
     }
 
-    public static ResponseEntity<String> createClient(Client client, String changeId) {
-        ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordAdmin =
-            UserUtility.getJwtPasswordAdmin();
-        String bearer = jwtPasswordAdmin.getBody().getValue();
+    public static ResponseEntity<String> createClient(String token, Client client, String changeId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
+        headers.setBearerAuth(token);
         headers.set("changeId", changeId);
         headers.set("X-XSRF-TOKEN", "123");
         headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");

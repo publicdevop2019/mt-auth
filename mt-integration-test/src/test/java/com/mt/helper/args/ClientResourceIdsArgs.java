@@ -29,7 +29,7 @@ public class ClientResourceIdsArgs implements ArgumentsProvider {
         HashSet<String> strings2 = new HashSet<>();
         strings2.add(RandomUtility.randomStringNoNum());
         HashSet<String> strings3 = new HashSet<>();
-        strings3.add(AppConstant.CLIENT_ID_TEST_ID);
+        strings3.add(AppConstant.CLIENT_ID_RESOURCE_ID);
         return Stream.of(
             Arguments.of(strings, HttpStatus.BAD_REQUEST),//too many element
             Arguments.of(strings2, HttpStatus.BAD_REQUEST),//invalid format

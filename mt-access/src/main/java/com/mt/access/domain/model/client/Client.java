@@ -37,7 +37,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.lang.ObjectUtils;
 
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
@@ -46,7 +45,6 @@ public class Client extends Auditable {
     private static final String MT_PROXY_ID = "0C8AZYTQ5W5C";
     private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
     private static final String MT_UI_LOGIN_ID = "0C8AZZ16LZB4";
-    private static final String EMPTY_SECRET = "";
     private static final Set<ClientId> reservedClientIds = new HashSet<>();
     private static final Pattern PATH_REGEX = Pattern.compile("^[a-z\\-/]*$");
 
@@ -273,7 +271,8 @@ public class Client extends Auditable {
         Validator.notNull(grantTypes);
         Validator.notEmpty(grantTypes);
         if (!isCreate) {
-            if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
+
+            if (!Checker.equals(grantTypes, this.grantTypes)) {
                 context
                     .append(new ClientGrantTypeChanged(clientId));
             }
@@ -406,11 +405,11 @@ public class Client extends Auditable {
     }
 
     private boolean resourcesChanged(Set<ClientId> clientIds) {
-        return !ObjectUtils.equals(this.resources, clientIds);
+        return !Checker.equals(this.resources, clientIds);
     }
 
     private boolean tokenDetailChanged(TokenDetail tokenDetail) {
-        return !ObjectUtils.equals(this.tokenDetail, tokenDetail);
+        return !Checker.equals(this.tokenDetail, tokenDetail);
     }
 
     public void removeAllReferenced(TransactionContext context) {

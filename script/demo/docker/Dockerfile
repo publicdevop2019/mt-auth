@@ -13,8 +13,8 @@ RUN apk add openjdk11
 RUN apk add nginx
 RUN mkdir -p /usr/share/nginx/html
 COPY  ./script/demo/docker/container-start.sh ./ 
-COPY  ./mt-access/target/Access.jar ./ 
-COPY  ./mt-proxy/target/Proxy.jar ./ 
+COPY  ./mt-access/target/access.jar ./ 
+COPY  ./mt-proxy/target/proxy.jar ./ 
 COPY  ./script/demo/docker/h2-2.3.232.jar ./ 
 COPY  ./script/demo/docker/init.sql ./ 
 COPY  ./mt-ui/dist/. /usr/share/nginx/html 

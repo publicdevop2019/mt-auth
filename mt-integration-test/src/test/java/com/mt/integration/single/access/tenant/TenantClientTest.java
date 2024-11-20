@@ -75,7 +75,7 @@ public class TenantClientTest {
 
     @Test
     public void tenant_resource_client_must_be_accessible() {
-        Client client = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_TEST_ID);
+        Client client = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_TEST_ID_NONE_RESOURCE);
         ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }

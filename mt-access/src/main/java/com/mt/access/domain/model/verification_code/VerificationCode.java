@@ -1,58 +1,32 @@
 package com.mt.access.domain.model.verification_code;
 
-import com.mt.access.domain.model.activation_code.Code;
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.AnyDomainId;
-import com.mt.common.domain.model.domain_event.DomainId;
-import lombok.AccessLevel;
+import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@NoArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class VerificationCode extends Auditable {
-    @Setter(AccessLevel.PRIVATE)
+@EqualsAndHashCode
+public class VerificationCode {
+    public static final Integer EXPIRE_AFTER_MILLI = 5 * 60 * 1000;
+    public static final String OPERATION_TYPE = "LOGIN";
     @Getter
-    private DomainId domainId;
+    private String value;
 
-    @Getter
-    private Code code;
-
-    public VerificationCode(RegistrationEmail email, Code code) {
-        super();
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        setDomainId(email);
-        setCode(code);
+    public VerificationCode() {
+        setValue(DomainRegistry.getLoginCodeGenerator().generate());
     }
 
-    public VerificationCode(RegistrationMobile mobile, Code code) {
-        super();
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        setDomainId(mobile);
-        setCode(code);
+    public VerificationCode(String value) {
+        setValue(value);
     }
 
-    public static VerificationCode fromDatabaseRow(Long id, Long createdAt, String createdBy,
-                                                   Long modifiedAt, String modifiedBy,
-                                                   Integer version,
-                                                   Code code,
-                                                   AnyDomainId domainId) {
-        VerificationCode verificationCode = new VerificationCode();
-        verificationCode.setId(id);
-        verificationCode.setCreatedAt(createdAt);
-        verificationCode.setCreatedBy(createdBy);
-        verificationCode.setModifiedAt(modifiedAt);
-        verificationCode.setModifiedBy(modifiedBy);
-        verificationCode.setVersion(version);
-        verificationCode.setCode(code);
-        verificationCode.setDomainId(domainId);
-        return verificationCode;
+    public void setValue(String value) {
+        Validator.notNull(value);
+        Validator.notBlank(value);
+        Validator.lessThanOrEqualTo(value, 6);
+        Validator.greaterThanOrEqualTo(value, 6);
+        this.value = value;
     }
 
-    private void setCode(Code code) {
-        this.code = code;
-    }
+
 }

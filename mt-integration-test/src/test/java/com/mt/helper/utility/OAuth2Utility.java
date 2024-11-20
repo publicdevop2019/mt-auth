@@ -375,19 +375,15 @@ public class OAuth2Utility {
         } else {
             Boolean deliveryMethod =
                 (Boolean) exchange.getBody().getAdditionalInformation().get("deliveryMethod");
-            String mfaId;
             if (deliveryMethod != null && deliveryMethod) {
                 ResponseEntity<DefaultOAuth2AccessToken> exchange2 =
                     getTokenWithUserMfa(grantType, clientId, clientSecret, email, countryCode,
                         mobileNumber, username, pwd,
-                        null, null, "email", type);
-                mfaId = (String) exchange2.getBody().getAdditionalInformation().get("mfaId");
-            } else {
-                mfaId = (String) exchange.getBody().getAdditionalInformation().get("mfaId");
+                        null, "email", type);
             }
             return getTokenWithUserMfa(grantType, clientId, clientSecret, email, countryCode,
                 mobileNumber, username, pwd,
-                mfaId, AppConstant.MFA_CODE, null, type);
+                AppConstant.MFA_CODE, null, type);
         }
     }
 
@@ -405,7 +401,6 @@ public class OAuth2Utility {
         String mobileNumber,
         String username,
         String pwd,
-        String mfaId,
         String mfaCode,
         String mfaMethod,
         String type
@@ -418,7 +413,6 @@ public class OAuth2Utility {
         params.add("mobile_number", mobileNumber);
         params.add("password", pwd);
         params.add("scope", "not_used");
-        params.add("mfa_id", mfaId);
         params.add("mfa_code", mfaCode);
         params.add("mfa_method", mfaMethod);
         params.add("type", type);

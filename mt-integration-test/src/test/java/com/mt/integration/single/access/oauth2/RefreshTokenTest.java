@@ -131,7 +131,6 @@ public class RefreshTokenTest {
         enums.add(GrantType.PASSWORD.name());
         enums.add(GrantType.REFRESH_TOKEN.name());
         clientRaw.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
-        clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setResourceIndicator(true);
         clientRaw.setAccessTokenValiditySeconds(60);

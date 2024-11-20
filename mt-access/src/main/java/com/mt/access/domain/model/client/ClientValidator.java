@@ -1,8 +1,8 @@
 package com.mt.access.domain.model.client;
 
 
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import org.springframework.util.StringUtils;
 
 public class ClientValidator {
     private final Client client;
@@ -60,12 +60,12 @@ public class ClientValidator {
     }
 
     private void pathAndType() {
-        if (StringUtils.isEmpty(client.getPath())
+        if (Checker.isBlank(client.getPath())
             &&
             client.getTypes().contains(ClientType.BACKEND_APP)) {
             handler.handleError("backend client require path");
         }
-        if (!StringUtils.isEmpty(client.getPath())
+        if (!Checker.isBlank(client.getPath())
             &&
             client.getTypes().contains(ClientType.FRONTEND_APP)) {
             handler.handleError("frontend client should not have path");

@@ -43,11 +43,6 @@
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>jaxb-runtime</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.zalando</groupId>-->
-<!--            <artifactId>logbook-spring-boot-starter</artifactId>-->
-<!--            <version>1.7.1</version>-->
-<!--        </dependency>-->
         <!-- exclude logback , add log4j2 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -63,19 +58,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-log4j2</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--            <version>2.1.4.RELEASE</version>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>mysql</groupId>-->
-<!--            <artifactId>mysql-connector-java</artifactId>-->
-<!--        </dependency>-->
+<!--        rest template custom fix so gzip can be used-->
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-            <version>2.1.2.RELEASE</version>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.14</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>

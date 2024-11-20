@@ -10,7 +10,6 @@
 --mt.common.instance-id=1
 --spring.redis.host=localhost
 --spring.redis.port=6381
---spring.rabbitmq.port=5673
 ```
 
 # Environment

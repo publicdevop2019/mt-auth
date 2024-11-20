@@ -3,10 +3,8 @@ package com.mt.common.domain.model.jwt;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.service_discovery.ServiceDiscovery;
 import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +34,6 @@ public class ResourceServiceTokenHelper {
     private String clientSecret;
 
     @Autowired
-    private ServiceDiscovery serviceDiscovery;
-
-    @Autowired
     private RestTemplate restTemplate;
 
     private String storedJwtToken = null;
@@ -52,9 +47,8 @@ public class ResourceServiceTokenHelper {
         String token = null;
         try {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-            ResponseEntity<String> resp = restTemplate.exchange(
-                serviceDiscovery.getApplicationUrl(CommonConstant.APP_ID_PROXY) + tokenUrl,
-                HttpMethod.POST, request, String.class);
+            ResponseEntity<String> resp =
+                restTemplate.exchange(tokenUrl, HttpMethod.POST, request, String.class);
             token = this.extractToken(resp);
         } catch (Exception e) {
             log.error("unable to get jwt token", e);
@@ -75,8 +69,8 @@ public class ResourceServiceTokenHelper {
     }
 
     /**
-     * wrap request with jwt token, re try if jwt expired for first time,
-     * only re-try with 401 error code.
+     * wrap request with jwt token, retry if jwt expired for first time,
+     * only retry with 401 error code.
      *
      * @param url        url
      * @param httpMethod http method

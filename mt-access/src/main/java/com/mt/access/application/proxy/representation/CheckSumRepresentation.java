@@ -15,7 +15,7 @@ public class CheckSumRepresentation {
                                   Map<ProxyInfo, CheckSumValue> cacheEndpointSum) {
         hostValue = hostCheckSum.getValue();
         proxyValue = new HashMap<>();
-        cacheEndpointSum.forEach((k, v) -> proxyValue.put(k.getId(), v.getValue()));
+        cacheEndpointSum.forEach((k, v) -> proxyValue.put(k.getUrl(), v.getValue()));
 
     }
 }

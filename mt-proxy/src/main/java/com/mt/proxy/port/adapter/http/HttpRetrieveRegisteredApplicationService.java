@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component;
 public class HttpRetrieveRegisteredApplicationService
     implements RetrieveRegisterApplicationService {
 
-    private static final String CLIENT_URL = "clients/proxy";
+    private static final String CLIENT_URL = "/clients/proxy";
     @Autowired
     private HttpUtility httpHelper;
 
     @Override
     public Set<RegisteredApplication> fetchAll() {
-        return httpHelper.loadAllData(httpHelper.resolveAccessPath() + CLIENT_URL, 40, false,
+        return httpHelper.loadAllData(httpHelper.getAccessUrl() + CLIENT_URL, 40, false,
             new ParameterizedTypeReference<>() {
             });
     }

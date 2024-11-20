@@ -45,16 +45,15 @@ export class MfaComponent implements OnInit {
 
       if (this.authSvc.loginFormValue) {
         const code = this.mfaForm.get('mfaCode').value
-        const mfaId = this.authSvc.mfaResponse.mfaId;
         const nextUrl = this.authSvc.loginNextUrl;
         let response: Observable<ITokenResponse | IMfaResponse>
         if (this.authSvc.loginFormValue.get('pwdMobileNumber').value) {
-          response = this.httpProxy.mfaLoginMobilePwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
+          response = this.httpProxy.mfaLoginMobilePwd(this.authSvc.loginFormValue, code, this.changeId)
         } else {
           if ((this.authSvc.loginFormValue.get('pwdEmailOrUsername').value as string).includes("@")) {
-            response = this.httpProxy.mfaLoginEmailPwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
+            response = this.httpProxy.mfaLoginEmailPwd(this.authSvc.loginFormValue, code, this.changeId)
           } else {
-            response = this.httpProxy.mfaLoginUsernamePwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
+            response = this.httpProxy.mfaLoginUsernamePwd(this.authSvc.loginFormValue, code, this.changeId)
           }
         }
         response.subscribe(next => {

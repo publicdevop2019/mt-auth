@@ -1,4 +1,4 @@
-package com.mt.access.application.client.representation;
+package com.mt.access.domain.model.token;
 
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
@@ -11,26 +11,23 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Setter
-public class ClientOAuth2Representation {
+public class TokenGrantClient {
     private ClientId clientId;
     @Getter
     private ProjectId projectId;
     @Getter
     private RoleId roleId;
     @Getter
-    private String clientSecret;
     private Set<GrantType> grantTypes;
     private Integer accessTokenValiditySeconds;
-    private Set<String> registeredRedirectUri;
     private Integer refreshTokenValiditySeconds;
     private Set<String> resourceIds;
-    private Boolean autoApprove;
+    private Set<String> registeredRedirectUri;
 
-    public ClientOAuth2Representation(Client client) {
+    public TokenGrantClient(Client client) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());
-        setClientSecret(client.getSecret());
         setGrantTypes(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
@@ -40,8 +37,11 @@ public class ClientOAuth2Representation {
             .collect(Collectors.toSet());
         collect2.addAll(collect);
         setResourceIds(collect2);
-        setAutoApprove(client.getAutoApprove());
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
+    }
+
+    public Set<String> getRegisteredRedirectUri() {
+        return registeredRedirectUri;
     }
 
     public String getClientId() {
@@ -55,11 +55,6 @@ public class ClientOAuth2Representation {
     public Set<String> getAuthorizedGrantTypes() {
         return grantTypes.stream().map(e -> e.name().toLowerCase()).collect(Collectors.toSet());
     }
-
-    public Set<String> getRegisteredRedirectUri() {
-        return registeredRedirectUri;
-    }
-
 
     public Integer getAccessTokenValiditySeconds() {
         return accessTokenValiditySeconds;

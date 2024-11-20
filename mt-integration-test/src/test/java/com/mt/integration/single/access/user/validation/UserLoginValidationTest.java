@@ -5,7 +5,6 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.UserUtility;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -422,6 +421,26 @@ public class UserLoginValidationTest {
     }
 
     @Test
+    public void validation_email_code_login_expired_code() throws InterruptedException {
+        User user = UserUtility.randomEmailOnlyUser();
+        UserUtility.sendVerifyCode(user);
+        Thread.sleep(5 * 60 * 1000);
+        ResponseEntity<DefaultOAuth2AccessToken> response6 =
+            UserUtility.emailCodeLogin(user, "123456");
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+    @Test
+    public void validation_email_code_login_no_wait() {
+        User user = UserUtility.randomEmailOnlyUser();
+        ResponseEntity<DefaultOAuth2AccessToken> response =
+            UserUtility.emailCodeLogin(user);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        ResponseEntity<DefaultOAuth2AccessToken> response2 =
+            UserUtility.emailCodeLogin(user);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+    }
+
+    @Test
     public void validation_username_pwd_login_invalid_username() {
         User user = UserUtility.randomUsernamePwdUser();
         //null
@@ -552,5 +571,17 @@ public class UserLoginValidationTest {
         user.setPassword("Password1");
         ResponseEntity<DefaultOAuth2AccessToken> response9 = UserUtility.emailPwdLoginRaw(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
+    }
+
+
+    @Test
+    public void validation_mobile_code_login_no_wait() {
+        User user = UserUtility.randomMobileOnlyUser();
+        ResponseEntity<DefaultOAuth2AccessToken> response =
+            UserUtility.mobileCodeLogin(user);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        ResponseEntity<DefaultOAuth2AccessToken> response2 =
+            UserUtility.mobileCodeLogin(user);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 }

@@ -42,13 +42,6 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'mgmt/registry',
-      display: 'REGISTRY_STATUS',
-      icon: 'receipt',
-      params: {
-      },
-    },
-    {
       link: 'mgmt/jobs',
       display: 'JOB_STATUS',
       icon: 'work_history',

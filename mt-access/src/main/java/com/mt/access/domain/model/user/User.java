@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.model.user.event.UserGetLocked;
-import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -56,11 +55,6 @@ public class User extends Auditable {
     @Getter
     private Boolean locked;
 
-    @Getter
-    private PasswordResetCode pwdResetToken;
-    @Getter
-    private MfaInfo mfaInfo;
-
     private User(UserId userId, UserMobile mobile) {
         super();
         setMobile(mobile);
@@ -100,10 +94,10 @@ public class User extends Auditable {
     public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
                                        String modifiedBy, Integer version,
                                        UserEmail email, Boolean locked, UserPassword userPassword,
-                                       PasswordResetCode passwordResetCode, UserId domainId,
+                                       UserId domainId,
                                        UserName userName,
                                        UserMobile userMobile, UserAvatar userAvatar,
-                                       Language language, MfaInfo mfaInfo) {
+                                       Language language) {
         User user = new User();
         user.setId(id);
         user.setCreatedAt(createdAt);
@@ -114,13 +108,11 @@ public class User extends Auditable {
         user.setEmail(email);
         user.setLocked(locked);
         user.setPassword(userPassword);
-        user.pwdResetToken = passwordResetCode;
         user.setUserId(domainId);
         user.setUserName(userName);
         user.setMobile(userMobile);
         user.setUserAvatar(userAvatar);
         user.setLanguage(language);
-        user.mfaInfo = mfaInfo;
         return user;
     }
 
@@ -157,7 +149,7 @@ public class User extends Auditable {
             return email.getEmail();
         }
         if (Checker.notNull(mobile)) {
-            return mobile.value();
+            return mobile.getValue();
         }
         return null;
     }
@@ -165,25 +157,6 @@ public class User extends Auditable {
     @Override
     public void validate(ValidationNotificationHandler handler) {
     }
-
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserEmail email,
-                                 TransactionContext context) {
-        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
-        user.pwdResetToken = pwdResetToken;
-        context
-            .append(new UserPwdResetCodeUpdated(getUserId(), email, pwdResetToken));
-        return user;
-    }
-
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserMobile mobile,
-                                 TransactionContext context) {
-        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
-        user.pwdResetToken = pwdResetToken;
-        context
-            .append(new UserPwdResetCodeUpdated(getUserId(), mobile, pwdResetToken));
-        return user;
-    }
-
 
     public User lockUser(Boolean locked, TransactionContext context) {
         User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
@@ -210,9 +183,7 @@ public class User extends Auditable {
             Objects.equals(userAvatar, update.userAvatar) &&
             Objects.equals(userName, update.userName) && language == update.language &&
             Objects.equals(userId, update.userId) &&
-            Objects.equals(locked, update.locked) &&
-            Objects.equals(pwdResetToken, update.pwdResetToken) &&
-            Objects.equals(mfaInfo, update.mfaInfo);
+            Objects.equals(locked, update.locked);
     }
 
     public User updatePassword(UserPassword password) {

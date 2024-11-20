@@ -1,5 +1,8 @@
 package com.mt.access.domain.model.token;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+
 /**
  * same as Client's Grant Type but with logic specific during token grant
  */
@@ -27,6 +30,7 @@ public enum TokenGrantType {
         if (AUTHORIZATION_CODE.label.equalsIgnoreCase(type)) {
             return TokenGrantType.AUTHORIZATION_CODE;
         }
-        return null;
+        throw new DefinedRuntimeException("invalid params", "1089",
+            HttpResponseCode.BAD_REQUEST);
     }
 }

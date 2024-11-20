@@ -7,15 +7,17 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @EqualsAndHashCode
-public class PasswordResetCode implements Serializable {
+public class PwdResetCode implements Serializable {
+    public static final Integer EXPIRE_AFTER_MILLI = 5 * 60 * 1000;
+    public static final String OPERATION_TYPE = "PWD_RESET";
     @Getter
     private String value;
 
-    public PasswordResetCode() {
-        setValue(DomainRegistry.getPasswordResetTokenService().generate());
+    public PwdResetCode() {
+        setValue(DomainRegistry.getPwdResetTokenGeneratorService().generate());
     }
 
-    public PasswordResetCode(String value) {
+    public PwdResetCode(String value) {
         setValue(value);
     }
 
@@ -24,5 +26,4 @@ public class PasswordResetCode implements Serializable {
         Validator.greaterThanOrEqualTo(value, 9);
         this.value = value;
     }
-
 }

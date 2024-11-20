@@ -36,20 +36,6 @@ public class MgmtUtilityTest{
     }
 
     @Test
-    public void can_get_registry() {
-        RestTemplate restTemplate = TestContext.getRestTemplate();
-        String jwtAdmin = UserUtility.getJwtAdmin();
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.setBearerAuth(jwtAdmin);
-        HttpEntity<Void> voidRequestEntity = new HttpEntity<>(null, httpHeaders);
-        ResponseEntity<Void> exchange =
-            restTemplate.exchange(HttpUtility.getAccessUrl("registry"),
-                HttpMethod.GET, voidRequestEntity, new ParameterizedTypeReference<>() {
-                });
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-    }
-
-    @Test
     public void can_get_csrf_value() {
         RestTemplate restTemplate = TestContext.getRestTemplate();
         ResponseEntity<Void> exchange =

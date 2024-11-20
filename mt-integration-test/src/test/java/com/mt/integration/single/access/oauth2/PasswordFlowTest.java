@@ -45,7 +45,7 @@ public class PasswordFlowTest {
     public void get_access_token_only_for_clients_without_refresh_configured() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
             OAuth2Utility.getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_PASSWORD,
-                AppConstant.CLIENT_ID_TEST_ID, AppConstant.COMMON_CLIENT_SECRET,
+                AppConstant.CLIENT_ID_TEST_ID_NONE_RESOURCE, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertNotNull(tokenResponse.getBody().getValue());
         Assertions.assertNull(tokenResponse.getBody().getRefreshToken());

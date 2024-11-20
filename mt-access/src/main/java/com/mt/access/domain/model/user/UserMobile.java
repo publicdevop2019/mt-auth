@@ -1,22 +1,22 @@
 package com.mt.access.domain.model.user;
 
+import static com.mt.access.infrastructure.AppConstant.COUNTRY_CODE_REGEX;
+import static com.mt.access.infrastructure.AppConstant.MOBILE_NUMBER_REGEX;
+
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @EqualsAndHashCode
 public class UserMobile implements Serializable {
-    private static final Pattern COUNTRY_CODE_REGEX = Pattern.compile("^[0-9]{1,3}$");
-    private static final Pattern MOBILE_NUMBER_REGEX = Pattern.compile("^[0-9]{10,11}$");
     @Getter
-    String countryCode;
+    private String countryCode;
     @Getter
-    String mobileNumber;
+    private String mobileNumber;
 
     private UserMobile() {
     }
@@ -52,7 +52,7 @@ public class UserMobile implements Serializable {
         this.mobileNumber = mobileNumber;
     }
 
-    public String value() {
+    public String getValue() {
         return "+" + countryCode + " " + mobileNumber;
     }
 

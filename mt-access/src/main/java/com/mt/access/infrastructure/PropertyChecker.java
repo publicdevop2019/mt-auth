@@ -10,8 +10,6 @@ import org.springframework.stereotype.Component;
 public class PropertyChecker {
     @Value("${spring.datasource.url}")
     private String datasourceUlr;
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
 
     @PostConstruct
     public void checkProperties() {
@@ -19,19 +17,15 @@ public class PropertyChecker {
             log.warn(
                 "batch insert is disabled, this can greatly impact performance, pls add rewriteBatchedStatements=true to your spring.datasource.url");
         }
-        if (activeProfile.equalsIgnoreCase("prod")) {
-            if (datasourceUlr.contains("useSSL=false") ||
-                datasourceUlr.contains("allowPublicKeyRetrieval=true")) {
-                log.warn(
-                    "unsafe property detected, considering remove them for security");
-            }
+        if (datasourceUlr.contains("useSSL=false") ||
+            datasourceUlr.contains("allowPublicKeyRetrieval=true")) {
+            log.warn(
+                "unsafe property detected, considering remove them for security");
         }
-        if (!activeProfile.equalsIgnoreCase("prod")) {
-            if (datasourceUlr.contains("useSSL=false") ||
-                datasourceUlr.contains("allowPublicKeyRetrieval=true")) {
-                log.info(
-                    "unsafe property detected, remember to remove it in production environment");
-            }
+        if (datasourceUlr.contains("useSSL=false") ||
+            datasourceUlr.contains("allowPublicKeyRetrieval=true")) {
+            log.warn(
+                "unsafe property detected, remember to remove it in production environment");
         }
     }
 }

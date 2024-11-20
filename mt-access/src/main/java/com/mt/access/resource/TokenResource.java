@@ -4,8 +4,13 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.token.representation.JwtTokenRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.token.TokenGrantContext;
+import com.mt.access.domain.model.token.TokenGrantType;
+import com.mt.access.domain.model.user.LoginResult;
 import com.mt.access.infrastructure.HttpUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class TokenResource {
+    private static final String MFA_REQUIRED = "mfa required";
 
     /**
      * token endpoint to track last login.
@@ -52,10 +58,69 @@ public class TokenResource {
             clientId = split[0];
             clientSecret = decoded.split(":")[1];
         }
-        String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
-        log.info("token acquire with ip {}", clientIpAddress);
-        return ApplicationServiceRegistry.getTokenApplicationService()
-            .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress, changeId);
+        String ipAddress = HttpUtility.getClientIpAddress(servletRequest);
+        log.info("token acquire with ip {}", ipAddress);
+        String grantType = parameters.get("grant_type");
+        String scope =
+            "not_used".equalsIgnoreCase(parameters.get("scope")) ? null : parameters.get("scope");
+        String refreshToken = parameters.get("refresh_token");
+        String viewTenantId = parameters.get("view_tenant_id");
+        String type = parameters.get("type");
+        String mobileNumber = parameters.get("mobile_number");
+        String countryCode = parameters.get("country_code");
+        String code = parameters.get("code");
+        String email = parameters.get("email");
+        String username = parameters.get("username");
+        String password = parameters.get("password");
+        String mfaMethod = parameters.get("mfa_method");
+        String mfaCode = parameters.get("mfa_code");
+        String redirectUri = parameters.get("redirect_uri");
+        TokenGrantContext context =
+            ApplicationServiceRegistry.getTokenApplicationService()
+                .grantToken(
+                    clientId,
+                    clientSecret,
+                    agentInfo,
+                    ipAddress,
+                    changeId,
+                    grantType,
+                    scope,
+                    refreshToken,
+                    viewTenantId,
+                    type,
+                    mobileNumber,
+                    countryCode,
+                    code,
+                    email,
+                    username,
+                    password,
+                    mfaMethod,
+                    mfaCode,
+                    redirectUri
+                );
+        LoginResult result = context.getLoginResult();
+        if (Checker.notNull(result) && Checker.isFalse(result.getAllowed())) {
+            if (Checker.isTrue(result.getInvalidMfa())) {
+                return ResponseEntity.badRequest().build();
+            } else {
+                HashMap<String, Object> map = new HashMap<>();
+                map.put("message", MFA_REQUIRED);
+                map.put("partialMobile", result.getPartialMobile());
+                map.put("partialEmail", result.getPartialEmail());
+                if (result.isSelectRequired()) {
+                    map.put("deliveryMethod", true);
+                }
+                return ResponseEntity.ok().body(map);
+            }
+        } else {
+            if (context.getGrantType().equals(TokenGrantType.PASSWORD)) {
+                return ResponseEntity.ok()
+                    .header("Location", context.getLoginUser().getUserId().getDomainId())
+                    .body(new JwtTokenRepresentation(context.getJwtToken()));
+            } else {
+                return ResponseEntity.ok(new JwtTokenRepresentation(context.getJwtToken()));
+            }
+        }
     }
 
     /**
@@ -72,8 +137,12 @@ public class TokenResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         HashMap<String, String> response = new HashMap<>();
+        String clientId = parameters.get("client_id");
+        String responseType = parameters.get("response_type");
+        String redirectUri = parameters.get("redirect_uri");
+        String projectId = parameters.get("project_id");
         String code = ApplicationServiceRegistry.getTokenApplicationService()
-            .authorize(parameters);
+            .authorize(projectId, clientId, responseType, redirectUri);
         response.put("authorize_code", code);
         return response;
     }

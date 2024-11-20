@@ -6,10 +6,13 @@ import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
+import com.mt.access.domain.model.MfaService;
 import com.mt.access.domain.model.NewUserService;
 import com.mt.access.domain.model.PermissionCheckService;
+import com.mt.access.domain.model.PwdResetService;
 import com.mt.access.domain.model.RemoteProxyService;
-import com.mt.access.domain.model.activation_code.ActivationCodeService;
+import com.mt.access.domain.model.TokenGrantService;
+import com.mt.access.domain.model.VerificationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
@@ -40,19 +43,19 @@ import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
+import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
+import com.mt.access.domain.model.temporary_code.TemporaryCodeService;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.token.AuthorizationCodeRepository;
 import com.mt.access.domain.model.token.TokenService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
-import com.mt.access.domain.model.user.MfaCodeService;
-import com.mt.access.domain.model.user.MfaService;
-import com.mt.access.domain.model.user.PasswordResetTokenService;
+import com.mt.access.domain.model.user.MfaCodeGenerator;
+import com.mt.access.domain.model.user.PwdResetTokenGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
-import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
-import com.mt.access.domain.model.verification_code.VerificationCodeService;
+import com.mt.access.domain.model.verification_code.VerificationCodeGenerator;
 import com.mt.access.infrastructure.operation_cool_down.OperationCoolDownRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -67,7 +70,7 @@ public class DomainRegistry {
     @Getter
     private static UserRepository userRepository;
     @Getter
-    private static VerificationCodeRepository verificationCodeRepository;
+    private static TemporaryCodeRepository temporaryCodeRepository;
     @Getter
     private static EndpointRepository endpointRepository;
     @Getter
@@ -83,9 +86,9 @@ public class DomainRegistry {
     @Getter
     private static RevokeTokenService revokeTokenService;
     @Getter
-    private static ActivationCodeService activationCodeService;
+    private static VerificationCodeGenerator loginCodeGenerator;
     @Getter
-    private static PasswordResetTokenService passwordResetTokenService;
+    private static PwdResetTokenGenerator pwdResetTokenGeneratorService;
     @Getter
     private static RevokeTokenRepository revokeTokenRepository;
     @Getter
@@ -121,7 +124,7 @@ public class DomainRegistry {
     @Getter
     private static ProxyService proxyService;
     @Getter
-    private static MfaCodeService mfaCodeService;
+    private static MfaCodeGenerator mfaCodeGeneratorService;
     @Getter
     private static ImageRepository imageRepository;
     @Getter
@@ -170,7 +173,28 @@ public class DomainRegistry {
     private static TokenService tokenService;
     @Getter
     private static AuthorizationCodeRepository authorizationCodeRepository;
+    @Getter
+    private static TemporaryCodeService temporaryCodeService;
+    @Getter
+    private static PwdResetService pwdResetService;
+    @Getter
+    private static TokenGrantService tokenGrantService;
 
+
+    @Autowired
+    public void setTokenGrantService(TokenGrantService services) {
+        DomainRegistry.tokenGrantService = services;
+    }
+
+    @Autowired
+    public void setPwdResetService(PwdResetService services) {
+        DomainRegistry.pwdResetService = services;
+    }
+
+    @Autowired
+    public void setTemporaryCodeService(TemporaryCodeService services) {
+        DomainRegistry.temporaryCodeService = services;
+    }
 
     @Autowired
     public void setRedisAuthorizationCodeServices(AuthorizationCodeRepository services) {
@@ -277,8 +301,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setMfaCodeService(MfaCodeService mfaCodeService) {
-        DomainRegistry.mfaCodeService = mfaCodeService;
+    public void setMfaCodeGeneratorService(MfaCodeGenerator mfaCodeGeneratorService) {
+        DomainRegistry.mfaCodeGeneratorService = mfaCodeGeneratorService;
     }
 
     @Autowired
@@ -395,8 +419,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setActivationCodeService(ActivationCodeService activationCodeService) {
-        DomainRegistry.activationCodeService = activationCodeService;
+    public void setLoginCodeGenerator(VerificationCodeGenerator loginCodeGenerator) {
+        DomainRegistry.loginCodeGenerator = loginCodeGenerator;
     }
 
     @Autowired
@@ -405,8 +429,9 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPasswordResetTokenService(PasswordResetTokenService passwordResetTokenService) {
-        DomainRegistry.passwordResetTokenService = passwordResetTokenService;
+    public void setPwdResetTokenGeneratorService(
+        PwdResetTokenGenerator pwdResetTokenGeneratorService) {
+        DomainRegistry.pwdResetTokenGeneratorService = pwdResetTokenGeneratorService;
     }
 
     @Autowired
@@ -430,8 +455,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPendingUserRepo(VerificationCodeRepository pendingUserRepo) {
-        DomainRegistry.verificationCodeRepository = pendingUserRepo;
+    public void setPendingUserRepo(TemporaryCodeRepository pendingUserRepo) {
+        DomainRegistry.temporaryCodeRepository = pendingUserRepo;
     }
 
     @Autowired

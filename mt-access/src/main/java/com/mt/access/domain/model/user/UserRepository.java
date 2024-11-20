@@ -13,8 +13,6 @@ public interface UserRepository {
         return user;
     }
 
-    MfaInfo getUserMfaInfo(UserId userId);
-
     Optional<User> query(UserId userId);
 
     default User get(UserEmail email) {
@@ -25,6 +23,12 @@ public interface UserRepository {
 
     default UserId getUserId(UserEmail email) {
         UserId userId = queryUserId(email).orElse(null);
+        Validator.notNull(userId);
+        return userId;
+    }
+
+    default UserId getUserId(UserMobile mobile) {
+        UserId userId = queryUserId(mobile).orElse(null);
         Validator.notNull(userId);
         return userId;
     }
@@ -40,8 +44,6 @@ public interface UserRepository {
     long countTotal();
 
     Set<UserId> getIds();
-
-    void updateMfaInfo(MfaInfo mfaInfo, UserId userId);
 
     Optional<LoginUser> queryLoginUser(UserEmail email);
 
@@ -72,4 +74,6 @@ public interface UserRepository {
     }
 
     Optional<User> query(UserMobile mobile);
+
+
 }

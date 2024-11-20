@@ -5,17 +5,11 @@ import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Utility } from '../misc/utility';
-import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
-import { IEditEvent } from '../components/editable-field/editable-field.component';
-import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
-import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
-import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
-import { M } from '@angular/cdk/keycodes';
 export interface IPatch {
     op: string,
     path: string,
@@ -90,9 +84,6 @@ export class HttpProxyService {
         const decoded = atob(encodedBody)
         const exp: number = +(JSON.parse(decoded) as any).exp
         return exp - Math.ceil(new Date().getTime() / 1000);
-    }
-    getRegistryStatus() {
-        return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
     }
     checkPorjectReady(projectId: string) {
         return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
@@ -294,7 +285,7 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    mfaLoginMobilePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+    mfaLoginMobilePwd(loginFG: FormGroup, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         let headers = this._getAuthHeader(true);
         headers = headers.append("changeId", changeId)
@@ -305,7 +296,6 @@ export class HttpProxyService {
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
         formData.append('mfa_code', code);
-        formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
     mfaLoginMobilePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
@@ -321,7 +311,7 @@ export class HttpProxyService {
         formData.append('mfa_method', method);
         return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    mfaLoginEmailPwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+    mfaLoginEmailPwd(loginFG: FormGroup, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         let headers = this._getAuthHeader(true);
         headers = headers.append("changeId", changeId)
@@ -331,7 +321,6 @@ export class HttpProxyService {
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
         formData.append('mfa_code', code);
-        formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
     mfaLoginEmailPwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
@@ -346,7 +335,7 @@ export class HttpProxyService {
         formData.append('mfa_method', method);
         return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    mfaLoginUsernamePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+    mfaLoginUsernamePwd(loginFG: FormGroup, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         let headers = this._getAuthHeader(true);
         headers = headers.append("changeId", changeId)
@@ -356,7 +345,6 @@ export class HttpProxyService {
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
         formData.append('mfa_code', code);
-        formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
     mfaLoginUsernamePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {

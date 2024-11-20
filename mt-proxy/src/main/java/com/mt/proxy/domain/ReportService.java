@@ -39,7 +39,7 @@ public class ReportService {
     public static final String REPORT_DIR = "./reports";
     private static final String SENT_SUFFIX = "_send";
     private static final String SENT_ERROR_SUFFIX = "_error";
-    private static final String REPORT_URL = "reports/proxy";
+    private static final String REPORT_URL = "/reports/proxy";
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EndpointService endpointService;
@@ -141,7 +141,7 @@ public class ReportService {
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
 
-        String url = httpHelper.resolveAccessPath() + REPORT_URL;
+        String url = httpHelper.getAccessUrl() + REPORT_URL;
         //read all unsend files
         File dir =
             new File(REPORT_DIR);

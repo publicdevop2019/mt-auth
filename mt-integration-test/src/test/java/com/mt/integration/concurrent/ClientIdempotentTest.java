@@ -6,8 +6,8 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.ConcurrentUtility;
-import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,10 +27,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 //@Disabled
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class ClientIdempotentTest{
+public class ClientIdempotentTest {
 
     @BeforeAll
     public static void beforeAll() {
@@ -42,13 +42,15 @@ public class ClientIdempotentTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void create_client_w_same_changeId_two_times() {
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         String s = UUID.randomUUID().toString();
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+        String jwtAdmin = UserUtility.getJwtAdmin();
+        ResponseEntity<String> client1 = ClientUtility.createClient(jwtAdmin, oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        ResponseEntity<String> client2 = ClientUtility.createClient(oldClient, s);
+        ResponseEntity<String> client2 = ClientUtility.createClient(jwtAdmin, oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
     }
 
@@ -59,7 +61,8 @@ public class ClientIdempotentTest{
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+        ResponseEntity<String> client1 =
+            ClientUtility.createClient(UserUtility.getJwtAdmin(), oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         HttpHeaders headers = new HttpHeaders();
@@ -89,7 +92,8 @@ public class ClientIdempotentTest{
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+        ResponseEntity<String> client1 =
+            ClientUtility.createClient(UserUtility.getJwtAdmin(), oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
@@ -116,9 +120,10 @@ public class ClientIdempotentTest{
         String s = UUID.randomUUID().toString();
         AtomicReference<Integer> success = new AtomicReference<>(0);
         AtomicReference<Integer> failed = new AtomicReference<>(0);
+        String jwtAdmin = UserUtility.getJwtAdmin();
         Runnable runnable2 = () -> {
             TestContext.init();
-            ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+            ResponseEntity<String> client1 = ClientUtility.createClient(jwtAdmin, oldClient, s);
             if (client1.getStatusCode().is2xxSuccessful()) {
                 success.set(success.get() + 1);
             }
@@ -144,7 +149,8 @@ public class ClientIdempotentTest{
             AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+        ResponseEntity<String> client1 =
+            ClientUtility.createClient(UserUtility.getJwtAdmin(), oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         HttpHeaders headers = new HttpHeaders();
@@ -191,7 +197,8 @@ public class ClientIdempotentTest{
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
+        ResponseEntity<String> client1 =
+            ClientUtility.createClient(UserUtility.getJwtAdmin(), oldClient, s);
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
