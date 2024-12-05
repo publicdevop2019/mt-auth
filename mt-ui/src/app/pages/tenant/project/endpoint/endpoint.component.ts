@@ -77,7 +77,7 @@ export class EndpointComponent {
         this.router.navProjectHome()
       }
       const createData = this.router.getData() as IEndpointCreate
-      Logger.debug('create data {}',createData)
+      Logger.debug('create data {}', createData)
       this.fg.get('projectId').setValue(router.getProjectIdFromUrl())
       this.fg.get('name').setValue(createData.name)
       this.fg.get('type').setValue(createData.type)
@@ -213,11 +213,11 @@ export class EndpointComponent {
       secured = true;
       external = true;
       shared = true;
-    } else if (this.fg.get('type').value === 'PUBLIC_APP') {
+    } else if (this.fg.get('type').value === 'PUBLIC_API') {
       secured = false;
       external = true;
       shared = false;
-    } else if (this.fg.get('type').value === 'API_PRIVATE') {
+    } else if (this.fg.get('type').value === 'PRIVATE_API') {
       secured = false;
       external = false;
       shared = false;
@@ -235,7 +235,7 @@ export class EndpointComponent {
       websocket: isWs,
       shared: shared,
       csrfEnabled: isWs ? null : !!this.fg.get('csrf').value,
-      corsProfileId: Utility.noEmptyString(this.fg.get("corsProfile").value),
+      corsProfileId: this.fg.get("cors").value ? Utility.noEmptyString(this.fg.get("corsProfile").value) : null,
       cacheProfileId: this.fg.get('method').value === 'GET' ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
       replenishRate: isWs ? null : +this.fg.get("replenishRate").value,
       burstCapacity: isWs ? null : +this.fg.get("burstCapacity").value,
