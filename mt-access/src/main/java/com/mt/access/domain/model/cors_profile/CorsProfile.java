@@ -184,7 +184,6 @@ public class CorsProfile extends Auditable {
     }
 
     private void setAllowCredentials(Boolean allowCredentials) {
-        Validator.notNull(allowCredentials);
         this.allowCredentials = allowCredentials;
     }
 

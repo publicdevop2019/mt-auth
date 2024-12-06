@@ -8,6 +8,7 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 --mt.common.url.lock=redis://localhost:6381
 --mt.common.url.message-queue=localhost:5673
 --mt.common.instance-id=0
+--mt.common.url.proxy=http://localhost:8111
 --mt.mgmt.email=your@email.com
 --mt.feature.oauth.jwt.password=localdev
 --spring.redis.host=localhost

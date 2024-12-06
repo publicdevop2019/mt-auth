@@ -25,6 +25,7 @@ export class CorsComponent {
     exposedHeaders: new FormControl(''),
   });
   nameErrorMsg: string = undefined;
+  originErrorMsg: string = undefined;
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
   data: ICorsProfile = undefined;
@@ -60,6 +61,7 @@ export class CorsComponent {
     })
   }
   update() {
+    this.allowError = true
     if (this.validateForm()) {
       this.httpSvc.updateEntity(this.corsUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
         this.deviceSvc.notify(next)
@@ -67,6 +69,7 @@ export class CorsComponent {
     }
   }
   create() {
+    this.allowError = true
     if (this.validateForm()) {
       this.httpSvc.createEntity(this.corsUrl, this.convertToPayload(), this.changeId).subscribe(next => {
         this.deviceSvc.notify(!!next)
@@ -78,18 +81,20 @@ export class CorsComponent {
       id: this.fg.get('id').value,
       name: this.fg.get('name').value,
       description: Utility.hasValue(this.fg.get('description').value) ? this.fg.get('description').value : undefined,
-      allowCredentials: !!this.fg.get('allowCredentials').value,
+      allowCredentials: Utility.hasValue(this.fg.get('allowCredentials').value) ? !!this.fg.get('allowCredentials').value : null,
       allowOrigin: (this.fg.get('allowOrigin').value as string).split(',').filter(e => e),
       allowedHeaders: (this.fg.get('allowedHeaders').value as string).split(',').filter(e => e),
       exposedHeaders: (this.fg.get('exposedHeaders').value as string).split(',').filter(e => e),
-      maxAge: +this.fg.get('maxAge').value,
+      maxAge: Utility.hasValue(this.fg.get('maxAge').value) ? +this.fg.get('maxAge').value : null,
       version: this.data && this.data.version
     }
   }
   private validateForm() {
     const fg = this.fg;
     const var0 = Validator.exist(fg.get('name').value)
+    const var1 = Validator.exist(fg.get('allowOrigin').value)
     this.nameErrorMsg = var0.errorMsg
-    return !var0.errorMsg
+    this.originErrorMsg = var1.errorMsg
+    return !var0.errorMsg && !var1.errorMsg
   }
 }

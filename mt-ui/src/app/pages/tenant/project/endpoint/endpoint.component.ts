@@ -89,12 +89,12 @@ export class EndpointComponent {
           this.fg.get('type').setValue('PROTECTED_SHARED_API')
         } else {
           if (!this.data.external) {
-            this.fg.get('type').setValue('API_PRIVATE')
+            this.fg.get('type').setValue('PRIVATE_API')
           } else {
             if (this.data.secured) {
               this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
             } else {
-              this.fg.get('type').setValue('PUBLIC_APP')
+              this.fg.get('type').setValue('PUBLIC_API')
             }
           }
         }
