@@ -104,17 +104,17 @@ export class EndpointComponent {
     this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
       this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
       .subscribe(next => {
-        this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.options = Utility.mergeUnique(this.options, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsUrl,
       this.corsPageNum, this.corsPageSize)
       .subscribe(next => {
-        this.corsOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.corsOptions = Utility.mergeUnique(this.corsOptions, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheUrl,
       this.cachePageNum, this.cachePageSize)
       .subscribe(next => {
-        this.cacheOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.cacheOptions = Utility.mergeUnique(this.cacheOptions, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.fg.valueChanges.subscribe(() => {
       Logger.trace('validating create form')
@@ -176,14 +176,14 @@ export class EndpointComponent {
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
-          this.options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+          this.options = Utility.mergeUnique(this.options, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           if (this.data.corsProfileId) {
             count++;
-            this.corsOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+            this.corsOptions = Utility.mergeUnique(this.corsOptions, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           }
           if (this.data.cacheProfileId) {
             count++;
-            this.cacheOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+            this.cacheOptions = Utility.mergeUnique(this.cacheOptions, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           }
           this.fg.patchValue(this.data);
           this.fg.get("csrf").setValue(this.data.csrfEnabled);
