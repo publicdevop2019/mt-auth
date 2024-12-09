@@ -49,6 +49,7 @@ export class EndpointComponent {
     method: new FormControl({ value: '', disabled: true }),
     csrf: new FormControl(''),
     cors: new FormControl(false),
+    cache: new FormControl({ value: false, disabled: true }),
     corsProfile: new FormControl({ value: '', disabled: true }),
     cacheProfile: new FormControl({ value: '', disabled: true }),
     replenishRate: new FormControl(''),
@@ -125,6 +126,13 @@ export class EndpointComponent {
 
     this.fg.get('method').valueChanges.subscribe(next => {
       if ((next as string) === 'GET') {
+        this.fg.get('cache').enable()
+      } else {
+        this.fg.get('cache').disable()
+      }
+    })
+    this.fg.get('cache').valueChanges.subscribe(next => {
+      if (next) {
         this.fg.get('cacheProfile').enable()
       } else {
         this.fg.get('cacheProfile').disable()
@@ -135,6 +143,7 @@ export class EndpointComponent {
         this.fg.get('method').disable()
         this.fg.get('csrf').disable()
         this.fg.get('cors').disable()
+        this.fg.get('cache').disable()
         this.fg.get('replenishRate').disable()
         this.fg.get('burstCapacity').disable()
         this.fg.get('cacheProfile').disable()
@@ -195,6 +204,7 @@ export class EndpointComponent {
             this.fg.get("corsProfile").setValue(this.data.corsProfileId);
           }
           if (this.data.cacheProfileId) {
+            this.fg.get("cache").setValue(true);
             this.fg.get("cacheProfile").setValue(this.data.cacheProfileId);
           }
         })
@@ -236,7 +246,7 @@ export class EndpointComponent {
       shared: shared,
       csrfEnabled: isWs ? null : !!this.fg.get('csrf').value,
       corsProfileId: this.fg.get("cors").value ? Utility.noEmptyString(this.fg.get("corsProfile").value) : null,
-      cacheProfileId: this.fg.get('method').value === 'GET' ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
+      cacheProfileId: this.fg.get('method').value === 'GET' && this.fg.get("cache").value ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
       replenishRate: isWs ? null : +this.fg.get("replenishRate").value,
       burstCapacity: isWs ? null : +this.fg.get("burstCapacity").value,
       version: this.data && this.data.version

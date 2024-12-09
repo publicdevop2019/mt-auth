@@ -648,4 +648,5 @@ export const enUS = {
     "SELECT_USER_SEARCH_TYPE": "Search by",
     "USER_ROLE_NOTE": "All roles assigned to this user",
     "ADD_USER_ROLE": "Add role",
+    "CACHE_ENABLED": "Enalbe Cache",
 }
