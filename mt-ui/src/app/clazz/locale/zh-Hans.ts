@@ -31,7 +31,7 @@ export const zhHans = {
     "ACCESS_TOKEN_VALIDITY_SECONDS": "access_token过期时间(秒)",
     "REFRESH_TOKEN_VALIDITY_SECONDS": "refresh_token过期时间(秒)",
     "ENTER_RESOURCE_ID": "选择所属应用",
-    "ENTER_ENDPOINT": "请输入目标接口，例如：foo/bar",
+    "ENTER_ENDPOINT": "请输入目标接口，例如：foo/bar foo/bar/** foo/**/bar foo/bar.png",
     "SELECT_METHOD": "选择HTTP方式",
     "ENTER_SCHEME": "请输入HTTP方式",
     "ENTER_HOST": "请输入主机地址",
