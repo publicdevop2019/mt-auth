@@ -3,8 +3,7 @@
 - configure program arguments as below, replace value accordingly
 
 ```
---eureka.client.serviceUrl.defaultZone=http://localhost:8080/eureka
---eureka.instance.ip-address=localhost
+--mt.common.url.access=http://localhost:8080
 --mt.common.url.message-queue=localhost:5673
 --mt.common.domain-name=my-domain
 --mt.common.instance-id=1

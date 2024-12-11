@@ -45,13 +45,3 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 35000
-eureka:
-  client:
-    serviceUrl:
-      defaultZone:
-    registryFetchIntervalSeconds: 1
-  instance:
-    preferIpAddress: true
-    ip-address:
-    leaseRenewalIntervalInSeconds: 5
-    lease-expiration-duration-in-seconds: 10

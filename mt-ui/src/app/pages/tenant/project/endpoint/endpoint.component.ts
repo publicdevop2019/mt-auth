@@ -49,6 +49,7 @@ export class EndpointComponent {
     method: new FormControl({ value: '', disabled: true }),
     csrf: new FormControl(''),
     cors: new FormControl(false),
+    cache: new FormControl({ value: false, disabled: true }),
     corsProfile: new FormControl({ value: '', disabled: true }),
     cacheProfile: new FormControl({ value: '', disabled: true }),
     replenishRate: new FormControl(''),
@@ -77,7 +78,7 @@ export class EndpointComponent {
         this.router.navProjectHome()
       }
       const createData = this.router.getData() as IEndpointCreate
-      Logger.debug('create data {}',createData)
+      Logger.debug('create data {}', createData)
       this.fg.get('projectId').setValue(router.getProjectIdFromUrl())
       this.fg.get('name').setValue(createData.name)
       this.fg.get('type').setValue(createData.type)
@@ -89,12 +90,12 @@ export class EndpointComponent {
           this.fg.get('type').setValue('PROTECTED_SHARED_API')
         } else {
           if (!this.data.external) {
-            this.fg.get('type').setValue('API_PRIVATE')
+            this.fg.get('type').setValue('PRIVATE_API')
           } else {
             if (this.data.secured) {
               this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
             } else {
-              this.fg.get('type').setValue('PUBLIC_APP')
+              this.fg.get('type').setValue('PUBLIC_API')
             }
           }
         }
@@ -104,17 +105,17 @@ export class EndpointComponent {
     this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
       this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
       .subscribe(next => {
-        this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.options = Utility.mergeUnique(this.options, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsUrl,
       this.corsPageNum, this.corsPageSize)
       .subscribe(next => {
-        this.corsOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.corsOptions = Utility.mergeUnique(this.corsOptions, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheUrl,
       this.cachePageNum, this.cachePageSize)
       .subscribe(next => {
-        this.cacheOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+        this.cacheOptions = Utility.mergeUnique(this.cacheOptions, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
       })
     this.fg.valueChanges.subscribe(() => {
       Logger.trace('validating create form')
@@ -125,6 +126,13 @@ export class EndpointComponent {
 
     this.fg.get('method').valueChanges.subscribe(next => {
       if ((next as string) === 'GET') {
+        this.fg.get('cache').enable()
+      } else {
+        this.fg.get('cache').disable()
+      }
+    })
+    this.fg.get('cache').valueChanges.subscribe(next => {
+      if (next) {
         this.fg.get('cacheProfile').enable()
       } else {
         this.fg.get('cacheProfile').disable()
@@ -135,6 +143,7 @@ export class EndpointComponent {
         this.fg.get('method').disable()
         this.fg.get('csrf').disable()
         this.fg.get('cors').disable()
+        this.fg.get('cache').disable()
         this.fg.get('replenishRate').disable()
         this.fg.get('burstCapacity').disable()
         this.fg.get('cacheProfile').disable()
@@ -176,14 +185,14 @@ export class EndpointComponent {
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
-          this.options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+          this.options = Utility.mergeUnique(this.options, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           if (this.data.corsProfileId) {
             count++;
-            this.corsOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+            this.corsOptions = Utility.mergeUnique(this.corsOptions, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           }
           if (this.data.cacheProfileId) {
             count++;
-            this.cacheOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
+            this.cacheOptions = Utility.mergeUnique(this.cacheOptions, next[count].data.map(e => <IOption>{ label: e.name, value: e.id }));
           }
           this.fg.patchValue(this.data);
           this.fg.get("csrf").setValue(this.data.csrfEnabled);
@@ -195,6 +204,7 @@ export class EndpointComponent {
             this.fg.get("corsProfile").setValue(this.data.corsProfileId);
           }
           if (this.data.cacheProfileId) {
+            this.fg.get("cache").setValue(true);
             this.fg.get("cacheProfile").setValue(this.data.cacheProfileId);
           }
         })
@@ -213,11 +223,11 @@ export class EndpointComponent {
       secured = true;
       external = true;
       shared = true;
-    } else if (this.fg.get('type').value === 'PUBLIC_APP') {
+    } else if (this.fg.get('type').value === 'PUBLIC_API') {
       secured = false;
       external = true;
       shared = false;
-    } else if (this.fg.get('type').value === 'API_PRIVATE') {
+    } else if (this.fg.get('type').value === 'PRIVATE_API') {
       secured = false;
       external = false;
       shared = false;
@@ -235,8 +245,8 @@ export class EndpointComponent {
       websocket: isWs,
       shared: shared,
       csrfEnabled: isWs ? null : !!this.fg.get('csrf').value,
-      corsProfileId: Utility.noEmptyString(this.fg.get("corsProfile").value),
-      cacheProfileId: this.fg.get('method').value === 'GET' ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
+      corsProfileId: this.fg.get("cors").value ? Utility.noEmptyString(this.fg.get("corsProfile").value) : null,
+      cacheProfileId: this.fg.get('method').value === 'GET' && this.fg.get("cache").value ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
       replenishRate: isWs ? null : +this.fg.get("replenishRate").value,
       burstCapacity: isWs ? null : +this.fg.get("burstCapacity").value,
       version: this.data && this.data.version

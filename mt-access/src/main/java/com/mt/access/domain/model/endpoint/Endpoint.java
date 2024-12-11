@@ -43,8 +43,8 @@ public class Endpoint extends Auditable {
     private static final Set<String> HTTP_METHODS =
         Arrays.stream(HttpMethod.values()).map(Enum::name).collect(
             Collectors.toSet());
-    private static final Pattern PATH_REGEX =
-        Pattern.compile("^[a-z\\-/*]*$");
+    private static final Pattern ALLOWED_CHARS =
+        Pattern.compile("^[a-zA-Z\\-./*]*$");
 
     static {
         HTTP_METHODS.add("WEB_SOCKET");
@@ -307,35 +307,49 @@ public class Endpoint extends Auditable {
         Validator.notNull(path);
         Validator.lessThanOrEqualTo(path, 100);
         Validator.greaterThanOrEqualTo(path, 5);
-        Matcher matcher = PATH_REGEX.matcher(path);//alpha - / * only
+        Matcher matcher = ALLOWED_CHARS.matcher(path);//alpha - / * only
         boolean result = false;
         if (matcher.find()) {
-            if (!path.startsWith("/") && !path.endsWith("/")) { //avoid /test/
-                if (!path.endsWith("-") && !path.startsWith("-")) { //avoid -test-
-                    if (!path.startsWith("*")) { //avoid *test
-                        if (path.contains("/")) {
-                            boolean valid = true;
-                            for (String s : path.split("/")) {
-                                if (s.isBlank()) {
-                                    valid = false;
-                                    break;
-                                }
-                                if (s.startsWith("-") || s.endsWith("-")) {
-                                    valid = false;
-                                    break;
-                                }
-                                if (s.contains("*") && !s.equalsIgnoreCase("**")) {
-                                    valid = false;
-                                    break;
-                                }
+            if (
+                !path.startsWith("/") && !path.endsWith("/") &&
+                    !path.endsWith("-") && !path.startsWith("-") &&
+                    !path.endsWith(".") && !path.startsWith(".")
+            ) { //avoid /test/ -test- .test.
+                if (!path.startsWith("*")) { //avoid *test
+                    if (path.contains("/")) {
+                        boolean valid = true;
+                        int index = 0;
+                        String[] split = path.split("/");
+                        int length = split.length;
+                        for (String s : split) {
+                            if (index != length - 1 && s.contains(".")) {
+                                valid = false;
+                                break;
                             }
-                            if (valid) {
-                                result = true;
+                            if (s.isBlank()) {
+                                valid = false;
+                                break;
                             }
-                        } else {
-                            if (!path.contains("*")) {
-                                result = true;
+                            if (s.startsWith("-") || s.endsWith("-")) {
+                                valid = false;
+                                break;
                             }
+                            if (s.startsWith(".") || s.endsWith(".")) {
+                                valid = false;
+                                break;
+                            }
+                            if (s.contains("*") && !s.equalsIgnoreCase("**")) {
+                                valid = false;
+                                break;
+                            }
+                            index++;
+                        }
+                        if (valid) {
+                            result = true;
+                        }
+                    } else {
+                        if (!path.contains("*")) {
+                            result = true;
                         }
                     }
                 }

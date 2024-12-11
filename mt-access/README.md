@@ -8,10 +8,9 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 --mt.common.url.lock=redis://localhost:6381
 --mt.common.url.message-queue=localhost:5673
 --mt.common.instance-id=0
+--mt.common.url.proxy=http://localhost:8111
 --mt.mgmt.email=your@email.com
 --mt.feature.oauth.jwt.password=localdev
---eureka.client.serviceUrl.defaultZone=http://localhost:8080/eureka
---eureka.instance.ip-address=localhost
 --spring.redis.host=localhost
 --spring.redis.port=6381
 --spring.datasource.url=jdbc:mysql://localhost:3306/auth_dev?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true

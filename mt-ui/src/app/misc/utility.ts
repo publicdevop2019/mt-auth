@@ -3,9 +3,14 @@ import * as UUID from 'uuid/v1';
 import { APP_CONSTANT } from './constant';
 import { RouterWrapperService } from '../services/router-wrapper';
 import { environment } from 'src/environments/environment';
+import { IOption } from './interface';
 
 
 export class Utility {
+    static mergeUnique(source: IOption[], list: IOption[]): IOption[] {
+        source.push(...list);
+        return source.filter((e, i) => source.findIndex(ee => ee.value === e.value) === i)
+    }
     static createImageFromBlob(image: Blob, callback: (reader: FileReader) => void) {
         let reader = new FileReader();
         reader.addEventListener("load", () => {
@@ -75,7 +80,7 @@ export class Utility {
     public static getUserResource(resourceName: string) {
         return Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'user', resourceName]);
     }
-    public static isLocalhost(){
+    public static isLocalhost() {
         return location.hostname.includes('localhost')
     }
 

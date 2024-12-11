@@ -30,6 +30,8 @@ public class ClientPathArgs implements ArgumentsProvider {
                 HttpStatus.BAD_REQUEST),
             Arguments.of(ClientUtility.createValidBackendClient(),
                 RandomUtility.randomStringNoNum() + "//test", HttpStatus.BAD_REQUEST),
+            Arguments.of(ClientUtility.createValidBackendClient(),
+                RandomUtility.randomStringNoNum() + "/icon.png/test", HttpStatus.BAD_REQUEST),
             //type_is_front_but_path_present
             Arguments.of(ClientUtility.createValidFrontendClient(),
                 RandomUtility.randomStringNoNum(), HttpStatus.BAD_REQUEST),

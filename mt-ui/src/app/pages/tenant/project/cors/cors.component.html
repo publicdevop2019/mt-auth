@@ -14,16 +14,17 @@
             <input matInput formControlName="description">
         </mat-form-field>
         <mat-form-field>
-            <mat-label>{{'MAX_AGE'| translate}}<span class="mat-required">*</span></mat-label>
+            <mat-label>{{'MAX_AGE'| translate}}</mat-label>
             <input matInput formControlName="maxAge">
         </mat-form-field>
         <div style="margin-bottom: 12px;">
             <mat-checkbox formControlName="allowCredentials">{{'ALLOW_CREDENTIAL'|translate}}</mat-checkbox>
         </div>
         <mat-form-field>
-            <mat-label>{{'ALLOWED_ORIGIN'| translate}}</mat-label>
+            <mat-label>{{'ALLOWED_ORIGIN'| translate}}<span class="mat-required">*</span></mat-label>
             <textarea matInput formControlName="allowOrigin"></textarea>
         </mat-form-field>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{originErrorMsg|translate}}</div>
         <mat-form-field>
             <mat-label>{{'ALLOWED_HEADERS'| translate}}</mat-label>
             <textarea matInput formControlName="allowedHeaders"></textarea>

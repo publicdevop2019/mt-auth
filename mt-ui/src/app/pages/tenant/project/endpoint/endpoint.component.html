@@ -113,6 +113,11 @@
                 <div class="basic-info">
                     <div class="basic-info-title">{{'PERFORMANCE_EP_INFO'|translate}}</div>
                     <div class="basic-info-content">
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="cache">
+                                {{'CACHE_ENABLED'|translate}}
+                            </mat-checkbox>
+                        </div>
                         <mat-form-field>
                             <mat-label>{{'SELECT_CACHE_PROFILE'|translate}}</mat-label>
                             <mat-select formControlName="cacheProfile">

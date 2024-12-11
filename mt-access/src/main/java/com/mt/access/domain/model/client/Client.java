@@ -421,6 +421,7 @@ public class Client extends Auditable {
     }
 
     public Boolean getAutoApprove() {
+        getGrantTypes();
         if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
             return getRedirectDetail().getAutoApprove();
         }

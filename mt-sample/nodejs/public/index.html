@@ -2,63 +2,63 @@
 <html lang="zh-Hans">
 
 <head>
+    <style>
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            margin: 0;
+        }
+
+        .btn {
+            width: 77px;
+            background-color: #673ab7;
+            border: #673ab7 2px solid;
+            color: #fff;
+            font-size: 18px;
+            padding: 4px 0px;
+            cursor: pointer;
+            border-radius: 6px;
+
+        }
+
+        .form-input {
+            height: 32px;
+            border: 1px solid #673ab7;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin-bottom: 12px;
+            margin-top: 4px;
+        }
+
+        .response {
+            margin-top: 12px;
+            width: 350px;
+            overflow: auto;
+        }
+    </style>
     <meta charset="utf-8">
     <title>demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
-        const projectId = "0P8OMAHSU0W4";
-        const authorizeClientId = "0C8OMAMM2QDC";
-        const clientCreClientId = "0C8OMAMBGNWG";
-        const passwordClientId = "0C8OMAMTVNY8";
-        const commonSecret = "97b29ceb-c445-4178-bb95-84755f14cba6";
-        // const apiUrlPrefix = "http://localhost:8111"
-        // const authorizeServerUrlPrefix = "http://localhost:4300";
-        const authorizeServerUrlPrefix = "https://console.letsauth.cloud";
-        const apiUrlPrefix = "https://api.letsauth.cloud"
-        let mfaRequired = false;
+        var uiUrlKey = "uiUrl"
+        var apiUrlKey = "apiUrl"
+        var projectIdKey = "projectId"
+        var clientIdKey = "clientId"
+        var clientSecretKey = "clientSecret"
+        var publicApiPathKey = "publicApiPath"
+        var publicStaticApiPathKey = "publicStaticApiPath"
+        var protectedApiPathKey = "protectedApiPath"
         addEventListener("load", (event) => {
             if (location.search) {
-                getToken(projectId, authorizeClientId, location.search.replace('?code=', ''))
+                getToken(location.search.replace('?code=', ''))
             }
         });
-        function getCurrentLocation() {
-            return location.origin
-        }
-        function callPublicApi() {
-            const options = {
-                method: "GET",
-            }
-            fetch(`${apiUrlPrefix}/demo-svc/public`, options).then((next) => {
-                next.json().then(resp => {
-                    document.getElementById('output').innerText = JSON.stringify(resp, undefined, 4);
-                })
-            })
-        }
-        function authorizationLogin(projectId, clientId) {
-            location.replace(
-                `${authorizeServerUrlPrefix}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${getCurrentLocation()}&state=login&project_id=${projectId}`
-            );
-        }
-        function clientCredentialLogin(clientId) {
+        function getToken(code) {
+            const projectId = document.getElementById(projectIdKey).value;
+            const clientId = document.getElementById(clientIdKey).value;
+            const secret = document.getElementById(clientSecretKey).value;
+            const apiUrl = document.getElementById(apiUrlKey).value;
             const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
-            const formData = new FormData();
-            formData.append('grant_type', 'client_credentials');
-            formData.append('scope', 'not_used');
-            const options = {
-                method: "POST",
-                headers: myHeaders,
-                body: formData
-            }
-            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
-                next.json().then(resp => {
-                    document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
-                })
-            })
-        }
-        function getToken(projectId, clientId, code) {
-            const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + secret));
             const formData = new FormData();
             formData.append('grant_type', 'authorization_code');
             formData.append('code', code);
@@ -69,101 +69,461 @@
                 headers: myHeaders,
                 body: formData
             }
-            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
+            fetch(`${apiUrl}/auth-svc/oauth/token`, options).then((next) => {
                 next.json().then(resp => {
-                    document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
+                    document.getElementById('scenario-2-response').innerText = JSON.stringify(resp, undefined, 4);
+                    localStorage.setItem('token', resp.access_token)
                     window.history.pushState({}, document.title, window.location.pathname);
-                })
-            })
-        }
-        function getPasswordToken(projectId, clientId) {
-            const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
-            const formData = new FormData();
-            formData.append('grant_type', 'password');
-            formData.append('type', 'username_w_pwd');
-            formData.append('username', document.getElementById('username').value);
-            formData.append('password', document.getElementById('password').value);
-            if (mfaRequired) {
-                formData.append('mfa_code', document.getElementById('mfa_code').value);
-                formData.append('mfa_id', document.getElementById('mfa_id').value);
-            }
-            formData.append('scope', projectId);
-            const options = {
-                method: "POST",
-                headers: myHeaders,
-                body: formData
-            }
-            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
-                next.json().then(resp => {
-                    if (resp.mfaId) {
-                        mfaRequired = true;
-                        document.getElementById('mfa_id').value = resp.mfaId;
-                        document.getElementById('token').innerText = 'Enter MFA 654321 and try again';
-                    } else {
-                        document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
-                    }
                 })
             })
         }
     </script>
 </head>
 
-<body>
-    <div>
-        <h1 style="padding-left: 24px;">使用场景</h1>
-        <div style="padding: 24px; padding-top: 0px;">
-            <div>
-                <h2>1. 获取客户端权限 OAuth2模式: Client Credential</h2>
-                <button onclick="clientCredentialLogin(clientCreClientId)">获取Token</button>
-            </div>
+<body style="max-width: 960px;margin: 0px auto;padding: 20px 24px 50px 24px;">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; flex-wrap: wrap;">
+        <div>
+            <h1>配置</h1>
+            <section style="display: flex;; flex-direction: column; width: 350px; margin-bottom: 48px;">
+                <label for="uiUrl">MT-AUTH 前端 URL</label>
+                <input class="form-input" type="text" id="uiUrl" value="">
+
+                <label for="apiUrl">MT-AUTH 后端 URL</label>
+                <input class="form-input" type="text" id="apiUrl" value="">
+
+                <label for="projectId">项目ID</label>
+                <input class="form-input" type="text" id="projectId" value="">
+
+                <label for="clientId">App ID</label>
+                <input class="form-input" type="text" id="clientId" value="">
+
+                <label for="clientSecret">App Secret</label>
+                <input class="form-input" type="text" id="clientSecret" value="">
+
+                <label for="publicApiPath">公共API Path</label>
+                <input class="form-input" type="text" id="publicApiPath" value="">
+
+                <label for="protectedApiPath">受保护API Path</label>
+                <input class="form-input" type="text" id="protectedApiPath" value="">
+
+                <label for="publicStaticApiPath">公共静态API Path</label>
+                <input class="form-input" type="text" id="publicStaticApiPath" value="">
+
+                <button id="login-btn" class="btn" style="width: 150px;" onclick="save();">保存并刷新页面</button>
+            </section>
         </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <div>
-                <h2>2. 用户SSO(单点登录)获取演示项目权限 OAuth2模式:Authorization Code </h2>
-                <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
-            </div>
-        </div>
-        <!-- <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <div>
-                <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
-                <div>
-                    <label>Username</label>
-                    <input name="username" id="username" />
-                </div>
-                <div>
-                    <label>Password</label>
-                    <input name="password" type="password" id="password" />
-                </div>
-                <div>
-                    <label>MFA Token(选填)</label>
-                    <input name="mfa" id="mfa_code" />
-                    <input name="mfa" id="mfa_id" hidden />
-                </div>
-                <div>
-                    <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
-                </div>
-            </div>
-        </div> -->
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <h2>Token 值</h2>
-            <div id="token"></div>
-        </div>
-    </div>
-    <div>
-        <h1 style="padding-left: 24px;">演示API调用</h1>
-        <div style="padding: 24px; padding-top: 0px;">
-            <div>
-                <h2>1. 调用公共API</h2>
-                <button onclick="callPublicApi()">调用</button>
-            </div>
-        </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <h2>返回值</h2>
-            <div id="output"></div>
+        <div>
+            <h1>使用场景</h1>
+
+            <h3>用户单点登录 OAuth2 - Authorization Code </h3>
+            <button class="btn" onclick="authorizationLogin()">登录</button>
+            <div id="scenario-2-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">调用公共API - JS内调用</h3>
+            <div style="margin-bottom: 12px;" id="public-url"></div>
+            <button class="btn" onclick="callPublicApi()">调用</button>
+            <div id="scenario-3-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">调用公共API - 浏览器静态文件加载(img, css, js)</h3>
+            <div style="margin-bottom: 12px;" id="public-static-url-text"></div>
+            <img id="public-static-url" src="" style="width: 50px; height: 50px;">
+
+            <h3 style="margin-top: 48px;">调用受保护API<span
+                    style="font-size: 12px; margin-left: 8px;">请先登录，并确保该用户有此API的权限</span></h3>
+            <div style="margin-bottom: 12px;" id="protected-url"></div>
+            <button class="btn" onclick="callProtectedApi()">调用</button>
+            <div id="scenario-5-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">获取客户端权限 OAuth2 - Client Credential</h3>
+            <button class="btn" onclick="clientCredentialLogin()">调用</button>
+            <div id="scenario-1-response" class="response"></div>
         </div>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
+    <script>
+        function isEmpty(value) {
+            return value === null || value === undefined || value === ''
+        }
+        if (isEmpty(localStorage.getItem(uiUrlKey))) {
+            localStorage.setItem(uiUrlKey, "https://console.letsauth.cloud")
+        }
+        if (isEmpty(localStorage.getItem(apiUrlKey))) {
+            localStorage.setItem(apiUrlKey, "https://api.letsauth.cloud")
+        }
+        if (isEmpty(localStorage.getItem(projectIdKey))) {
+            localStorage.setItem(projectIdKey, "0P8OMAHSU0W4")
+        }
+        if (isEmpty(localStorage.getItem(clientIdKey))) {
+            localStorage.setItem(clientIdKey, "0C8OMAMM2QDC")
+        }
+        if (isEmpty(localStorage.getItem(clientSecretKey))) {
+            localStorage.setItem(clientSecretKey, "97b29ceb-c445-4178-bb95-84755f14cba6")
+        }
+        if (isEmpty(localStorage.getItem(publicApiPathKey))) {
+            localStorage.setItem(publicApiPathKey, "tenant-svc/public")
+        }
+        if (isEmpty(localStorage.getItem(publicStaticApiPathKey))) {
+            localStorage.setItem(publicStaticApiPathKey, "tenant-svc/icon.png")
+        }
+        if (isEmpty(localStorage.getItem(protectedApiPathKey))) {
+            localStorage.setItem(protectedApiPathKey, "tenant-svc/protected")
+        }
+
+        document.getElementById(uiUrlKey).value = localStorage.getItem(uiUrlKey)
+        document.getElementById(apiUrlKey).value = localStorage.getItem(apiUrlKey)
+        document.getElementById(projectIdKey).value = localStorage.getItem(projectIdKey)
+        document.getElementById(clientIdKey).value = localStorage.getItem(clientIdKey)
+        document.getElementById(clientSecretKey).value = localStorage.getItem(clientSecretKey)
+        document.getElementById(publicApiPathKey).value = localStorage.getItem(publicApiPathKey)
+        document.getElementById(publicStaticApiPathKey).value = localStorage.getItem(publicStaticApiPathKey)
+        document.getElementById(protectedApiPathKey).value = localStorage.getItem(protectedApiPathKey)
+
+
+        document.getElementById("public-url").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicApiPathKey).value
+        document.getElementById("public-static-url").src = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicStaticApiPathKey).value
+        document.getElementById("public-static-url-text").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicStaticApiPathKey).value
+        document.getElementById("protected-url").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(protectedApiPathKey).value
+
+        function save() {
+            const uiUrl = document.getElementById(uiUrlKey).value;
+            const apiUrl = document.getElementById(apiUrlKey).value;
+            const projectId = document.getElementById(projectIdKey).value;
+            const clientId = document.getElementById(clientIdKey).value;
+            const secret = document.getElementById(clientSecretKey).value;
+            const publicApiPath = document.getElementById(publicApiPathKey).value;
+            const publicStaitcApiPath = document.getElementById(publicStaticApiPathKey).value;
+            const protectedApiPath = document.getElementById(protectedApiPathKey).value;
+            localStorage.setItem(uiUrlKey, uiUrl)
+            localStorage.setItem(apiUrlKey, apiUrl)
+            localStorage.setItem(projectIdKey, projectId)
+            localStorage.setItem(clientIdKey, clientId)
+            localStorage.setItem(clientSecretKey, secret)
+            localStorage.setItem(publicApiPathKey, publicApiPath)
+            localStorage.setItem(publicStaticApiPathKey, publicStaitcApiPath)
+            localStorage.setItem(protectedApiPathKey, protectedApiPath)
+            location.reload()
+        }
+        function getCurrentLocation() {
+            return location.origin
+        }
+        function callPublicApi() {
+            const url = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicApiPathKey).value;
+            const options = {
+                method: "GET",
+            }
+            fetch(url, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-3-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+        function callProtectedApi() {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Bearer ' + localStorage.getItem("token"));
+            const url = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(protectedApiPathKey).value;
+            const options = {
+                method: "GET",
+                headers: myHeaders,
+            }
+            fetch(url, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-5-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+        function authorizationLogin() {
+            const clientId = document.getElementById(clientIdKey).value
+            const uiUrl = document.getElementById(uiUrlKey).value;
+            const projectId = document.getElementById(projectIdKey).value;
+            location.replace(
+                `${uiUrl}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${getCurrentLocation()}&state=login&project_id=${projectId}`
+            );
+        }
+        function clientCredentialLogin() {
+            const clientId = document.getElementById(clientIdKey).value
+            const clientSecret = document.getElementById(clientSecretKey).value
+            const apiUr = document.getElementById(apiUrlKey).value
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + clientSecret));
+            const formData = new FormData();
+            formData.append('grant_type', 'client_credentials');
+            formData.append('scope', 'not_used');
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch(`${apiUr}/auth-svc/oauth/token`, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-1-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+    </script>
+</body>
+
+</html><!doctype html>
+<html lang="zh-Hans">
+
+<head>
+    <style>
+        body {
+            font-family: Roboto, Arial, sans-serif;
+            margin: 0;
+        }
+
+        .btn {
+            width: 77px;
+            background-color: #673ab7;
+            border: #673ab7 2px solid;
+            color: #fff;
+            font-size: 18px;
+            padding: 4px 0px;
+            cursor: pointer;
+            border-radius: 6px;
+
+        }
+
+        .form-input {
+            height: 32px;
+            border: 1px solid #673ab7;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin-bottom: 12px;
+            margin-top: 4px;
+        }
+
+        .response {
+            margin-top: 12px;
+            width: 350px;
+            overflow: auto;
+        }
+    </style>
+    <meta charset="utf-8">
+    <title>demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        var uiUrlKey = "uiUrl"
+        var apiUrlKey = "apiUrl"
+        var projectIdKey = "projectId"
+        var clientIdKey = "clientId"
+        var clientSecretKey = "clientSecret"
+        var publicApiPathKey = "publicApiPath"
+        var publicStaticApiPathKey = "publicStaticApiPath"
+        var protectedApiPathKey = "protectedApiPath"
+        addEventListener("load", (event) => {
+            if (location.search) {
+                getToken(location.search.replace('?code=', ''))
+            }
+        });
+        function getToken(code) {
+            const projectId = document.getElementById(projectIdKey).value;
+            const clientId = document.getElementById(clientIdKey).value;
+            const secret = document.getElementById(clientSecretKey).value;
+            const apiUrl = document.getElementById(apiUrlKey).value;
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + secret));
+            const formData = new FormData();
+            formData.append('grant_type', 'authorization_code');
+            formData.append('code', code);
+            formData.append('scope', projectId);
+            formData.append('redirect_uri', getCurrentLocation());
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch(`${apiUrl}/auth-svc/oauth/token`, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-2-response').innerText = JSON.stringify(resp, undefined, 4);
+                    localStorage.setItem('token', resp.access_token)
+                    window.history.pushState({}, document.title, window.location.pathname);
+                })
+            })
+        }
+    </script>
+</head>
+
+<body style="max-width: 960px;margin: 0px auto;padding: 20px 24px 50px 24px;">
+    <div style="display: flex; flex-direction: row; justify-content: space-between; flex-wrap: wrap;">
+        <div>
+            <h1>配置</h1>
+            <section style="display: flex;; flex-direction: column; width: 350px; margin-bottom: 48px;">
+                <label for="uiUrl">MT-AUTH 前端 URL</label>
+                <input class="form-input" type="text" id="uiUrl" value="">
+
+                <label for="apiUrl">MT-AUTH 后端 URL</label>
+                <input class="form-input" type="text" id="apiUrl" value="">
+
+                <label for="projectId">项目ID</label>
+                <input class="form-input" type="text" id="projectId" value="">
+
+                <label for="clientId">App ID</label>
+                <input class="form-input" type="text" id="clientId" value="">
+
+                <label for="clientSecret">App Secret</label>
+                <input class="form-input" type="text" id="clientSecret" value="">
+
+                <label for="publicApiPath">公共API Path</label>
+                <input class="form-input" type="text" id="publicApiPath" value="">
+
+                <label for="protectedApiPath">受保护API Path</label>
+                <input class="form-input" type="text" id="protectedApiPath" value="">
+
+                <label for="publicStaticApiPath">公共静态API Path</label>
+                <input class="form-input" type="text" id="publicStaticApiPath" value="">
+
+                <button id="login-btn" class="btn" style="width: 150px;" onclick="save();">保存并刷新页面</button>
+            </section>
+        </div>
+        <div>
+            <h1>使用场景</h1>
+
+            <h3>用户单点登录 OAuth2 - Authorization Code </h3>
+            <button class="btn" onclick="authorizationLogin()">登录</button>
+            <div id="scenario-2-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">调用公共API - JS内调用</h3>
+            <div style="margin-bottom: 12px;" id="public-url"></div>
+            <button class="btn" onclick="callPublicApi()">调用</button>
+            <div id="scenario-3-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">调用公共API - 浏览器静态文件加载(img, css, js)</h3>
+            <div style="margin-bottom: 12px;" id="public-static-url-text"></div>
+            <img id="public-static-url" src="" style="width: 50px; height: 50px;">
+
+            <h3 style="margin-top: 48px;">调用受保护API<span
+                    style="font-size: 12px; margin-left: 8px;">请先登录，并确保该用户有此API的权限</span></h3>
+            <div style="margin-bottom: 12px;" id="protected-url"></div>
+            <button class="btn" onclick="callProtectedApi()">调用</button>
+            <div id="scenario-5-response" class="response"></div>
+
+            <h3 style="margin-top: 48px;">获取客户端权限 OAuth2 - Client Credential</h3>
+            <button class="btn" onclick="clientCredentialLogin()">调用</button>
+            <div id="scenario-1-response" class="response"></div>
+        </div>
+    </div>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+    <script>
+        function isEmpty(value) {
+            return value === null || value === undefined || value === ''
+        }
+        if (isEmpty(localStorage.getItem(uiUrlKey))) {
+            localStorage.setItem(uiUrlKey, "https://console.letsauth.cloud")
+        }
+        if (isEmpty(localStorage.getItem(apiUrlKey))) {
+            localStorage.setItem(apiUrlKey, "https://api.letsauth.cloud")
+        }
+        if (isEmpty(localStorage.getItem(projectIdKey))) {
+            localStorage.setItem(projectIdKey, "0P8OMAHSU0W4")
+        }
+        if (isEmpty(localStorage.getItem(clientIdKey))) {
+            localStorage.setItem(clientIdKey, "0C8OMAMM2QDC")
+        }
+        if (isEmpty(localStorage.getItem(clientSecretKey))) {
+            localStorage.setItem(clientSecretKey, "97b29ceb-c445-4178-bb95-84755f14cba6")
+        }
+        if (isEmpty(localStorage.getItem(publicApiPathKey))) {
+            localStorage.setItem(publicApiPathKey, "tenant-svc/public")
+        }
+        if (isEmpty(localStorage.getItem(publicStaticApiPathKey))) {
+            localStorage.setItem(publicStaticApiPathKey, "tenant-svc/icon.png")
+        }
+        if (isEmpty(localStorage.getItem(protectedApiPathKey))) {
+            localStorage.setItem(protectedApiPathKey, "tenant-svc/protected")
+        }
+
+        document.getElementById(uiUrlKey).value = localStorage.getItem(uiUrlKey)
+        document.getElementById(apiUrlKey).value = localStorage.getItem(apiUrlKey)
+        document.getElementById(projectIdKey).value = localStorage.getItem(projectIdKey)
+        document.getElementById(clientIdKey).value = localStorage.getItem(clientIdKey)
+        document.getElementById(clientSecretKey).value = localStorage.getItem(clientSecretKey)
+        document.getElementById(publicApiPathKey).value = localStorage.getItem(publicApiPathKey)
+        document.getElementById(publicStaticApiPathKey).value = localStorage.getItem(publicStaticApiPathKey)
+        document.getElementById(protectedApiPathKey).value = localStorage.getItem(protectedApiPathKey)
+
+
+        document.getElementById("public-url").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicApiPathKey).value
+        document.getElementById("public-static-url").src = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicStaticApiPathKey).value
+        document.getElementById("public-static-url-text").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicStaticApiPathKey).value
+        document.getElementById("protected-url").innerText = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(protectedApiPathKey).value
+
+        function save() {
+            const uiUrl = document.getElementById(uiUrlKey).value;
+            const apiUrl = document.getElementById(apiUrlKey).value;
+            const projectId = document.getElementById(projectIdKey).value;
+            const clientId = document.getElementById(clientIdKey).value;
+            const secret = document.getElementById(clientSecretKey).value;
+            const publicApiPath = document.getElementById(publicApiPathKey).value;
+            const publicStaitcApiPath = document.getElementById(publicStaticApiPathKey).value;
+            const protectedApiPath = document.getElementById(protectedApiPathKey).value;
+            localStorage.setItem(uiUrlKey, uiUrl)
+            localStorage.setItem(apiUrlKey, apiUrl)
+            localStorage.setItem(projectIdKey, projectId)
+            localStorage.setItem(clientIdKey, clientId)
+            localStorage.setItem(clientSecretKey, secret)
+            localStorage.setItem(publicApiPathKey, publicApiPath)
+            localStorage.setItem(publicStaticApiPathKey, publicStaitcApiPath)
+            localStorage.setItem(protectedApiPathKey, protectedApiPath)
+            location.reload()
+        }
+        function getCurrentLocation() {
+            return location.origin
+        }
+        function callPublicApi() {
+            const url = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicApiPathKey).value;
+            const options = {
+                method: "GET",
+            }
+            fetch(url, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-3-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+        function callProtectedApi() {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Bearer ' + localStorage.getItem("token"));
+            const url = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(protectedApiPathKey).value;
+            const options = {
+                method: "GET",
+                headers: myHeaders,
+            }
+            fetch(url, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-5-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+        function authorizationLogin() {
+            const clientId = document.getElementById(clientIdKey).value
+            const uiUrl = document.getElementById(uiUrlKey).value;
+            const projectId = document.getElementById(projectIdKey).value;
+            location.replace(
+                `${uiUrl}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${getCurrentLocation()}&state=login&project_id=${projectId}`
+            );
+        }
+        function clientCredentialLogin() {
+            const clientId = document.getElementById(clientIdKey).value
+            const clientSecret = document.getElementById(clientSecretKey).value
+            const apiUr = document.getElementById(apiUrlKey).value
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + clientSecret));
+            const formData = new FormData();
+            formData.append('grant_type', 'client_credentials');
+            formData.append('scope', 'not_used');
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch(`${apiUr}/auth-svc/oauth/token`, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('scenario-1-response').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+    </script>
 </body>
 
 </html>

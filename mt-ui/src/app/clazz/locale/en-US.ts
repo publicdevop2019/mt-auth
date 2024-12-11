@@ -31,7 +31,7 @@ export const enUS = {
     "ACCESS_TOKEN_VALIDITY_SECONDS": "Access token expiry time (seconds)",
     "REFRESH_TOKEN_VALIDITY_SECONDS": "Refresh token expiry time (seconds)",
     "ENTER_RESOURCE_ID": "Select application",
-    "ENTER_ENDPOINT": "Enter endpoint, e.g. foo/bar",
+    "ENTER_ENDPOINT": "Enter endpoint, e.g. foo/bar foo/bar/** foo/**/bar foo/bar.png",
     "SELECT_METHOD": "Please Select HTTP method",
     "ENTER_SCHEME": "Enter HTTP scheme",
     "ENTER_HOST": "Enter host address",
@@ -648,4 +648,5 @@ export const enUS = {
     "SELECT_USER_SEARCH_TYPE": "Search by",
     "USER_ROLE_NOTE": "All roles assigned to this user",
     "ADD_USER_ROLE": "Add role",
+    "CACHE_ENABLED": "Enalbe Cache",
 }
