@@ -134,6 +134,13 @@ public class TenantEndpointValidationTest{
         ResponseEntity<Void> response1 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        //true but is public endpoint
+        endpoint.setWebsocket(false);
+        endpoint.setCsrfEnabled(true);
+        endpoint.setSecured(false);
+        ResponseEntity<Void> response2 =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 
     @Test

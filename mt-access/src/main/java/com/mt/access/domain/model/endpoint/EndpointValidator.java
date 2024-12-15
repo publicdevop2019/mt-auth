@@ -21,6 +21,14 @@ public class EndpointValidator {
         ifSecureThenPermissionIdMustExist();
         onlyGetCanHaveCacheConfig();
         replenishRateAndBurstCapacity();
+        publicEndpointCannotHaveCsrf();
+    }
+
+    private void publicEndpointCannotHaveCsrf() {
+        if (Checker.isFalse(this.endpoint.getSecured()) &&
+            Checker.isTrue(this.endpoint.getExternal())) {
+            handler.handleError("public endpoint can not have csrf enabled");
+        }
     }
 
     private void checkNotNullValue() {
