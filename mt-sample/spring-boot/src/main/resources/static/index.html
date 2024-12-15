@@ -204,7 +204,7 @@
             location.reload()
         }
         function getCurrentLocation() {
-            return location.origin
+            return location.href.split("?")[0]
         }
         function callPublicApi() {
             const url = localStorage.getItem(apiUrlKey) + "/" + document.getElementById(publicApiPathKey).value;
