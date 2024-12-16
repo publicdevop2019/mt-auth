@@ -115,5 +115,24 @@ public class TenantEndpointTest {
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
     }
 
+    @Test
+    public void tenant_create_public_endpoint() {
+        //create none shared endpoint
+        Endpoint noneShared =
+            EndpointUtility.createValidSharedEndpointObj(client.getId());
+        noneShared.setSecured(false);
+        noneShared.setShared(false);
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext, noneShared);
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        //create shared endpoint
+        Endpoint shared =
+            EndpointUtility.createValidSharedEndpointObj(client.getId());
+        shared.setSecured(false);
+        ResponseEntity<Void> tenantEndpoint2 =
+            EndpointUtility.createTenantEndpoint(tenantContext, shared);
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint2.getStatusCode());
+    }
+
 
 }

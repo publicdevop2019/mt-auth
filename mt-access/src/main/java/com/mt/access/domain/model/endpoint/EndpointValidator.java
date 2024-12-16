@@ -26,7 +26,9 @@ public class EndpointValidator {
 
     private void publicEndpointCannotHaveCsrf() {
         if (Checker.isFalse(this.endpoint.getSecured()) &&
-            Checker.isTrue(this.endpoint.getExternal())) {
+            Checker.isTrue(this.endpoint.getExternal()) &&
+            Checker.isTrue(this.endpoint.getCsrfEnabled())
+        ) {
             handler.handleError("public endpoint can not have csrf enabled");
         }
     }
