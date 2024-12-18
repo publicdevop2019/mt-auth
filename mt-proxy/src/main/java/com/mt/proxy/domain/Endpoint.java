@@ -2,7 +2,6 @@ package com.mt.proxy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.mt.proxy.infrastructure.LogService;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
@@ -12,8 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.slf4j.Logger;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 
 /**
  * mirror of mt-access EndpointProxyCacheRepresentation
@@ -40,28 +37,21 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Subscription> subscriptions;
 
-    public boolean allowAccess(String jwtRaw, Logger log, ServerHttpRequest request)
+    public EndpointCheckResult checkAccess(String jwtRaw)
         throws ParseException {
         if (secured && permissionId == null) {
-            LogService.reactiveLog(request,
-                () -> log.debug("not pass check due to permissionId missing"));
-            return false;
+            return EndpointCheckResult.missingPermissionId();
         }
         if (!secured && permissionId == null) {
-            LogService.reactiveLog(request,
-                () -> log.debug("pass check due to public endpoint"));
-            return true;
+            return EndpointCheckResult.allowPublic();
         }
         Set<String> permissionIds = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
         boolean contains = permissionIds.contains(permissionId);
         if (contains) {
-            LogService.reactiveLog(request,
-                () -> log.debug("pass check due to permissionId match"));
+            return EndpointCheckResult.permissionIdMatch();
         } else {
-            LogService.reactiveLog(request,
-                () -> log.debug("not pass check due to permissionId mismatch"));
+            return EndpointCheckResult.permissionIdNotFound();
         }
-        return contains;
     }
 
     public boolean hasCorsInfo() {

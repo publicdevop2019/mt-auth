@@ -14,9 +14,9 @@ public class CustomFilterContext {
     private String authHeader;
     private Boolean bodyCopied = false;
 
-    public void endpointCheckFailed() {
+    public void endpointCheckFailed(HttpStatus status) {
         this.endpointCheckFailed = true;
-        this.httpErrorStatus = HttpStatus.FORBIDDEN;
+        this.httpErrorStatus = status;
     }
 
     public boolean hasCheckFailed() {

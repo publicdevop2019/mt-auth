@@ -5,6 +5,7 @@ import static com.mt.proxy.domain.Utility.readFormData;
 import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
 import com.mt.proxy.domain.DomainRegistry;
+import com.mt.proxy.domain.EndpointCheckResult;
 import com.mt.proxy.domain.GzipService;
 import com.mt.proxy.domain.JsonSanitizeService;
 import com.mt.proxy.domain.ReportService;
@@ -350,17 +351,14 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         LogService.reactiveLog(request,
             () -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
                 request.getURI().getScheme()));
-        boolean allow = DomainRegistry.getEndpointService().checkAccess(
-            request,
-            context.getAuthHeader(), context.getWebsocket());
-        if (!allow) {
-            LogService.reactiveLog(request,
-                () -> log.debug("access is not allowed"));
-            context.endpointCheckFailed();
-            return;
-        }
+        EndpointCheckResult result = DomainRegistry.getEndpointService()
+            .checkAccess(request, context.getAuthHeader(), context.getWebsocket());
         LogService.reactiveLog(request,
-            () -> log.debug("access is allowed"));
+            () -> log.debug("check result is {}, reason {}", result.isPassed(),
+                result.getReason()));
+        if (!result.isPassed()) {
+            context.endpointCheckFailed(result.getReason().getHttpStatus());
+        }
     }
 
     private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {
