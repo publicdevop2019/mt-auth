@@ -26,7 +26,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@Disabled
 @Slf4j
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 public class RevokeTokenTest {
@@ -118,6 +117,7 @@ public class RevokeTokenTest {
     public void receive_request_blacklist_user_then_block_user_old_request()
         throws JsonProcessingException, InterruptedException {
         //create new user to avoid impact other tests
+        String jwtAdmin = UserUtility.getJwtAdmin();
         User user = UserUtility.createEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse =
             UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
@@ -144,7 +144,7 @@ public class RevokeTokenTest {
         stringStringHashMap.put("id", userId);
         stringStringHashMap.put("type", "USER");
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer0);
+        headers.setBearerAuth(jwtAdmin);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> hashMapHttpEntity =
             new HttpEntity<>(TestContext.mapper.writeValueAsString(stringStringHashMap), headers);

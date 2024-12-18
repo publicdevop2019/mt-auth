@@ -46,8 +46,8 @@ public class TenantProjectValidationTest{
         Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
 
-    //endpoint note added
-    @Disabled
+
+    @Disabled //endpoint note added
     @ParameterizedTest
     @ArgumentsSource(ProjectNameArgs.class)
     public void validation_update_name(String name, HttpStatus httpStatus) {
@@ -62,8 +62,8 @@ public class TenantProjectValidationTest{
         Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
 
-    //endpoint note added
-    @Disabled
+
+    @Disabled //endpoint note added
     @ParameterizedTest
     @ArgumentsSource(ProjectNameArgs.class)
     public void validation_patch_name(String name, HttpStatus httpStatus) {
