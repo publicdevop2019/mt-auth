@@ -33,8 +33,6 @@ public class ResourceServerConfig {
             .requireCsrfProtectionMatcher(customEndpointCsrfMatcher)
             .and()
             .cors().configurationSource(corsService)
-            .and()
-            .oauth2ResourceServer().jwt()
         ;
         return httpSecurity.build();
     }

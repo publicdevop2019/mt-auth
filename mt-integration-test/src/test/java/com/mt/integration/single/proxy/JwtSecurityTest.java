@@ -38,7 +38,7 @@ public class JwtSecurityTest {
     @Test
     public void user_modify_jwt_token_after_login() {
         String defaultUserToken = UserUtility.registerNewUserThenLogin();
-        String url = HttpUtility.getAccessUrl("/status/200");
+        String url = HttpUtility.getTestUrl("external/not/shared/auth");
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, getHttpRequest(defaultUserToken + "valueChange"),
                 String.class);
@@ -47,7 +47,7 @@ public class JwtSecurityTest {
 
     @Test
     public void trying_access_protected_api_without_jwt_token() {
-        String url = HttpUtility.getAccessUrl("/status/200");
+        String url = HttpUtility.getTestUrl("external/not/shared/auth");
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate()
                 .exchange(url, HttpMethod.GET, getHttpRequest(null), String.class);

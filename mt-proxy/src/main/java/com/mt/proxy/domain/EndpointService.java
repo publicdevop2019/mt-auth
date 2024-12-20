@@ -81,7 +81,7 @@ public class EndpointService {
             } else {
                 //check permissions
                 try {
-                    return checkAccessByPermissionId(requestUri, method, authHeader, true, request);
+                    return checkAccessByPermissionId(requestUri, method, authHeader, true);
                 } catch (ParseException e) {
                     LogService.reactiveLog(request,
                         () -> log.error("error during parse", e));
@@ -89,11 +89,7 @@ public class EndpointService {
                 }
             }
         }
-        if (requestUri.contains("/oauth/token") || requestUri.contains("/oauth/token_key")) {
-            //permit all token endpoints,
-            //TODO is it safe? maybe remove it
-            return EndpointCheckResult.allow();
-        } else if (authHeader == null || !authHeader.contains("Bearer")) {
+        if (authHeader == null || !authHeader.contains("Bearer")) {
             if (cached.size() == 0) {
                 return EndpointCheckResult.emptyCache();
             }
@@ -106,8 +102,11 @@ public class EndpointService {
                 return EndpointCheckResult.allow();
             }
         } else if (authHeader.contains("Bearer")) {
+            if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
+                return EndpointCheckResult.invalidJwt();
+            }
             try {
-                return checkAccessByPermissionId(requestUri, method, authHeader, false, request);
+                return checkAccessByPermissionId(requestUri, method, authHeader, false);
             } catch (ParseException e) {
                 LogService.reactiveLog(request,
                     () -> log.error("error during parse", e));
@@ -121,8 +120,7 @@ public class EndpointService {
 
     private EndpointCheckResult checkAccessByPermissionId(String requestUri, String method,
                                                           String authHeader,
-                                                          boolean websocket,
-                                                          ServerHttpRequest request)
+                                                          boolean websocket)
         throws ParseException {
         //check endpoint url, method first then check resourceId and security rule
         String jwtRaw = authHeader.replace("Bearer ", "");

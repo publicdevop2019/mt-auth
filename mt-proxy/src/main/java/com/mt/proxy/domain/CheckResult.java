@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 
 public enum CheckResult {
     MISSING_AUTH(HttpStatus.FORBIDDEN),
-    INVALID_JWT(HttpStatus.FORBIDDEN),
+    INVALID_JWT(HttpStatus.UNAUTHORIZED),
     PARSE_ERROR(HttpStatus.FORBIDDEN),
     EMPTY_CACHE(HttpStatus.FORBIDDEN),
     UNREGISTERED_PUBLIC_OR_NO_AUTH(HttpStatus.FORBIDDEN),
