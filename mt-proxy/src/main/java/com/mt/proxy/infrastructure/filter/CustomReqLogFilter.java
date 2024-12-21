@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveReqLogFilter implements WebFilter, Ordered {
+public class CustomReqLogFilter implements WebFilter, Ordered {
     @Autowired
     UniqueIdGeneratorService idGeneratorService;
 

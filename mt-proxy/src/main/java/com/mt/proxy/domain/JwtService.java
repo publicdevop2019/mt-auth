@@ -20,10 +20,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -36,11 +33,6 @@ public class JwtService {
     private HttpUtility httpHelper;
     @Autowired
     private LogService logService;
-
-    @Bean
-    public ReactiveJwtDecoder jwtDecoder() {
-        return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
-    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadKeys() {

@@ -32,10 +32,6 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <Logger name="org.springframework.security" level="info" additivity="false">
-            <appender-ref ref="console"/>
-            <appender-ref ref="fileLogger"/>
-        </Logger>
         <Root level="info" additivity="false" includeLocation="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

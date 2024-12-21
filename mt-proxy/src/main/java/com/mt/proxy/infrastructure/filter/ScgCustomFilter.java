@@ -382,7 +382,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 2;
+        return HIGHEST_PRECEDENCE + 3;
     }
 
 }
