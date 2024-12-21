@@ -29,10 +29,10 @@ public class ResourceServerConfig {
             .anyExchange().permitAll()
             .and()
             .csrf()
+//            .disable()
             .csrfTokenRepository(cookieCsrfTokenRepository)
-            .requireCsrfProtectionMatcher(customEndpointCsrfMatcher)
-            .and()
-            .cors().configurationSource(corsService)
+//            .requireCsrfProtectionMatcher(customEndpointCsrfMatcher)
+//            .cors().configurationSource(corsService)
         ;
         return httpSecurity.build();
     }

@@ -128,8 +128,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             return stopResponse(exchange, context);
         }
         if (Boolean.TRUE.equals(context.getWebsocket())) {
-            //for websocket only endpoint check is performed
-            //TODO add token check for websocket
+            //for websocket only endpoint check is performed after token check
             return chain.filter(exchange);
         }
         LogService.reactiveLog(request,
@@ -383,7 +382,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return HIGHEST_PRECEDENCE + 1;
+        return HIGHEST_PRECEDENCE + 2;
     }
 
 }

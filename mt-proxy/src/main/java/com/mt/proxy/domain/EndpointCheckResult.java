@@ -67,6 +67,7 @@ public class EndpointCheckResult {
         return result;
     }
 
+    @Deprecated
     public static EndpointCheckResult allow() {
         EndpointCheckResult result = new EndpointCheckResult();
         result.passed = true;
