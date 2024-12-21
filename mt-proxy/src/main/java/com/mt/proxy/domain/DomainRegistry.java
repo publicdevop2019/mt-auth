@@ -36,6 +36,20 @@ public class DomainRegistry {
     private static RegisteredApplicationService registeredApplicationService;
     @Getter
     private static RateLimitService rateLimitService;
+    @Getter
+    private static ReportService reportService;
+    @Getter
+    private static JsonSanitizeService jsonSanitizeService;
+
+    @Autowired
+    public void setReportService(ReportService reportService) {
+        DomainRegistry.reportService = reportService;
+    }
+
+    @Autowired
+    public void setJsonSanitizeService(JsonSanitizeService jsonSanitizeService) {
+        DomainRegistry.jsonSanitizeService = jsonSanitizeService;
+    }
 
     @Autowired
     public void setRetrieveRegisterApplicationService(

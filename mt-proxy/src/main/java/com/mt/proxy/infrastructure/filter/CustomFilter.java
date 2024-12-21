@@ -3,12 +3,9 @@ package com.mt.proxy.infrastructure.filter;
 import static com.mt.proxy.domain.Utility.readFormData;
 
 import com.mt.proxy.domain.CacheConfiguration;
-import com.mt.proxy.domain.CacheService;
 import com.mt.proxy.domain.DomainRegistry;
 import com.mt.proxy.domain.EndpointCheckResult;
 import com.mt.proxy.domain.GzipService;
-import com.mt.proxy.domain.JsonSanitizeService;
-import com.mt.proxy.domain.ReportService;
 import com.mt.proxy.domain.SanitizeService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
@@ -21,10 +18,7 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.support.BodyInserterContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -33,6 +27,7 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ReactiveHttpOutputMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpRequestDecorator;
@@ -45,20 +40,16 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.HandlerStrategies;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class ScgCustomFilter implements GlobalFilter, Ordered {
-    @Autowired
-    JsonSanitizeService jsonSanitizeService;
+public class CustomFilter implements WebFilter, Ordered {
     @Value("${mt.common.domain-name}")
     String domain;
-    @Autowired
-    CacheService cacheService;
-    @Autowired
-    ReportService reportService;
 
     private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
                                                               HttpHeaders headers,
@@ -118,7 +109,18 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        if (DomainRegistry.getCorsService().checkCors(exchange)) {
+            return Mono.empty();
+        }
+        if (!DomainRegistry.getCsrfService().checkCsrf(exchange.getRequest())) {
+            ServerHttpResponse response = exchange.getResponse();
+            exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            String jsonResponse = "{\"msg\": \"csrf required\"}";
+            return response.writeWith(
+                Mono.just(response.bufferFactory().wrap(jsonResponse.getBytes())));
+        }
         CustomFilterContext context = new CustomFilterContext();
         ServerHttpRequest request = exchange.getRequest();
         context.setWebsocket(Utility.isWebSocket(request.getHeaders()));
@@ -150,7 +152,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         LogService.reactiveLog(request,
             () -> log.debug("log request and response detail"));
         //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
-        reportService.logRequestDetails(exchange.getRequest());
+        DomainRegistry.getReportService().logRequestDetails(exchange.getRequest());
         ServerHttpResponse updatedResp = updateResponse(exchange);
         LogService.reactiveLog(request,
             () -> log.debug("response updated"));
@@ -175,7 +177,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(context.getHttpErrorStatus());
-        reportService.logResponseDetail(exchange);
+        DomainRegistry.getReportService().logResponseDetail(exchange);
         return response.setComplete();
     }
 
@@ -225,7 +227,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     private void updateEtag(byte[] responseBody, ServerWebExchange exchange) {
         ServerHttpResponse originalResponse = exchange.getResponse();
         CacheConfiguration cacheConfiguration =
-            cacheService.getCacheConfiguration(exchange, true);
+            DomainRegistry.getCacheService().getCacheConfiguration(exchange, true);
         if (cacheConfiguration != null && Boolean.TRUE.equals(cacheConfiguration.getEtag()) &&
             HttpStatus.OK.equals(exchange.getResponse().getStatusCode())) {
             // length of W/ + " + 0 + 32bits md5 hash + "
@@ -255,7 +257,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         if (HttpMethod.GET.equals(request.getMethod())) {
             exchange.getResponse().beforeCommit(() -> {
                 CacheConfiguration cacheConfiguration =
-                    cacheService.getCacheConfiguration(exchange, false);
+                    DomainRegistry.getCacheService().getCacheConfiguration(exchange, false);
                 if (cacheConfiguration != null) {
                     //remove existing cache header
                     exchange.getResponse().getHeaders().remove("Cache-Control");
@@ -300,7 +302,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         if (Utility.isTokenRequest(request)
             ||
-            jsonSanitizeService
+            DomainRegistry
+                .getJsonSanitizeService()
                 .sanitizeRequired(request.getMethod(), request.getHeaders().getContentType())) {
             context.bodyReadRequired();
             ServerRequest serverRequest =
@@ -314,7 +317,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                         context.tokenRevoked();
                     }
                 } else {
-                    String sanitize = jsonSanitizeService.sanitizeRequest(body);
+                    String sanitize = DomainRegistry.getJsonSanitizeService().sanitizeRequest(body);
                     context.setNewContentLength(sanitize.getBytes().length);
                     return sanitize;
                 }
@@ -328,7 +331,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 outputMessage = new CachedBodyOutputMessage(exchange, headers);
             Mono<Void> insert = bodyInserter.insert(outputMessage, new BodyInserterContext());
             return insert.then(Mono.defer(() -> {
-                if (jsonSanitizeService
+                if (DomainRegistry.getJsonSanitizeService()
                     .sanitizeRequired(request.getMethod(), request.getHeaders().getContentType())) {
                     headers.setContentLength(context.getNewContentLength());
                 }

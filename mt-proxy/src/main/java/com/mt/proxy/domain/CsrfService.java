@@ -12,7 +12,6 @@ import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ServerWebExchange;
 
 @Slf4j
 @Service
@@ -28,6 +27,14 @@ public class CsrfService {
             endpoints.stream().filter(e -> !Boolean.TRUE.equals(e.getCsrfEnabled()))
                 .collect(Collectors.toSet());
         log.debug("refresh csrf config completed");
+    }
+
+    public boolean checkCsrf(ServerHttpRequest request) {
+        boolean bypassCsrf = checkBypassCsrf(request);
+        if (!bypassCsrf) {
+            return checkCsrfValue(request);
+        }
+        return true;
     }
 
     public boolean checkBypassCsrf(ServerHttpRequest request) {
@@ -58,9 +65,9 @@ public class CsrfService {
         }
     }
 
-    public boolean checkCsrfValue(ServerWebExchange exchange) {
-        HttpCookie cookie = exchange.getRequest().getCookies().getFirst(DEFAULT_CSRF_COOKIE_NAME);
-        String header = exchange.getRequest().getHeaders().getFirst(DEFAULT_CSRF_HEADER_NAME);
+    public boolean checkCsrfValue(ServerHttpRequest request) {
+        HttpCookie cookie = request.getCookies().getFirst(DEFAULT_CSRF_COOKIE_NAME);
+        String header = request.getHeaders().getFirst(DEFAULT_CSRF_HEADER_NAME);
         return cookie != null && cookie.getValue().equals(header);
     }
 }
