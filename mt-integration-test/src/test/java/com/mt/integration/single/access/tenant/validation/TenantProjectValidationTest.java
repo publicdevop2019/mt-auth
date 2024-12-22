@@ -45,39 +45,4 @@ public class TenantProjectValidationTest{
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
-
-
-    @Disabled //endpoint note added
-    @ParameterizedTest
-    @ArgumentsSource(ProjectNameArgs.class)
-    public void validation_update_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createEmailPwdUser();
-        Project project = ProjectUtility.createRandomProjectObj();
-        ResponseEntity<Void> tenantProject =
-            ProjectUtility.createTenantProject(project, user);
-        project.setId(HttpUtility.getId(tenantProject));
-        project.setName(name);
-        ResponseEntity<Void> response =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(httpStatus, response.getStatusCode());
-    }
-
-
-    @Disabled //endpoint note added
-    @ParameterizedTest
-    @ArgumentsSource(ProjectNameArgs.class)
-    public void validation_patch_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createEmailPwdUser();
-        Project project = ProjectUtility.createRandomProjectObj();
-        ResponseEntity<Void> tenantProject =
-            ProjectUtility.createTenantProject(project, user);
-        project.setId(HttpUtility.getId(tenantProject));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        patchCommand.setValue(name);
-        ResponseEntity<Void> response =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(httpStatus, response.getStatusCode());
-    }
 }

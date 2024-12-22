@@ -58,13 +58,22 @@ public class JwtService {
             log.error("error during parse signed jwt", e);
             return false;
         }
+        boolean verify;
         try {
-            return parse.verify(new RSASSAVerifier(publicKey));
+            verify = parse.verify(new RSASSAVerifier(publicKey));
         } catch (JOSEException e) {
             log.error("error during validate jwt", e);
             return false;
         }
-
+        if (!verify) {
+            return false;
+        }
+        Long expSec = (Long) parse.getPayload().toJSONObject().get("exp");
+        if (expSec == null) {
+            return false;
+        }
+        long currentMilli = System.currentTimeMillis();
+        return currentMilli <= expSec * 1000;
     }
 
     public Set<String> getResourceIds(String jwtRaw) throws ParseException {

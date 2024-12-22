@@ -110,7 +110,6 @@ public class EndpointService {
             } catch (ParseException e) {
                 LogService.reactiveLog(request,
                     () -> log.error("error during parse", e));
-
                 return EndpointCheckResult.parseError();
             }
         } else {

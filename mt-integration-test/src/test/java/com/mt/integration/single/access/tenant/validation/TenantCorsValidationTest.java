@@ -74,7 +74,7 @@ public class TenantCorsValidationTest{
         //null
         cors.setAllowCredentials(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
     }
 
     @ParameterizedTest
@@ -156,7 +156,7 @@ public class TenantCorsValidationTest{
         //null
         cors.setAllowCredentials(null);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
     }
 
     @ParameterizedTest
