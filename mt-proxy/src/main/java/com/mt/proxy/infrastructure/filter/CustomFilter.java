@@ -49,6 +49,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class CustomFilter implements WebFilter, Ordered {
     private static final String CSRF_INVALID_JSON_RESPONSE = "{\"msg\": \"csrf required\"}";
+    private static final String EMPTY_CACHE_RESPONSE = "{\"msg\": \"proxy cache empty\"}";
     private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
         "{\"msg\": \"endpoint not found\"}";
     private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
@@ -123,6 +124,17 @@ public class CustomFilter implements WebFilter, Ordered {
                 () -> log.debug("skip check for proxy internal check sum"));
             return chain.filter(exchange);
         }
+        if (DomainRegistry.getEndpointService().cacheEmpty()) {
+            ServerHttpResponse response = exchange.getResponse();
+            exchange.getResponse().setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return response.writeWith(
+                Mono.just(response.bufferFactory().wrap(EMPTY_CACHE_RESPONSE.getBytes())));
+        }
+        if (!DomainRegistry.getCorsService().checkCors(exchange)) {
+            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("failed cors check"));
+            return Mono.empty();
+        }
         if (DomainRegistry.getEndpointService().findEndpoint(path, method, context.getWebsocket())
             .isEmpty()) {
             ServerHttpResponse response = exchange.getResponse();
@@ -131,10 +143,6 @@ public class CustomFilter implements WebFilter, Ordered {
             return response.writeWith(
                 Mono.just(
                     response.bufferFactory().wrap(ENDPOINT_NOT_FOUND_JSON_RESPONSE.getBytes())));
-        }
-        if (!DomainRegistry.getCorsService().checkCors(exchange)) {
-            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("failed cors check"));
-            return Mono.empty();
         }
         if (!DomainRegistry.getCsrfService().checkCsrf(exchange.getRequest())) {
             ServerHttpResponse response = exchange.getResponse();
@@ -145,6 +153,8 @@ public class CustomFilter implements WebFilter, Ordered {
         }
         EndpointCheckResult result = DomainRegistry.getEndpointService()
             .checkAccess(request, context.getAuthHeader(), context.getWebsocket());
+        LogService.reactiveLog(request,
+            () -> log.debug("check result {} reason {}", result.isPassed(), result.getReason()));
         if (!result.isPassed()) {
             context.endpointCheckFailed(result.getReason().getHttpStatus());
             return stopResponse(exchange, context);

@@ -10,6 +10,7 @@ import com.mt.integration.single.proxy.CorsTest;
 import com.mt.integration.single.proxy.EndpointSecurityTest;
 import com.mt.integration.single.proxy.GatewayFilterTest;
 import com.mt.integration.single.proxy.JwtSecurityTest;
+import com.mt.integration.single.proxy.ProxyInfoTest;
 import com.mt.integration.single.proxy.RevokeTokenTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
@@ -21,6 +22,7 @@ import org.junit.platform.suite.api.Suite;
     GatewayFilterTest.class,
     JwtSecurityTest.class,
     RevokeTokenTest.class,
+    ProxyInfoTest.class,
 })
 public class ProxyTestSuite {
 }

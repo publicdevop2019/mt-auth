@@ -70,50 +70,26 @@ public class EndpointService {
 
     public EndpointCheckResult checkAccess(ServerHttpRequest request, @Nullable String authHeader,
                                            Boolean webSocket) {
-        String requestUri = request.getPath().toString();
+        String path = request.getPath().toString();
         String method = request.getMethod().name();
-        if (Boolean.TRUE.equals(webSocket)) {
+        Endpoint endpoint = findEndpoint(path, method, webSocket).get();
+        if (endpoint.getSecured()) {
             if (authHeader == null) {
                 return EndpointCheckResult.emptyAuth();
             }
-            if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
-                return EndpointCheckResult.invalidJwt();
-            } else {
-                //check permissions
-                try {
-                    return checkAccessByPermissionId(requestUri, method, authHeader, true);
-                } catch (ParseException e) {
-                    LogService.reactiveLog(request,
-                        () -> log.error("error during parse", e));
-                    return EndpointCheckResult.parseError();
-                }
-            }
-        }
-        if (authHeader == null || !authHeader.contains("Bearer")) {
-            if (cached.size() == 0) {
-                return EndpointCheckResult.emptyCache();
-            }
-            List<Endpoint> collect1 = cached.stream().filter(e -> !e.getSecured()).filter(
-                    e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
-                .collect(Collectors.toList());
-            if (collect1.size() == 0) {
-                return EndpointCheckResult.unregisterPublicOrNoAuth();
-            } else {
-                return EndpointCheckResult.allow();
-            }
-        } else if (authHeader.contains("Bearer")) {
-            if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
+            if (!DomainRegistry.getJwtService().verifyBearer(authHeader)) {
                 return EndpointCheckResult.invalidJwt();
             }
+            //check permissions
             try {
-                return checkAccessByPermissionId(requestUri, method, authHeader, false);
+                return checkAccessByPermissionId(path, method, authHeader, webSocket);
             } catch (ParseException e) {
                 LogService.reactiveLog(request,
                     () -> log.error("error during parse", e));
                 return EndpointCheckResult.parseError();
             }
         } else {
-            return EndpointCheckResult.unregister();
+            return EndpointCheckResult.allowPublic();
         }
     }
 
@@ -136,7 +112,7 @@ public class EndpointService {
         if (endpoint.isPresent()) {
             return endpoint.get().checkAccess(jwtRaw);
         } else {
-            return EndpointCheckResult.notFoundOrDuplicate();
+            return EndpointCheckResult.notFoundInResource();
         }
     }
 
@@ -191,5 +167,9 @@ public class EndpointService {
      */
     public Set<Endpoint> getCachedEndpoints() {
         return cached;
+    }
+
+    public boolean cacheEmpty() {
+        return cached.size() == 0;
     }
 }

@@ -68,6 +68,6 @@ public class MgmtUtilityTest{
         ResponseEntity<Void> exchange2 =
             restTemplate.exchange(HttpUtility.getAccessUrl("health"),
                 HttpMethod.GET, null, Void.class);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, exchange2.getStatusCode());
     }
 }

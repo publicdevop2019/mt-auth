@@ -25,27 +25,9 @@ public class EndpointCheckResult {
         return result;
     }
 
-    public static EndpointCheckResult emptyCache() {
-        EndpointCheckResult result = new EndpointCheckResult();
-        result.reason = CheckResult.EMPTY_CACHE;
-        return result;
-    }
-
-    public static EndpointCheckResult unregisterPublicOrNoAuth() {
-        EndpointCheckResult result = new EndpointCheckResult();
-        result.reason = CheckResult.UNREGISTERED_PUBLIC_OR_NO_AUTH;
-        return result;
-    }
-
     public static EndpointCheckResult missingResourceId() {
         EndpointCheckResult result = new EndpointCheckResult();
         result.reason = CheckResult.MISSING_RESOURCE_ID;
-        return result;
-    }
-
-    public static EndpointCheckResult unregister() {
-        EndpointCheckResult result = new EndpointCheckResult();
-        result.reason = CheckResult.UNREGISTERED;
         return result;
     }
 
@@ -61,16 +43,9 @@ public class EndpointCheckResult {
         return result;
     }
 
-    public static EndpointCheckResult notFoundOrDuplicate() {
+    public static EndpointCheckResult notFoundInResource() {
         EndpointCheckResult result = new EndpointCheckResult();
-        result.reason = CheckResult.NOT_FOUND_OR_DUPLICATE;
-        return result;
-    }
-
-    @Deprecated
-    public static EndpointCheckResult allow() {
-        EndpointCheckResult result = new EndpointCheckResult();
-        result.passed = true;
+        result.reason = CheckResult.NOT_FOUND_IN_RESOURCE;
         return result;
     }
 

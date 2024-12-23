@@ -50,7 +50,8 @@ public class JwtService {
         return httpHelper.getAccessUrl() + JWT_KEY_URL;
     }
 
-    public boolean verify(String jwt) {
+    public boolean verifyBearer(String jwt) {
+        jwt = jwt.replace("Bearer ", "");
         SignedJWT parse;
         try {
             parse = SignedJWT.parse(jwt);
