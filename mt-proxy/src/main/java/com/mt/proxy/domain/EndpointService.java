@@ -156,16 +156,16 @@ public class EndpointService {
     public Optional<Endpoint> findEndpoint(@Nullable Set<Endpoint> cache,
                                            String requestUri, String method,
                                            boolean websocket) {
-        Set<Endpoint> from;
-        from = cache == null ? cached : cache;
+        Set<Endpoint> source;
+        source = cache == null ? cached : cache;
         //fetch security rule by endpoint & method
         List<Endpoint> next;
         if (websocket) {
-            next = from.stream()
+            next = source.stream()
                 .filter(e -> antPathMatcher.match(e.getPath(), requestUri) && e.getWebsocket())
                 .collect(Collectors.toList());
         } else {
-            next = from.stream().filter(
+            next = source.stream().filter(
                     e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
                 .collect(Collectors.toList());
         }

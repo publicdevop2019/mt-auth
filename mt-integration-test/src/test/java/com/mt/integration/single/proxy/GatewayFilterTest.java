@@ -4,6 +4,7 @@ import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.ConcurrentUtility;
+import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
@@ -204,6 +205,17 @@ public class GatewayFilterTest {
         String first = exchange.getHeaders().getFirst("set-cookie");
         int sameSite = first == null ? -1 : first.indexOf("SameSite");
         Assertions.assertNotEquals(-1, sameSite);
+    }
+
+    @Test
+    public void should_return_not_found_when_call_not_exist_ep() {
+        String url = HttpUtility.getAccessUrl(RandomUtility.randomHttpPath());
+        HttpHeaders headers1 = new HttpHeaders();
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
+        ResponseEntity<String> exchange =
+            restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, exchange.getStatusCode());
     }
 
 }

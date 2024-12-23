@@ -46,7 +46,7 @@ public class CorsService implements CorsConfigurationSource {
         ServerHttpRequest request = exchange.getRequest();
         CorsConfiguration corsConfiguration = this.getCorsConfiguration(exchange);
         boolean isValid = this.processor.process(corsConfiguration, exchange);
-        return !isValid || CorsUtils.isPreFlightRequest(request);
+        return isValid && !CorsUtils.isPreFlightRequest(request);
     }
 
     private void updateCorsConfig(CorsConfiguration configuration, Endpoint endpoint) {

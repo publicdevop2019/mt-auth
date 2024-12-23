@@ -48,6 +48,9 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomFilter implements WebFilter, Ordered {
+    private static final String CSRF_INVALID_JSON_RESPONSE = "{\"msg\": \"csrf required\"}";
+    private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
+        "{\"msg\": \"endpoint not found\"}";
     private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
     @Value("${mt.common.domain-name}")
     String domain;
@@ -111,44 +114,52 @@ public class CustomFilter implements WebFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        if (proxyInternalEndpoint(exchange)) {
+        ServerHttpRequest request = exchange.getRequest();
+        String path = request.getPath().value();
+        String method = request.getMethodValue();
+        CustomFilterContext context = new CustomFilterContext(exchange);
+        if (proxyInternalCheckSum(exchange)) {
             LogService.reactiveLog(exchange.getRequest(),
-                () -> log.debug("skip check for proxy internal endpoint"));
+                () -> log.debug("skip check for proxy internal check sum"));
             return chain.filter(exchange);
         }
-        if (DomainRegistry.getCorsService().checkCors(exchange)) {
+        if (DomainRegistry.getEndpointService().findEndpoint(path, method, context.getWebsocket())
+            .isEmpty()) {
+            ServerHttpResponse response = exchange.getResponse();
+            exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+            return response.writeWith(
+                Mono.just(
+                    response.bufferFactory().wrap(ENDPOINT_NOT_FOUND_JSON_RESPONSE.getBytes())));
+        }
+        if (!DomainRegistry.getCorsService().checkCors(exchange)) {
+            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("failed cors check"));
             return Mono.empty();
         }
         if (!DomainRegistry.getCsrfService().checkCsrf(exchange.getRequest())) {
             ServerHttpResponse response = exchange.getResponse();
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-            String jsonResponse = "{\"msg\": \"csrf required\"}";
             return response.writeWith(
-                Mono.just(response.bufferFactory().wrap(jsonResponse.getBytes())));
+                Mono.just(response.bufferFactory().wrap(CSRF_INVALID_JSON_RESPONSE.getBytes())));
         }
-        CustomFilterContext context = new CustomFilterContext();
-        ServerHttpRequest request = exchange.getRequest();
-        context.setWebsocket(Utility.isWebSocket(request.getHeaders()));
-        context.setAuthHeader(Utility.getAuthHeader(request));
-        checkEndpoint(exchange.getRequest(), context);
-        if (context.hasCheckFailed()) {
+        EndpointCheckResult result = DomainRegistry.getEndpointService()
+            .checkAccess(request, context.getAuthHeader(), context.getWebsocket());
+        if (!result.isPassed()) {
+            context.endpointCheckFailed(result.getReason().getHttpStatus());
             return stopResponse(exchange, context);
         }
         if (Boolean.TRUE.equals(context.getWebsocket())) {
             //for websocket only endpoint check is performed after token check
             return chain.filter(exchange);
         }
-        LogService.reactiveLog(request,
-            () -> log.debug("checking rate limit"));
+        LogService.reactiveLog(request, () -> log.debug("checking rate limit"));
         checkRateLimit(exchange, context);
         if (context.hasCheckFailed()) {
-            LogService.reactiveLog(request,
-                () -> log.debug("rate limit check failed"));
+            LogService.reactiveLog(request, () -> log.debug("rate limit check failed"));
             return stopResponse(exchange, context);
         }
-        LogService.reactiveLog(request,
-            () -> log.debug("update request"));
+        LogService.reactiveLog(request, () -> log.debug("update request"));
         Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
             LogService.reactiveLog(request,
@@ -180,7 +191,7 @@ public class CustomFilter implements WebFilter, Ordered {
         });
     }
 
-    private boolean proxyInternalEndpoint(ServerWebExchange exchange) {
+    private boolean proxyInternalCheckSum(ServerWebExchange exchange) {
         return PROXY_INTERNAL_ENDPOINT.equals(exchange.getRequest().getPath().value());
     }
 
@@ -357,20 +368,6 @@ public class CustomFilter implements WebFilter, Ordered {
             }
         }
         return Mono.just(request);
-    }
-
-    private void checkEndpoint(ServerHttpRequest request, CustomFilterContext context) {
-        LogService.reactiveLog(request,
-            () -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
-                request.getURI().getScheme()));
-        EndpointCheckResult result = DomainRegistry.getEndpointService()
-            .checkAccess(request, context.getAuthHeader(), context.getWebsocket());
-        LogService.reactiveLog(request,
-            () -> log.debug("check result is {}, reason {}", result.isPassed(),
-                result.getReason()));
-        if (!result.isPassed()) {
-            context.endpointCheckFailed(result.getReason().getHttpStatus());
-        }
     }
 
     private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {

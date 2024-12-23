@@ -1,7 +1,10 @@
 package com.mt.proxy.infrastructure.filter;
 
+import com.mt.proxy.domain.Utility;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.web.server.ServerWebExchange;
 
 @Data
 public class CustomFilterContext {
@@ -13,6 +16,12 @@ public class CustomFilterContext {
     private Boolean websocket;
     private String authHeader;
     private Boolean bodyCopied = false;
+
+    public CustomFilterContext(ServerWebExchange exchange) {
+        ServerHttpRequest request = exchange.getRequest();
+        setWebsocket(Utility.isWebSocket(request.getHeaders()));
+        setAuthHeader(Utility.getAuthHeader(request));
+    }
 
     public void endpointCheckFailed(HttpStatus status) {
         this.endpointCheckFailed = true;
