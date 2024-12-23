@@ -48,6 +48,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomFilter implements WebFilter, Ordered {
+    private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
     @Value("${mt.common.domain-name}")
     String domain;
 
@@ -110,6 +111,11 @@ public class CustomFilter implements WebFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        if (proxyInternalEndpoint(exchange)) {
+            LogService.reactiveLog(exchange.getRequest(),
+                () -> log.debug("skip check for proxy internal endpoint"));
+            return chain.filter(exchange);
+        }
         if (DomainRegistry.getCorsService().checkCors(exchange)) {
             return Mono.empty();
         }
@@ -172,6 +178,10 @@ public class CustomFilter implements WebFilter, Ordered {
                 return chain.filter(exchange.mutate().response(updatedResp).build());
             }
         });
+    }
+
+    private boolean proxyInternalEndpoint(ServerWebExchange exchange) {
+        return PROXY_INTERNAL_ENDPOINT.equals(exchange.getRequest().getPath().value());
     }
 
     private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {

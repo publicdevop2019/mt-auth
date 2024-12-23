@@ -72,6 +72,11 @@ public class HttpUtility {
         return AppConstant.PROXY_URL + "/test-svc/" + normalized;
     }
 
+    public static String getProxyUrl(String path) {
+        String normalized = removeLeadingSlash(path);
+        return AppConstant.PROXY_URL + "/" + normalized;
+    }
+
     private static String removeLeadingSlash(String path) {
         return path.replaceAll("^/+", "");
     }
