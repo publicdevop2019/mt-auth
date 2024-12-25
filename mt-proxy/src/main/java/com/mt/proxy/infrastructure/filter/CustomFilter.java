@@ -106,7 +106,14 @@ public class CustomFilter implements WebFilter, Ordered {
         ServerHttpResponse response = exchange.getResponse();
         if (request.getCookies().get("XSRF-TOKEN") == null
             &&
-            request.getHeaders().get("x-xsrf-token") == null) {
+            request.getHeaders().get("x-xsrf-token") == null
+            &&
+            Utility.isTokenRequest(request)
+            &&
+            response.getStatusCode() != null
+            &&
+            response.getStatusCode().is2xxSuccessful()
+        ) {
             String var0 = UUID.randomUUID().toString();
             response.getHeaders().add(HttpHeaders.SET_COOKIE,
                 "XSRF-TOKEN=" + var0 + "; SameSite=None; Path=/; Secure; Domain=" + domain);
@@ -132,7 +139,7 @@ public class CustomFilter implements WebFilter, Ordered {
                 Mono.just(response.bufferFactory().wrap(EMPTY_CACHE_RESPONSE.getBytes())));
         }
         if (!DomainRegistry.getCorsService().checkCors(exchange)) {
-            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("failed cors check"));
+            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("cors request check completed"));
             return Mono.empty();
         }
         if (DomainRegistry.getEndpointService().findEndpoint(path, method, context.getWebsocket())

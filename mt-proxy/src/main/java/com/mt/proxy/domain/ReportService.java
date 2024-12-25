@@ -70,7 +70,7 @@ public class ReportService {
 
     public void logRequestDetails(ServerHttpRequest request) {
         long requestTimestamp = Instant.now().toEpochMilli();
-        String clientIp = Utility.getClientIp(request);
+        String clientIp = Utility.getClientInfoForReport(request);
         String spanId = Utility.getSpanId(request);
         String path = request.getPath().toString();
         String method = request.getMethod().toString();
