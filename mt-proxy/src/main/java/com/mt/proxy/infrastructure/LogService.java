@@ -1,6 +1,5 @@
 package com.mt.proxy.infrastructure;
 
-import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
 import static com.mt.proxy.infrastructure.AppConstant.SPAN_ID_LOG;
 import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_LOG;
 
@@ -20,10 +19,8 @@ public class LogService {
                                    Runnable runnable) {
         String spanId = Utility.getSpanId(request);
         String traceId = Utility.getTraceId(request);
-        String clientIp = Utility.getClientInfo(request);
         MDC.put(SPAN_ID_LOG, spanId);
         MDC.put(TRACE_ID_LOG, traceId);
-        MDC.put(REQ_CLIENT_IP, clientIp);
         runnable.run();
         MDC.clear();
     }
