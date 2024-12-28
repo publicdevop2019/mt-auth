@@ -43,8 +43,8 @@ public class LogFilter extends GenericFilter {
         } else {
             clientIp = servletRequest.getRemoteAddr();
         }
-        log.info("url: {} accessed by ip: {}", ((HttpServletRequest) servletRequest).getRequestURI(),
-            clientIp);
+        log.info("http client ip {} url: {}", clientIp,
+            ((HttpServletRequest) servletRequest).getRequestURI());
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {

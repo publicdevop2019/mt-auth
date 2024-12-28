@@ -83,7 +83,7 @@ export class ClientComponent {
           this.fg.get('resourceIndicator').setValue(true)
           this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '') + '-svc')
           this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
-  
+
         }
       }
     } else {
@@ -198,7 +198,7 @@ export class ClientComponent {
     if (formGroup.get('grantType').value) {
       grants.push(...(formGroup.get('grantType').value || []));
     }
-    if (formGroup.get('refreshToken').value) {
+    if (grants.includes(grantTypeEnums.password) && formGroup.get('refreshToken').value) {
       grants.push(grantTypeEnums.refresh_token);
     }
     types.push(formGroup.get('frontOrBackApp').value);
@@ -214,7 +214,7 @@ export class ClientComponent {
         refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
         resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
         registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
-        autoApprove: (formGroup.get('grantType').value as string[]).find(e => e === grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
+        autoApprove: grants.includes(grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
         version: this.data && this.data.version,
         projectId: formGroup.get('projectId').value
       }
@@ -229,11 +229,11 @@ export class ClientComponent {
       grantTypeEnums: grants,
       types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
-      refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
+      refreshTokenValiditySeconds: grants.includes(grantTypeEnums.refresh_token) && formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,
       resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
-      registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
-      autoApprove: (formGroup.get('grantType').value as string[]).find(e => e === grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
+      registeredRedirectUri: grants.includes(grantTypeEnums.authorization_code) && formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
+      autoApprove: grants.includes(grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
       version: this.data && this.data.version,
       projectId: formGroup.get('projectId').value
     }

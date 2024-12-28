@@ -67,7 +67,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().mgmtLock(id, command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -80,7 +80,7 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
@@ -93,7 +93,7 @@ public class UserResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         UserTenantRepresentation user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
                 .tenantUser(projectId, id);
@@ -117,7 +117,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody AssignRoleCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantRoleAssign(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
@@ -140,7 +140,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantRoleRemove(projectId, id, roleId, changeId);
         return ResponseEntity.ok().build();
@@ -152,7 +152,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<ProjectAdminRepresentation> resp =
             ApplicationServiceRegistry.getUserRelationApplicationService()
                 .adminQuery(pageParam, projectId);
@@ -166,7 +166,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String userId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .addAdmin(projectId, userId, changeId);
         return ResponseEntity.ok().build();
@@ -179,7 +179,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String userId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .removeAdmin(projectId, userId, changeId);
         return ResponseEntity.ok().build();

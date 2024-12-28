@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -67,6 +68,7 @@ public class RefreshTokenTest {
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource.getId());
         endpoint.setPath("get/**");
         endpoint.setMethod("GET");
+        endpoint.setSecured(true);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
@@ -183,6 +185,7 @@ public class RefreshTokenTest {
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource.getId());
         endpoint.setPath("get/**");
         endpoint.setMethod("GET");
+        endpoint.setSecured(true);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
@@ -230,7 +233,11 @@ public class RefreshTokenTest {
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
     }
 
-
+    @Disabled
+    @Test
+    public void invalid_refresh_token_should_not_work() throws InterruptedException {
+        //TODO
+    }
 }
 
 

@@ -14,7 +14,7 @@ public interface CurrentUserService {
 
     boolean isUser();
 
-    void setUser(Object obj);
+    void setUserJwt(Object obj);
 
     UserId getUserId();
 

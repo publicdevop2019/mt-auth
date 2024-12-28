@@ -20,7 +20,7 @@ public class TicketResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String resourceId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SignedTicket encryptedTicket =
             ApplicationServiceRegistry.getTicketApplicationService().create(resourceId);
         return ResponseEntity.ok().header("Location", encryptedTicket.getValue()).build();

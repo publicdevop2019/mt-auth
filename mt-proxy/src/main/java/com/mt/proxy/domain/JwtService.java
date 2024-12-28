@@ -112,7 +112,7 @@ public class JwtService {
     private Set<String> getClaims(String jwtRaw, String field) throws ParseException {
         JWT jwt = JWTParser.parse(jwtRaw);
         JWTClaimsSet jwtClaimsSet = jwt.getJWTClaimsSet();
-        log.trace("getting clain for {}", field);
+        log.trace("getting claim for {}", field);
         if (jwtClaimsSet.getClaim(field) instanceof String) {
             String claim = (String) jwtClaimsSet.getClaim(field);
             Set<String> objects = new HashSet<>();

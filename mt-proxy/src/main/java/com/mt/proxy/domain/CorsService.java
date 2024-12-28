@@ -83,13 +83,16 @@ public class CorsService implements CorsConfigurationSource {
         CorsConfiguration corsConfiguration = corsConfigurations.get(endpoint.get());
         if (corsConfiguration != null) {
             LogService.reactiveLog(exchange.getRequest(),
-                () -> log.debug("mismatch cors config could also result 403"));
+                () -> log.debug("cors found"));
             LogService.reactiveLog(exchange.getRequest(),
                 () -> log.trace("found {} for path {} with method {}", corsConfiguration,
                     exchange.getRequest().getPath().value(),
                     exchange.getRequest().getMethodValue()));
             LogService.reactiveLog(exchange.getRequest(),
                 () -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
+        }else {
+            LogService.reactiveLog(exchange.getRequest(),
+                () -> log.debug("no cors found"));
         }
         return corsConfiguration;
     }

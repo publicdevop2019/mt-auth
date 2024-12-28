@@ -25,6 +25,7 @@ import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -480,6 +481,19 @@ public class TenantClientValidationTest {
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(status, response2.getStatusCode());
+    }
+
+    @Test
+    public void validation_update_resource_ids_cannot_be_itself() {
+        Client client = ClientUtility.createValidBackendClient();
+        client.setResourceIndicator(true);
+        ResponseEntity<Void> response1 =
+            ClientUtility.createTenantClient(tenantContext, client);
+        client.setId(HttpUtility.getId(response1));
+        client.setResourceIds(Collections.singleton(client.getId()));
+        ResponseEntity<Void> response2 =
+            ClientUtility.updateTenantClient(tenantContext, client);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 
     @ParameterizedTest

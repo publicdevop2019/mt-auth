@@ -4,6 +4,7 @@ import static com.mt.proxy.domain.Utility.antPathMatcher;
 
 import com.mt.proxy.infrastructure.LogService;
 import java.text.ParseException;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -99,12 +100,13 @@ public class EndpointService {
         throws ParseException {
         //check endpoint url, method first then check resourceId and security rule
         String jwtRaw = authHeader.replace("Bearer ", "");
-        Set<String> resourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
-
+        Set<String> resourceIds = new HashSet<>();
+        Set<String> jwtResourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
+        String clientId = DomainRegistry.getJwtService().getClientId(jwtRaw);
+        //add client itself as default resource id, so it can access its own endpoint
+        resourceIds.add(clientId);
         //fetch endpoint
-        if (resourceIds == null || resourceIds.isEmpty()) {
-            return EndpointCheckResult.missingResourceId();
-        }
+        resourceIds.addAll(jwtResourceIds);
         Set<Endpoint> sameResourceId =
             cached.stream().filter(e -> resourceIds.contains(e.getResourceId()))
                 .collect(Collectors.toSet());

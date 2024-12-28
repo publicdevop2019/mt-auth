@@ -45,7 +45,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updatePassword(command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -90,7 +90,7 @@ public class UserProfileResource {
     public ResponseEntity<UserProfileRepresentation> myProfile(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         UserProfileRepresentation user =
             ApplicationServiceRegistry.getUserApplicationService().myProfile();
         return ResponseEntity.ok(user);
@@ -106,7 +106,7 @@ public class UserProfileResource {
     public ResponseEntity<byte[]> profileAvatar(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         Optional<Image> avatar =
             ApplicationServiceRegistry.getUserApplicationService().queryProfileAvatar();
         return avatar.map(e -> {
@@ -130,7 +130,7 @@ public class UserProfileResource {
         @RequestParam("file") MultipartFile file,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ImageId imageId = ApplicationServiceRegistry.getUserApplicationService()
             .createProfileAvatar(file, changeId);
         return ResponseEntity.ok().header(LOCATION, imageId.getDomainId()).build();
@@ -150,7 +150,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody UserAddUserNameCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().addUsername(command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -167,7 +167,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().deleteUsername(changeId);
         return ResponseEntity.ok().build();
     }
@@ -186,7 +186,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody UserAddMobileCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().addMobile(command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -203,7 +203,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().deleteMobile(changeId);
         return ResponseEntity.ok().build();
     }
@@ -222,7 +222,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody UserAddEmailCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().addEmail(command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -239,7 +239,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().deleteEmail(changeId);
         return ResponseEntity.ok().build();
     }
@@ -256,7 +256,7 @@ public class UserProfileResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestBody UserUpdateLanguageCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updateLanguage(command);
         return ResponseEntity.ok().build();
     }

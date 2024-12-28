@@ -43,7 +43,7 @@ public class SubRequestResource {
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<SubRequest> result =
             ApplicationServiceRegistry.getSubRequestApplicationService()
                 .query(queryParam, pageParam);
@@ -66,7 +66,7 @@ public class SubRequestResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<SubRequest> result =
             ApplicationServiceRegistry.getSubRequestApplicationService()
                 .query(pageParam);
@@ -91,7 +91,7 @@ public class SubRequestResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody CreateSubRequestCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getSubRequestApplicationService()
                     .create(command, changeId))
@@ -114,7 +114,7 @@ public class SubRequestResource {
         @PathVariable String id,
         @RequestBody UpdateSubRequestCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getSubRequestApplicationService()
             .update(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -134,7 +134,7 @@ public class SubRequestResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String id
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getSubRequestApplicationService()
             .cancel(id, changeId);
         return ResponseEntity.ok().build();
@@ -154,7 +154,7 @@ public class SubRequestResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String id
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getSubRequestApplicationService()
             .approve(id, changeId);
         return ResponseEntity.ok().build();
@@ -175,7 +175,7 @@ public class SubRequestResource {
         @PathVariable String id,
         @RequestBody RejectSubRequestCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getSubRequestApplicationService()
             .reject(id, command, changeId);
         return ResponseEntity.ok().build();

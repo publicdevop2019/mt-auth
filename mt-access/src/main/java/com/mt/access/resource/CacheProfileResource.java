@@ -35,7 +35,7 @@ public class CacheProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getCacheProfileApplicationService()
                 .tenantCreate(projectId, command, changeId)).build();
@@ -49,7 +49,7 @@ public class CacheProfileResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<CacheProfileCardRepresentation> users =
             ApplicationServiceRegistry.getCacheProfileApplicationService()
@@ -65,7 +65,7 @@ public class CacheProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getCacheProfileApplicationService()
             .tenantUpdate(id, command, changeId);
@@ -79,7 +79,7 @@ public class CacheProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getCacheProfileApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();

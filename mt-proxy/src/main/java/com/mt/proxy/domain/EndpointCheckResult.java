@@ -25,12 +25,6 @@ public class EndpointCheckResult {
         return result;
     }
 
-    public static EndpointCheckResult missingResourceId() {
-        EndpointCheckResult result = new EndpointCheckResult();
-        result.reason = CheckResult.MISSING_RESOURCE_ID;
-        return result;
-    }
-
     public static EndpointCheckResult missingPermissionId() {
         EndpointCheckResult result = new EndpointCheckResult();
         result.reason = CheckResult.MISSING_PERMISSION_ID;

@@ -37,7 +37,7 @@ public class ProjectResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getProjectApplicationService()
                     .tenantCreate(command, changeId))
@@ -50,7 +50,7 @@ public class ProjectResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<Project> queryProjects =
             ApplicationServiceRegistry.getProjectApplicationService()
                 .mgmtQuery(pageParam, skipCount);
@@ -64,7 +64,7 @@ public class ProjectResource {
     public ResponseEntity<DashboardRepresentation> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         DashboardRepresentation rep =
             ApplicationServiceRegistry.getProjectApplicationService()
                 .mgmtQuery();
@@ -76,7 +76,7 @@ public class ProjectResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<Project> clients =
             ApplicationServiceRegistry.getProjectApplicationService().tenantQuery(pageParam);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
@@ -89,7 +89,7 @@ public class ProjectResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ProjectRepresentation resp =
             ApplicationServiceRegistry.getProjectApplicationService().tenantQueryDetail(id);
         return ResponseEntity.ok(resp);
@@ -107,7 +107,7 @@ public class ProjectResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         boolean b =
             ApplicationServiceRegistry.getUserRelationApplicationService().checkExist(id);
         Map<String, Boolean> objectObjectHashMap = new HashMap<>();

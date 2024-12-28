@@ -29,7 +29,7 @@ public class AuditResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         return ResponseEntity.ok(ApplicationServiceRegistry.getAuditApplicationService()
             .auditEvents(queryParam, pageParam, skipCount));
     }

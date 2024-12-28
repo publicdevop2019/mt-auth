@@ -135,7 +135,7 @@ public class TokenResource {
         @RequestParam Map<String, String> parameters,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         HashMap<String, String> response = new HashMap<>();
         String clientId = parameters.get("client_id");
         String responseType = parameters.get("response_type");

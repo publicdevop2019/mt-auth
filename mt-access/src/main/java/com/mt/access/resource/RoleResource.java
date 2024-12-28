@@ -39,7 +39,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getRoleApplicationService().tenantCreate(command, changeId))
@@ -54,7 +54,7 @@ public class RoleResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<RoleCardRepresentation> query =
             ApplicationServiceRegistry.getRoleApplicationService()
@@ -68,7 +68,7 @@ public class RoleResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         RoleRepresentation role =
             ApplicationServiceRegistry.getRoleApplicationService().query(projectId, id);
         return ResponseEntity.ok(role);
@@ -82,7 +82,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getRoleApplicationService().tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -95,7 +95,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getRoleApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
