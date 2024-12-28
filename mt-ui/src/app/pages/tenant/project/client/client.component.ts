@@ -117,6 +117,7 @@ export class ClientComponent {
     })
     this.httpProxySvc.readEntityByQuery<IClient>(this.url, this.resourceNum, this.resourceSize, `resourceIndicator:1`, undefined, undefined, undefined)
       .subscribe(next => {
+        next.data = next.data.filter(e => e.id !== this.data.id);
         this.options = next.data.map(e => {
           return {
             label: e.name,
