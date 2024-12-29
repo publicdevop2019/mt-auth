@@ -1,23 +1,34 @@
-.auth-container {
+@media only screen and (max-width: 600px) {
+
+  .authorize-page {
     display: flex;
-    flex-direction: row;
     justify-content: center;
-    height: 100%;
-    position: fixed;
-    width: 100%;
-    align-items: center;
   }
-  
-  .auth-container > * {
-    width: 100%;
+
+  .authorize-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 24px;
+    width: 288px;
   }
-  .auth-card {
-    max-width: 400px;
-    max-height: 200px;
+}
+
+@media only screen and (min-width: 600px) {
+
+  .authorize-page {
+    margin: 8vh auto auto auto;
+    display: flex;
+    justify-content: center;
   }
-  
-  .auth-card-action{
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
+
+  .authorize-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 40px 54px 16px 54px;
+    border-radius: 8px;
+    width: 348px;
   }
+
+}

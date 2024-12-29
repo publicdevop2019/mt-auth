@@ -178,16 +178,16 @@ public class ClientResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("projects/{projectId}/clients/{id}/autoApprove")
-    public ResponseEntity<ClientAutoApproveRepresentation> uiAutoApproveCheck(
+    @GetMapping("projects/{projectId}/clients/{id}/authorize")
+    public ResponseEntity<ClientAutoApproveRepresentation> authorize(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUserJwt(jwt);
-        Client client =
-            ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId, id);
-        return ResponseEntity.ok(new ClientAutoApproveRepresentation(client));
+        ClientAutoApproveRepresentation rep =
+            ApplicationServiceRegistry.getClientApplicationService().getAuthorizeInfo(projectId, id);
+        return ResponseEntity.ok(rep);
     }
 
 }

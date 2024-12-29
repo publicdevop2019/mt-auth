@@ -7,6 +7,7 @@ import static com.mt.access.domain.model.permission.Permission.CLIENT_MGMT;
 
 import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
+import com.mt.access.application.client.representation.ClientAutoApproveRepresentation;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
@@ -22,6 +23,7 @@ import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
@@ -154,9 +156,11 @@ public class ClientApplicationService {
             .query(ClientQuery.internalQuery(pagingParam, configParam));
     }
 
-    public Client canAutoApprove(String projectId, String id) {
-        return
-            DomainRegistry.getClientRepository().get(new ProjectId(projectId), new ClientId(id));
+    public ClientAutoApproveRepresentation getAuthorizeInfo(String rawProjectId, String id) {
+        ProjectId projectId = new ProjectId(rawProjectId);
+        Project project = DomainRegistry.getProjectRepository().query(projectId);
+        Client client = DomainRegistry.getClientRepository().get(projectId, new ClientId(id));
+        return new ClientAutoApproveRepresentation(project, client);
     }
 
     @AuditLog(actionName = CREATE_TENANT_CLIENT)

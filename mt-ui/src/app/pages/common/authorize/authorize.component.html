@@ -1,18 +1,54 @@
-<div class="auth-container">
-    <mat-card class="auth-card">
-        <mat-card-header>
-            <mat-card-title>{{authorizeParty.client_id}}</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <p>
-                {{'AUTH_MSG_1'|translate}}{{authorizeParty.client_id}}{{'AUTH_MSG_2'|translate}}
-            </p>
-        </mat-card-content>
-        <mat-card-actions class="auth-card-action">
-            <button mat-raised-button color="warn" style="margin-bottom: 20px;margin-top: 20px;"
-                (click)="authorize()">{{'AUTH_BTN_1'|translate}}</button>
-            <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-                (click)="decline()">{{'AUTH_BTN_2'|translate}}</button>
-        </mat-card-actions>
-    </mat-card>
+<div class="authorize-page">
+    <div class="authorize-container">
+        <div>
+            <img src="assets/imgs/site-logo.svg" style="width: 64px; height: 64px;">
+        </div>
+        <div style="margin-top: 12px;">
+            <ng-container *ngIf="isEnglish()">
+                <div *ngIf="clientInfo">
+                    <span style="font-weight: 700;">{{clientInfo.clientName}}</span>
+                    <span>&nbsp;</span><span>{{'AUTH_MSG_0'|translate}}</span><span>&nbsp;</span>
+                    <span style="font-weight: 700;">{{clientInfo.projectName}}</span>
+                </div>
+                <div style="margin-top: 8px;color: rgba(0, 0, 0, .54);margin-bottom: 12px;">
+                    <span>{{'AUTH_MSG_1'|translate}}</span>
+                </div>
+            </ng-container>
+            <ng-container *ngIf="isChinese()">
+                <div *ngIf="clientInfo">
+                    <span style="font-weight: 700;">{{clientInfo.clientName}}</span>
+                    <span>&nbsp;</span>
+                    <span>{{'AUTH_MSG_0'|translate}}</span>
+                    <span>&nbsp;</span>
+                    <span style="font-weight: 700;">{{clientInfo.projectName}}</span>
+                </div>
+                <div style="margin-top: 8px;color: rgba(0, 0, 0, .54);margin-bottom: 12px;">
+                    <span>{{'AUTH_MSG_1'|translate}}</span>
+                </div>
+            </ng-container>
+        </div>
+        <div style="font-size: 20px; margin-top: 12px; font-weight: 700; margin-bottom: 48px;">
+            {{'AUTH_MSG_2'|translate}}
+        </div>
+        <div style="color: rgba(0, 0, 0, .54); margin-bottom: 8px;"> {{'AUTH_MSG_3'|translate}}</div>
+        <mat-divider></mat-divider>
+        <div style="display: flex;flex-direction: row; margin-top: 24px; margin-bottom: 24px;">
+            <div style="height: 48px; width: 48px; display: flex; justify-content: center; align-items: center;">
+                <img *ngIf="avatar" mat-card-avatar [src]="avatar"
+                    style="height: 48px; width: 48px; border-radius: 50%;" />
+                <div *ngIf="!avatar"
+                    style="height: 48px; width: 48px; border-radius: 50%; background-color: white; color: #673ab7; line-height: 48px; border: 1px solid #673ab7; text-align: center;">
+                    {{firstLetter(name)}}</div>
+            </div>
+            <div style="margin-left: 8px;display: flex; flex-direction: column; justify-content: center;">
+                <div>{{name}}</div>
+            </div>
+        </div>
+        <mat-divider></mat-divider>
+        <div style="display: flex; flex-direction: column; margin-top: 48px; margin-bottom: 12px;">
+            <button mat-raised-button color="primary" (click)="authorize()"
+                style="margin-bottom: 12px; ">{{'AUTH_BTN_1'|translate}}</button>
+            <button mat-stroked-button (click)="decline()">{{'AUTH_BTN_2'|translate}}</button>
+        </div>
+    </div>
 </div>

@@ -9,7 +9,7 @@ import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint
 import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { IAuthorizeCode, IAuthorizeParty, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand, IAuthorizeClientDetail } from '../misc/interface';
 export interface IPatch {
     op: string,
     path: string,
@@ -177,12 +177,8 @@ export class HttpProxyService {
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers })
             .pipe(switchMap(token => this._getCode(this._getToken(token), payload, changeId)))
     };
-    autoApprove(projectId: string, clientId: string): Observable<boolean> {
-        return new Observable<boolean>(e => {
-            this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/clients/${clientId}/autoApprove`).subscribe(next => {
-                e.next(next.autoApprove)
-            });
-        });
+    ssoClient(projectId: string, clientId: string): Observable<IAuthorizeClientDetail> {
+        return this._httpClient.get<IAuthorizeClientDetail>(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/clients/${clientId}/authorize`)
     };
     revokeUserToken(id: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();

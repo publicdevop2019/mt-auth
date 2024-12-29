@@ -200,6 +200,8 @@ export interface ITokenResponse {
     expires_in?: string;
     scope?: string;
     viewTenantId?: string;
+    uid?: string;
+    jti?: string;
 }
 export interface IAuthorizeParty {
     response_type: string;
@@ -210,10 +212,6 @@ export interface IAuthorizeParty {
 }
 export interface IAuthorizeCode {
     authorize_code: string;
-}
-export interface IAutoApprove {
-    autoApprove: boolean;
-    id: string;
 }
 export interface IAuditable {
     modifiedAt: string;
@@ -269,4 +267,8 @@ export interface ISumRep<T> {
 }
 export interface IIdName extends IIdBasedEntity {
     name: string
+}
+export interface IAuthorizeClientDetail {
+    clientName: string
+    projectName: string
 }
