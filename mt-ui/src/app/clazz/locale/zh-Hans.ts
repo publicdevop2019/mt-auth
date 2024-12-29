@@ -60,7 +60,6 @@ export const zhHans = {
     "AUTHORIZATION_CODE": "authorization_code",
     "ADD_REFRESH_TOKEN": "添加refresh_token",
     "SET_AS_RESOURCE": "设置为资源",
-    "AUTO_APPROVE_AUTHORIZE_REQUEST": "自动批准授权请求",
     "LOCK": "锁定用户",
     "PLEASE_SELECT_VIEW": "请选择视图",
     "TREE_VIEW": "树状图",

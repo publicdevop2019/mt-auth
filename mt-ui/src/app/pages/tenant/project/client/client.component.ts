@@ -50,7 +50,6 @@ export class ClientComponent {
     registeredRedirectUri: new FormControl(''),
     refreshToken: new FormControl(''),
     resourceIndicator: new FormControl(''),
-    autoApprove: new FormControl(''),
     accessTokenValiditySeconds: new FormControl(''),
     refreshTokenValiditySeconds: new FormControl(''),
     resourceId: new FormControl([]),
@@ -184,7 +183,6 @@ export class ClientComponent {
       registeredRedirectUri: this.data.registeredRedirectUri ? this.data.registeredRedirectUri.join(',') : '',
       refreshToken: this.data.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),
       resourceIndicator: this.data.resourceIndicator,
-      autoApprove: this.data.autoApprove,
       accessTokenValiditySeconds: this.data.accessTokenValiditySeconds,
       refreshTokenValiditySeconds: this.data.refreshTokenValiditySeconds,
       resourceId: this.data.resourceIds,
@@ -215,7 +213,6 @@ export class ClientComponent {
         refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
         resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
         registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
-        autoApprove: grants.includes(grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
         version: this.data && this.data.version,
         projectId: formGroup.get('projectId').value
       }
@@ -234,7 +231,6 @@ export class ClientComponent {
       resourceIndicator: !!formGroup.get('resourceIndicator').value,
       resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
       registeredRedirectUri: grants.includes(grantTypeEnums.authorization_code) && formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
-      autoApprove: grants.includes(grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
       version: this.data && this.data.version,
       projectId: formGroup.get('projectId').value
     }

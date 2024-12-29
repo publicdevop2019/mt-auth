@@ -51,7 +51,6 @@ public class JdbcClientRepository implements ClientRepository {
         "modified_by, " +
         "version, " +
         "accessible_, " +
-        "auto_approve, " +
         "domain_id, " +
         "description, " +
         "name, " +
@@ -63,7 +62,7 @@ public class JdbcClientRepository implements ClientRepository {
         "refresh_token_validity_seconds, " +
         "external_url" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String INSERT_REDIRECT_URL_SQL = "INSERT INTO client_redirect_url_map " +
         "(" +
         "id, " +
@@ -149,7 +148,6 @@ public class JdbcClientRepository implements ClientRepository {
         "c.modified_by = ?, " +
         "c.version = ?, " +
         "c.accessible_ = ?, " +
-        "c.auto_approve = ?, " +
         "c.description = ?, " +
         "c.name = ?, " +
         "c.path = ?, " +
@@ -183,8 +181,6 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getModifiedBy(),
                 0,
                 client.getAccessible(),
-                Checker.isNull(client.getRedirectDetail()) ? null :
-                    client.getRedirectDetail().getAutoApprove(),
                 client.getClientId().getDomainId(),
                 client.getDescription(),
                 client.getName(),
@@ -569,8 +565,6 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getModifiedBy(),
                 updated.getVersion() + 1,
                 updated.getAccessible(),
-                Checker.isNull(updated.getRedirectDetail()) ? null :
-                    updated.getRedirectDetail().getAutoApprove(),
                 updated.getDescription(),
                 updated.getName(),
                 updated.getPath(),
@@ -823,7 +817,6 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         DatabaseUtility.getNullableBoolean(rs, "accessible_"),
-                        DatabaseUtility.getNullableBoolean(rs, "auto_approve"),
                         new ClientId(rs.getString("domain_id")),
                         rs.getString("description"),
                         rs.getString("name"),

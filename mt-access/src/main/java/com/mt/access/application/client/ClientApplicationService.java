@@ -186,7 +186,6 @@ public class ClientApplicationService {
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
                         command.getRegisteredRedirectUri(),
-                        command.getAutoApprove(),
                         command.getTypes(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null,
@@ -227,7 +226,6 @@ public class ClientApplicationService {
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
                         command.getRegisteredRedirectUri(),
-                        command.getAutoApprove(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context

@@ -36,8 +36,6 @@ public class ClientRepresentation {
 
     private Boolean resourceIndicator;
 
-    private Boolean autoApprove;
-
     private Integer version;
     private String clientSecret;
 
@@ -61,9 +59,6 @@ public class ClientRepresentation {
                 .collect(Collectors.toSet());
         }
         resourceIndicator = client.getAccessible();
-        if (client.getRedirectDetail() != null) {
-            autoApprove = client.getRedirectDetail().getAutoApprove();
-        }
         if (client.getExternalUrl() != null) {
             externalUrl = client.getExternalUrl().getValue();
         }

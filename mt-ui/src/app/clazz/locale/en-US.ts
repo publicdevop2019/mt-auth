@@ -60,7 +60,6 @@ export const enUS = {
     "AUTHORIZATION_CODE": "authorization_code",
     "ADD_REFRESH_TOKEN": "Add refresh_token",
     "SET_AS_RESOURCE": "Set as Resource",
-    "AUTO_APPROVE_AUTHORIZE_REQUEST": "Auto Approve Authorization Request",
     "LOCK": "Lock User",
     "PLEASE_SELECT_VIEW": "Please Select View",
     "TREE_VIEW": "Tree View",

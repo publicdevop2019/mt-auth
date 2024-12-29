@@ -106,7 +106,7 @@ public class Client extends Auditable {
     public Client(ClientId clientId, ProjectId projectId, String name, String path,
                   @Nullable String secret, String description, Boolean accessible,
                   Set<ClientId> resources, Set<GrantType> grantTypes, TokenDetail tokenDetail,
-                  Set<String> redirectUrls, Boolean autoApprove, Set<ClientType> types,
+                  Set<String> redirectUrls, Set<ClientType> types,
                   ExternalUrl externalUrl, TransactionContext context) {
         super();
         isCreate = true;
@@ -121,7 +121,7 @@ public class Client extends Auditable {
         initSecret(secret);
         setGrantTypes(grantTypes, true, context);
         setTokenDetail(tokenDetail, context);
-        setRedirectDetail(redirectUrls, autoApprove);
+        setRedirectDetail(redirectUrls);
         setRoleId();
         setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
@@ -137,7 +137,7 @@ public class Client extends Auditable {
 
     public static Client fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
                                          String modifiedBy, Integer version,
-                                         Boolean accessible, Boolean autoApprove, ClientId domainId,
+                                         Boolean accessible, ClientId domainId,
                                          String description, String name, String path,
                                          ProjectId projectId, RoleId roleId, String secret,
                                          Integer accessTokenValiditySeconds,
@@ -151,9 +151,7 @@ public class Client extends Auditable {
         client.setModifiedBy(modifiedBy);
         client.setVersion(version);
         client.accessible = accessible;
-        if (Checker.notNull(autoApprove)) {
-            client.redirectDetail = RedirectDetail.fromDatabaseRow(autoApprove);
-        }
+        client.redirectDetail = new RedirectDetail();
         client.setDescription(description);
         client.setName(name);
         client.path = path;
@@ -181,12 +179,12 @@ public class Client extends Auditable {
         this.externalUrl = externalUrl;
     }
 
-    private void setRedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
+    private void setRedirectDetail(Set<String> redirectUrls) {
         RedirectDetail redirectDetail;
-        if (Checker.isNull(redirectUrls) && Checker.isNull(autoApprove)) {
+        if (Checker.isNull(redirectUrls)) {
             redirectDetail = null;
         } else {
-            redirectDetail = new RedirectDetail(redirectUrls, autoApprove);
+            redirectDetail = new RedirectDetail(redirectUrls);
         }
         if (this.redirectDetail == null) {
             this.redirectDetail = redirectDetail;
@@ -340,7 +338,7 @@ public class Client extends Auditable {
 
     public Client replace(String name, String secret, String path, String description,
                           Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
-                          TokenDetail tokenDetail, Set<String> redirectUrl, Boolean autoApprove,
+                          TokenDetail tokenDetail, Set<String> redirectUrl,
                           ExternalUrl externalUrl, TransactionContext context) {
         //load everything to avoid error
         if (Checker.notNull(getRedirectDetail())) {
@@ -359,7 +357,7 @@ public class Client extends Auditable {
         updated.setTokenDetail(tokenDetail, context);
         updated.setName(name);
         updated.setDescription(description);
-        updated.setRedirectDetail(redirectUrl, autoApprove);
+        updated.setRedirectDetail(redirectUrl);
         updated.setExternalUrl(externalUrl, context);
         updated.validate(new HttpValidationNotificationHandler());
         updated.setModifiedAt(Instant.now().toEpochMilli());
@@ -418,14 +416,6 @@ public class Client extends Auditable {
             context
                 .append(new ClientAsResourceDeleted(clientId));
         }
-    }
-
-    public Boolean getAutoApprove() {
-        getGrantTypes();
-        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getRedirectDetail().getAutoApprove();
-        }
-        return false;
     }
 
     public boolean removable() {

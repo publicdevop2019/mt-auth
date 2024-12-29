@@ -16,25 +16,10 @@ public class RedirectDetail implements Serializable {
 
     private Set<RedirectUrl> redirectUrls;
 
-    @Getter
-    private Boolean autoApprove;
     private boolean urlLoaded = false;
 
-    public RedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
+    public RedirectDetail(Set<String> redirectUrls) {
         setRedirectUrls(redirectUrls);
-        setAutoApprove(autoApprove);
-
-    }
-
-    public static RedirectDetail fromDatabaseRow(Boolean autoApprove) {
-        RedirectDetail redirectDetail = new RedirectDetail();
-        redirectDetail.setAutoApprove(autoApprove);
-        return redirectDetail;
-    }
-
-    private void setAutoApprove(Boolean autoApprove) {
-        Validator.notNull(autoApprove);
-        this.autoApprove = autoApprove;
     }
 
     private void setRedirectUrls(Set<String> redirectUrls) {

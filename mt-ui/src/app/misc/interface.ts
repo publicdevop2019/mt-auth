@@ -187,7 +187,6 @@ export interface IClient extends IIdName {
     hasSecret?: boolean;
     resourceIndicator?: boolean;
     registeredRedirectUri?: string[];
-    autoApprove?: boolean;
     version: number;
 }
 
