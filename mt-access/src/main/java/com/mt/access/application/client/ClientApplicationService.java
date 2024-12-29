@@ -246,16 +246,16 @@ public class ClientApplicationService {
                 Optional<Client> client =
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (client.isPresent()) {
-                    Client client1 = client.get();
-                    if (client1.removable()) {
-                        DomainRegistry.getClientRepository().remove(client1);
-                        client1.removeAllReferenced(context);
+                    Client tobeRemove = client.get();
+                    if (tobeRemove.removable()) {
+                        DomainRegistry.getClientRepository().remove(tobeRemove);
+                        tobeRemove.removeAllReferenced(context);
                         DomainRegistry.getAuditService()
                             .storeAuditAction(DELETE_TENANT_CLIENT,
-                                client1);
+                                tobeRemove);
                         DomainRegistry.getAuditService()
                             .logUserAction(log, DELETE_TENANT_CLIENT,
-                                client1);
+                                tobeRemove);
                     } else {
                         throw new DefinedRuntimeException("client cannot be deleted", "1009",
                             HttpResponseCode.BAD_REQUEST);

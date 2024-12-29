@@ -16,6 +16,7 @@ public class RedirectDetail implements Serializable {
 
     private Set<RedirectUrl> redirectUrls;
 
+    @Getter
     private boolean urlLoaded = false;
 
     public RedirectDetail(Set<String> redirectUrls) {
