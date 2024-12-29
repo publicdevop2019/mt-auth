@@ -12,16 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class UtilityResource {
 
     /**
-     * do nothing api, used to attach csrf cookie in response by mt-proxy.
-     *
-     * @return void
-     */
-    @GetMapping(path = "csrf")
-    public ResponseEntity<Void> csrf() {
-        return ResponseEntity.ok().build();
-    }
-
-    /**
      * do nothing api, used to check if token expire,
      * if yes, will trigger redirect to login page.
      *
