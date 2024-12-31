@@ -60,4 +60,5 @@ public class AppConstant {
     public static String LOGIN_TYPE_EMAIL_PWD = "email_w_pwd";
     public static String LOGIN_TYPE_EMAIL_CODE = "email_w_code";
     public static String LOGIN_TYPE_USERNAME_PWD = "username_w_pwd";
+    public static String CSRF_DISABLE_HEADER = "csrf_disable";
 }

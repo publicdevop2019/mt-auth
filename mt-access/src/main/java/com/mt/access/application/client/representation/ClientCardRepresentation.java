@@ -49,10 +49,8 @@ public class ClientCardRepresentation {
         grantTypeEnums.addAll(client1.getGrantTypes());
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
-        if (client1.getRedirectDetail() != null) {
-            registeredRedirectUri = client1.getRedirectDetail().getRedirectUrls(client1).stream()
-                .map(RedirectUrl::getValue).collect(Collectors.toSet());
-        }
+        registeredRedirectUri = client1.getRedirectUrls().stream()
+            .map(RedirectUrl::getValue).collect(Collectors.toSet());
         if (client1.getTokenDetail() != null) {
             refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
         }

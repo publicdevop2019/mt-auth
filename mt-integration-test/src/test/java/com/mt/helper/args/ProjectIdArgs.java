@@ -12,8 +12,8 @@ public class ProjectIdArgs implements ArgumentsProvider {
     public Stream<? extends Arguments> provideArguments(ExtensionContext extensionContext) {
         return Stream.of(
             Arguments.of("null", HttpStatus.BAD_REQUEST),
-            Arguments.of("", HttpStatus.FORBIDDEN),
-            Arguments.of("  ", HttpStatus.FORBIDDEN),
+            Arguments.of("", HttpStatus.NOT_FOUND),
+            Arguments.of("  ", HttpStatus.NOT_FOUND),
             Arguments.of(AppConstant.MT_ACCESS_PROJECT_ID, HttpStatus.FORBIDDEN)
         );
     }

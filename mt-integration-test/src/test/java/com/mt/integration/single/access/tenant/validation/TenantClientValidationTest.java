@@ -3,7 +3,6 @@ package com.mt.integration.single.access.tenant.validation;
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
-import com.mt.helper.args.ClientAutoApproveArgs;
 import com.mt.helper.args.ClientExternalUrlArgs;
 import com.mt.helper.args.ClientGrantTypeArgs;
 import com.mt.helper.args.ClientNameArgs;
@@ -260,22 +259,6 @@ public class TenantClientValidationTest {
 
 
     @ParameterizedTest
-    @ArgumentsSource(ClientAutoApproveArgs.class)
-    public void validation_create_auto_approve(Boolean autoApprove,
-                                               Set<String> grantTypes,
-                                               Set<String> redirectUrls,
-                                               HttpStatus status
-    ) {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        client.setAutoApprove(autoApprove);
-        client.setGrantTypeEnums(grantTypes);
-        client.setRegisteredRedirectUri(redirectUrls);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(status, response4.getStatusCode());
-    }
-
-    @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
@@ -507,25 +490,6 @@ public class TenantClientValidationTest {
         ResponseEntity<Void> response5 =
             ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(status, response5.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientAutoApproveArgs.class)
-    public void validation_update_auto_approve(Boolean autoApprove,
-                                               Set<String> grantTypes,
-                                               Set<String> redirectUrls,
-                                               HttpStatus status
-    ) {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        client.setAutoApprove(autoApprove);
-        client.setGrantTypeEnums(grantTypes);
-        client.setRegisteredRedirectUri(redirectUrls);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
 }

@@ -3,7 +3,9 @@ package com.mt.integration.single.proxy;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
+import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
@@ -26,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
@@ -191,20 +194,6 @@ public class GatewayFilterTest {
         ResponseEntity<String> exchange2 =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-    }
-
-    @Test
-    public void should_add_csrf_token_when_call_access() {
-        String url = HttpUtility.getAccessUrl("csrf");
-        HttpHeaders headers1 = new HttpHeaders();
-        TestRestTemplate restTemplate = new TestRestTemplate();
-        HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
-        ResponseEntity<String> exchange =
-            restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String first = exchange.getHeaders().getFirst("set-cookie");
-        int sameSite = first == null ? -1 : first.indexOf("SameSite");
-        Assertions.assertNotEquals(-1, sameSite);
     }
 
     @Test

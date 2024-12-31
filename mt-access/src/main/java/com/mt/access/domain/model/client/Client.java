@@ -23,7 +23,6 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -89,10 +88,10 @@ public class Client extends Auditable {
 
     private Set<ClientType> types = new LinkedHashSet<>();
 
+    private Set<RedirectUrl> redirectUrls = new LinkedHashSet<>();
+
     @Getter
     private Boolean accessible;
-
-    private RedirectDetail redirectDetail;
 
     private Set<GrantType> grantTypes = new LinkedHashSet<>();
 
@@ -102,6 +101,7 @@ public class Client extends Auditable {
     private boolean externalResourceLoaded = false;
     private boolean grantTypeLoaded = false;
     private boolean typeLoaded = false;
+    private boolean urlLoaded = false;
 
     public Client(ClientId clientId, ProjectId projectId, String name, String path,
                   @Nullable String secret, String description, Boolean accessible,
@@ -121,7 +121,7 @@ public class Client extends Auditable {
         initSecret(secret);
         setGrantTypes(grantTypes, true, context);
         setTokenDetail(tokenDetail, context);
-        setRedirectDetail(redirectUrls);
+        setRedirectUrls(redirectUrls);
         setRoleId();
         setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
@@ -151,7 +151,6 @@ public class Client extends Auditable {
         client.setModifiedBy(modifiedBy);
         client.setVersion(version);
         client.accessible = accessible;
-        client.redirectDetail = new RedirectDetail();
         client.setDescription(description);
         client.setName(name);
         client.path = path;
@@ -177,20 +176,6 @@ public class Client extends Auditable {
             }
         }
         this.externalUrl = externalUrl;
-    }
-
-    private void setRedirectDetail(Set<String> redirectUrls) {
-        RedirectDetail redirectDetail;
-        if (Checker.isNull(redirectUrls)) {
-            redirectDetail = null;
-        } else {
-            redirectDetail = new RedirectDetail(redirectUrls);
-        }
-        if (this.redirectDetail == null) {
-            this.redirectDetail = redirectDetail;
-        } else if (!this.redirectDetail.equals(redirectDetail)) {
-            this.redirectDetail = redirectDetail;
-        }
     }
 
     private void setRoleId() {
@@ -341,9 +326,7 @@ public class Client extends Auditable {
                           TokenDetail tokenDetail, Set<String> redirectUrl,
                           ExternalUrl externalUrl, TransactionContext context) {
         //load everything to avoid error
-        if (Checker.notNull(getRedirectDetail())) {
-            getRedirectDetail().getRedirectUrls(this);
-        }
+        getRedirectUrls();
         getGrantTypes();
         getTypes();
         getResources();
@@ -357,7 +340,7 @@ public class Client extends Auditable {
         updated.setTokenDetail(tokenDetail, context);
         updated.setName(name);
         updated.setDescription(description);
-        updated.setRedirectDetail(redirectUrl);
+        updated.setRedirectUrls(redirectUrl);
         updated.setExternalUrl(externalUrl, context);
         updated.validate(new HttpValidationNotificationHandler());
         updated.setModifiedAt(Instant.now().toEpochMilli());
@@ -491,18 +474,10 @@ public class Client extends Auditable {
             Objects.equals(description, o.description) &&
             Objects.equals(getTypes(), o.getTypes()) &&
             Objects.equals(accessible, o.accessible) &&
-            Objects.equals(getRedirectDetail(), o.getRedirectDetail()) &&
+            Objects.equals(redirectUrls, o.redirectUrls) &&
             Objects.equals(getGrantTypes(), o.getGrantTypes()) &&
             Objects.equals(tokenDetail, o.tokenDetail);
     }
-
-    public RedirectDetail getRedirectDetail() {
-        if (Checker.notNull(redirectDetail)) {
-            redirectDetail.getRedirectUrls(this);
-        }
-        return redirectDetail;
-    }
-
 
     public int getRefreshTokenValiditySeconds() {
         if (grantTypes.contains(GrantType.PASSWORD)
@@ -514,11 +489,32 @@ public class Client extends Auditable {
     }
 
     public Set<String> getRegisteredRedirectUri() {
-        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getRedirectDetail().getRedirectUrls(this).stream().map(RedirectUrl::getValue)
-                .collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
+        return getRedirectUrls().stream().map(RedirectUrl::getValue)
+            .collect(Collectors.toSet());
 
+    }
+
+    private void setRedirectUrls(Set<String> redirectUrls) {
+        if (!Checker.isNullOrEmpty(redirectUrls)) {
+            Validator.lessThanOrEqualTo(redirectUrls, 5);
+            Set<RedirectUrl> collect =
+                redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet());
+            CommonUtility.updateCollection(this.redirectUrls, collect,
+                () -> this.redirectUrls = collect);
+        }
+        //set to true so url will not be loaded again
+        urlLoaded = true;
+    }
+
+    public Set<RedirectUrl> getRedirectUrls() {
+        if (isCreate()) {
+            return redirectUrls;
+        }
+        if (!urlLoaded) {
+            redirectUrls =
+                DomainRegistry.getClientRepository().getRedirectUrls(id);
+            urlLoaded = true;
+        }
+        return redirectUrls;
     }
 }

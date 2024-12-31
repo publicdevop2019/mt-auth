@@ -193,12 +193,10 @@ public class JdbcClientRepository implements ClientRepository {
                 Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
         //for linked tables
-        if (Checker.notNull(client.getRedirectDetail())
-            &&
-            Checker.notNullOrEmpty(client.getRedirectDetail().getRedirectUrls(client))) {
+        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
-                client.getRedirectDetail().getRedirectUrls(client).stream()
+                client.getRedirectUrls().stream()
                     .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getValue())).collect(
                         Collectors.toList());
             keyValues.addAll(collect);
@@ -298,8 +296,7 @@ public class JdbcClientRepository implements ClientRepository {
                     client.getId()
                 );
         }
-        if (Checker.notNull(client.getRedirectDetail()) &&
-            Checker.notNullOrEmpty(client.getRedirectDetail().getRedirectUrls(client))) {
+        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_REDIRECT_URL_BY_ID_SQL,
                     client.getId()
@@ -606,14 +603,10 @@ public class JdbcClientRepository implements ClientRepository {
                         args.toArray()
                     );
             });
-        Set<RedirectUrl> oldRedirectUrls = new HashSet<>();
-        Set<RedirectUrl> updatedRedirectUrls = new HashSet<>();
-        if (Checker.notNull(old.getRedirectDetail())) {
-            oldRedirectUrls = old.getRedirectDetail().getRedirectUrls(old);
-        }
-        if (Checker.notNull(updated.getRedirectDetail())) {
-            updatedRedirectUrls = updated.getRedirectDetail().getRedirectUrls(updated);
-        }
+        Set<RedirectUrl> oldRedirectUrls;
+        Set<RedirectUrl> updatedRedirectUrls;
+        oldRedirectUrls = old.getRedirectUrls();
+        updatedRedirectUrls = updated.getRedirectUrls();
         DatabaseUtility.updateMap(oldRedirectUrls,
             updatedRedirectUrls,
             (added) -> {
