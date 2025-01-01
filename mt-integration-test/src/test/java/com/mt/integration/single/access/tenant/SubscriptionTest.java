@@ -62,7 +62,7 @@ public class SubscriptionTest {
             MessageUtility.readMessages(user);
         //mt-auth -> create public shared no auth endpoint
         Endpoint endpoint =
-            EndpointUtility.createValidSharedEndpointObj("0C8AZTODP4HZ");
+            EndpointUtility.createValidSharedEndpointObj(AppConstant.TEST_CLIENT_ID_SUB);
         endpoint.setSecured(false);
         endpoint.setPath("test/expire/" + RandomUtility.randomStringNoNum() + "/random");
         endpoint.setMethod("GET");

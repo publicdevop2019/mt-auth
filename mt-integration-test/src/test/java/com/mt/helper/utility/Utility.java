@@ -42,8 +42,18 @@ public class Utility {
     public static <T> ResponseEntity<Void> createResource(User user, String url,
                                                           @Nullable T resource) {
         String login = UserUtility.emailPwdLogin(user);
+        return createResource(login, url, resource, null);
+    }
+
+    public static <T> ResponseEntity<Void> createResource(String token, String url,
+                                                          @Nullable T resource,
+                                                          @Nullable String changeId) {
+
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
+        headers.setBearerAuth(token);
+        if (changeId != null) {
+            headers.set("changeId", changeId);
+        }
         if (resource == null) {
             HttpEntity<Void> request =
                 new HttpEntity<>(headers);
@@ -81,8 +91,17 @@ public class Utility {
     public static <T> ResponseEntity<Void> updateResource(User user, String url,
                                                           T resource, String resourceId) {
         String login = UserUtility.emailPwdLogin(user);
+        return updateResource(login, url, resource, resourceId, null);
+    }
+
+    public static <T> ResponseEntity<Void> updateResource(String token, String url,
+                                                          T resource, String resourceId,
+                                                          @Nullable String changeId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
+        headers.setBearerAuth(token);
+        if (changeId != null) {
+            headers.set("changeId", changeId);
+        }
         HttpEntity<T> request =
             new HttpEntity<>(resource, headers);
         return TestContext.getRestTemplate().exchange(
@@ -97,8 +116,16 @@ public class Utility {
 
     public static ResponseEntity<Void> deleteResource(User user, String url, String resourceId) {
         String login = UserUtility.emailPwdLogin(user);
+        return deleteResource(login, url, resourceId, null);
+    }
+
+    public static ResponseEntity<Void> deleteResource(String token, String url, String resourceId,
+                                                      @Nullable String changeId) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
+        headers.setBearerAuth(token);
+        if (changeId != null) {
+            headers.set("changeId", changeId);
+        }
         HttpEntity<Void> request =
             new HttpEntity<>(headers);
         return TestContext.getRestTemplate().exchange(

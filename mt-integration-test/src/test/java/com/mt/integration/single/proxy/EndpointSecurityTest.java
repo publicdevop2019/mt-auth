@@ -63,7 +63,7 @@ public class EndpointSecurityTest {
         User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getClientCredentialToken(
-                AppConstant.CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
+                AppConstant.TEST_CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
                 AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         ResponseEntity<Void> pendingUser =

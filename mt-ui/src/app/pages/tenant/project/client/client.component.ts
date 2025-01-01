@@ -125,6 +125,7 @@ export class ClientComponent {
         })
       })
     this.fg.get('grantType').valueChanges.subscribe((next) => {
+      Logger.debug("next {}", next)
       if ((next as string[]).includes('PASSWORD')) {
         this.fg.get('refreshToken').enable()
         if (this.fg.get('refreshToken')) {
@@ -136,10 +137,8 @@ export class ClientComponent {
       }
       if ((next as string[]).includes('AUTHORIZATION_CODE')) {
         this.fg.get('registeredRedirectUri').enable()
-        this.fg.get('autoApprove').enable()
       } else {
         this.fg.get('registeredRedirectUri').disable()
-        this.fg.get('autoApprove').disable()
       }
     })
     this.fg.get('refreshToken').valueChanges.subscribe((next) => {
