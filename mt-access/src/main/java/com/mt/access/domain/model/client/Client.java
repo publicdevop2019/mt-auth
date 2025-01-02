@@ -405,10 +405,13 @@ public class Client extends Auditable {
         return !reservedClientIds.contains(this.clientId);
     }
 
-    public void updateExternalResource(Set<ClientId> externalResource) {
-        if (CommonUtility.collectionWillChange(this.externalResources, externalResource)) {
-            CommonUtility.updateCollection(this.externalResources, externalResource,
-                () -> this.externalResources = externalResource);
+    public void updateExternalResource(Set<ClientId> updated) {
+        getExternalResources();
+        if (CommonUtility.collectionWillChange(this.externalResources, updated)) {
+            DomainRegistry.getClientRepository()
+                .updateExternalResources(id, this.externalResources, updated);
+            CommonUtility.updateCollection(this.externalResources, updated,
+                () -> this.externalResources = updated);
             DomainRegistry.getClientValidationService()
                 .validate(this, new HttpValidationNotificationHandler());
         }

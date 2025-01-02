@@ -318,11 +318,11 @@ public class ClientApplicationService {
                         .flatMap(e -> e.getExternalPermissionIds().stream())
                         .collect(Collectors.toSet());
                 if (!externalPermissions.isEmpty()) {
-                    Set<Endpoint> referredClients = QueryUtility.getAllByQuery(e ->
+                    Set<Endpoint> endpoints = QueryUtility.getAllByQuery(e ->
                             DomainRegistry.getEndpointRepository().query(e),
                         EndpointQuery.permissionQuery(externalPermissions));
                     Set<ClientId> collect =
-                        referredClients.stream().map(Endpoint::getClientId)
+                        endpoints.stream().map(Endpoint::getClientId)
                             .collect(Collectors.toSet());
                     projectClients.forEach(client -> client.updateExternalResource(collect));
                 }

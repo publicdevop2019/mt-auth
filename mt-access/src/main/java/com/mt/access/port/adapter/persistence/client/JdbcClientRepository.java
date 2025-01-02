@@ -495,6 +495,38 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     @Override
+    public void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated){
+        DatabaseUtility.updateMap(old, updated,
+            (added) -> {
+                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
+                List<BatchInsertKeyValue> collect = added.stream()
+                    .map(ee -> new BatchInsertKeyValue(id, ee.getDomainId()))
+                    .collect(
+                        Collectors.toList());
+                insertKeyValues.addAll(collect);
+                CommonDomainRegistry.getJdbcTemplate()
+                    .batchUpdate(INSERT_EXT_RESOURCE_SQL, insertKeyValues,
+                        insertKeyValues.size(),
+                        (ps, perm) -> {
+                            ps.setLong(1, perm.getId());
+                            ps.setString(2, perm.getValue());
+                        });
+            }, (removed) -> {
+                String inClause = DatabaseUtility.getInClause(removed.size());
+                List<Object> args = new ArrayList<>();
+                args.add(id);
+                args.addAll(
+                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                CommonDomainRegistry.getJdbcTemplate()
+                    .update(
+                        String.format(BATCH_DELETE_EXT_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
+                            inClause),
+                        args.toArray()
+                    );
+            });
+    }
+
+    @Override
     public Set<GrantType> getGrantType(Long id) {
         List<GrantType> data = CommonDomainRegistry.getJdbcTemplate()
             .query(FIND_GRANT_TYPE_BY_ID_SQL,

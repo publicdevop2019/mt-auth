@@ -43,6 +43,8 @@ public interface ClientRepository {
 
     Set<ClientId> getExternalResources(Long id);
 
+    void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated);
+
     Set<GrantType> getGrantType(Long id);
 
     Set<ClientType> getType(Long id);

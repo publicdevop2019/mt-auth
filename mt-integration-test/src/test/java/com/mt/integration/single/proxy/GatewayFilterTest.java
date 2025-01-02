@@ -117,7 +117,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_request_json_replace_single_quote_with_double_quote() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -134,7 +134,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_response_json_replace_single_quote_with_double_quote() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -181,7 +181,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_ask_for_csrf_token_when_post() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         TestRestTemplate restTemplate = new TestRestTemplate();
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("Test", headers1);

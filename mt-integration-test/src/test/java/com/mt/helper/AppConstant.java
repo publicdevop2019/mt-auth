@@ -3,10 +3,12 @@ package com.mt.helper;
 public class AppConstant {
     public static final String TEST_CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID = "0C8YKJ5EW16Q";
     public static final String TEST_CLIENT_ID_SUB = "0C8YKJ91OGSI";
+    public static final String TEST_PROJECT_ID = "0P8YKJ2XAXAB";
     public static final String CLIENT_ID_LOGIN_ID = "0C8AZZ16LZB4";
     public static final String CLIENT_ID_OAUTH2_ID = "0C8AZTODP4HT";
     public static final String CLIENT_ID_NONE_LOGIN_ID = "0C8B00098WLD";
     public static final String CLIENT_ID_OM_ID = "0C8HPGMON9J5";
+    public static final String CLIENT_ID_TEST_PASSWORD = "0C8YKOTPPKAP";
     public static final String CLIENT_ID_RESOURCE_ID = "0C8YKJHC3C3L";
     public static final String CLIENT_ID_TEST_ID_NONE_RESOURCE = "0C8YKJI2MI9U";
     public static final String COMMON_CLIENT_SECRET = "97b29ceb-c445-4178-bb95-84755f14cba6";
@@ -16,6 +18,8 @@ public class AppConstant {
     public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_USER = "user1@sample.com";
     public static final String ACCOUNT_PASSWORD_USER = "Password1!";
+    public static final String ACCOUNT_USERNAME_TEST = "test@sample.com";
+    public static final String ACCOUNT_PASSWORD_TEST = "Password1!";
     public static final String SVC_NAME_AUTH = "/auth-svc";
     public static final String SVC_NAME_TEST = "/test-svc";
     public static final String OBJECT_MARKET_REDIRECT_URI = "http://localhost:4200/account";

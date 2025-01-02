@@ -33,28 +33,6 @@ export class CustomHttpInterceptor implements HttpInterceptor {
         }
       }
     return next.handle(req)
-      // .pipe(tap({
-      //   next: (event) => {
-      //     if(event instanceof HttpResponse){
-      //       if (req.method != 'GET') {
-      //         let bypass = false;
-      //         [
-      //           '/auth-svc/tickets/',
-      //           '/auth-svc/oauth/token',
-      //         ]
-      //         .forEach(e => {
-      //           if (req.url.includes(e)) {
-      //             bypass = true
-      //           }
-      //         })
-      //         if (!bypass) {
-      //           Logger.debug(req.url)
-      //           this.openSnackbar('OPERATION_SUCCESS');
-      //         }
-      //       }
-      //     }
-      //   }
-      // }))
       .pipe(catchError((error: HttpErrorResponse) => {
         if (error && error.status === 401) {
           if (this._httpProxy.currentUserAuthInfo === undefined || this._httpProxy.currentUserAuthInfo === null) {
@@ -113,6 +91,11 @@ export class CustomHttpInterceptor implements HttpInterceptor {
         } else if (error.status === 400) {
           if (!(req as any).ignoreError) {
             this.openSnackbar('INVALID_REQUEST');
+          }
+          return throwError(error);
+        } else if (error.status === 429) {
+          if (!(req as any).ignoreError) {
+            this.openSnackbar('TOO_MANY_REQUEST');
           }
           return throwError(error);
         } else if (error.status === 0) {

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 @Slf4j
 @RestController
 public class CommonTestResource {
@@ -30,13 +31,28 @@ public class CommonTestResource {
         return ResponseEntity.ok(responseBody);
     }
 
-    @PostMapping(value = "post",produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    @PostMapping(value = "http/post", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<?> post(@RequestBody String responseBody) {
         return ResponseEntity.ok(responseBody);
     }
 
     @GetMapping("cache")
     public ResponseEntity<?> get2() {
+        return ResponseEntity.ok().body(DEFAULT_TEST_RESPONSE_BODY);
+    }
+
+    @GetMapping("public")
+    public ResponseEntity<?> publicEp() {
+        return ResponseEntity.ok().body(DEFAULT_TEST_RESPONSE_BODY);
+    }
+
+    @GetMapping("protected")
+    public ResponseEntity<?> protectedEp() {
+        return ResponseEntity.ok().body(DEFAULT_TEST_RESPONSE_BODY);
+    }
+
+    @GetMapping("shared")
+    public ResponseEntity<?> sharedEp() {
         return ResponseEntity.ok().body(DEFAULT_TEST_RESPONSE_BODY);
     }
 

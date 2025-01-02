@@ -210,6 +210,12 @@ public class UserUtility {
             .getValue();
     }
 
+    public static String getJwtTest() {
+        return emailPwdLogin(AppConstant.ACCOUNT_USERNAME_TEST,
+            AppConstant.ACCOUNT_PASSWORD_TEST).getBody()
+            .getValue();
+    }
+
     public static String getJwtAdmin() {
         ResponseEntity<DefaultOAuth2AccessToken> login =
             emailPwdLogin(AppConstant.ACCOUNT_EMAIL_ADMIN,
@@ -247,6 +253,18 @@ public class UserUtility {
         User tenantUser = createEmailPwdUser();
         String user1Token = emailPwdLogin(tenantUser);
         return loginTenant(project, client, tenantUser, user1Token);
+    }
+
+    /**
+     * user whom login to tenant project
+     *
+     * @param project tenant project
+     * @param client  sso client
+     * @return user logged in
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> userLoginToTenant(Project project, Client client, User user) {
+        String user1Token = emailPwdLogin(user);
+        return ssoLogin(project, client, user, user1Token);
     }
 
     /**
@@ -296,6 +314,27 @@ public class UserUtility {
         }
         Assertions.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
         return tenantUser;
+    }
+
+    private static ResponseEntity<DefaultOAuth2AccessToken> ssoLogin(Project project, Client client, User tenantUser,
+                                    String user1Token) {
+        ResponseEntity<String> codeResponse =
+            OAuth2Utility.authorizeLogin(project.getId(), client.getId(), user1Token,
+                AppConstant.TEST_REDIRECT_URL);
+        if (!codeResponse.getStatusCode().is2xxSuccessful()) {
+            log.info("authorize failed with status code {}", codeResponse.getStatusCode().value());
+        }
+        Assertions.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
+        ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
+            OAuth2Utility.getAuthorizationToken(
+                OAuth2Utility.getAuthorizationCode(codeResponse),
+                AppConstant.TEST_REDIRECT_URL, client.getId(), client.getClientSecret());
+        if (!oAuth2AuthorizationToken.getStatusCode().is2xxSuccessful()) {
+            log.info("get token failed with status code {}",
+                oAuth2AuthorizationToken.getStatusCode().value());
+        }
+        Assertions.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
+        return oAuth2AuthorizationToken;
     }
 
     public static ResponseEntity<Void> assignTenantUserRole(TenantContext tenantContext, User user,

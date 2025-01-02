@@ -43,6 +43,11 @@ public class CustomFilterContext {
         this.httpErrorStatus = HttpStatus.UNAUTHORIZED;
     }
 
+    public void invalidRefreshToken() {
+        this.tokenCheckFailed = true;
+        this.httpErrorStatus = HttpStatus.UNAUTHORIZED;
+    }
+
     public void bodyReadRequired() {
         this.bodyCopied = true;
 

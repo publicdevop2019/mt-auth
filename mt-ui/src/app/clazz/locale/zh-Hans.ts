@@ -87,6 +87,7 @@ export const zhHans = {
     "METHOD_NOT_SUPPORTED": "不支持该HTTP请求",
     "ACCESS_IS_NOT_ALLOWED": "您没有权限",
     "INVALID_REQUEST": "请检查您的信息",
+    "TOO_MANY_REQUEST": "请求过于频繁",
     "NETWORK_CONNECTION_FAILED": "网络异常",
     "STATUS": "状态",
     "SYSTEM_SETTINGS": "设置",

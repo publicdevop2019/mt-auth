@@ -87,6 +87,7 @@ export const enUS = {
     "METHOD_NOT_SUPPORTED": "HTTP method not supported",
     "ACCESS_IS_NOT_ALLOWED": "Access not allowed",
     "INVALID_REQUEST": "Please check your information",
+    "TOO_MANY_REQUEST": "Too many request",
     "NETWORK_CONNECTION_FAILED": "Network error",
     "STATUS": "Status",
     "SYSTEM_SETTINGS": "Setting",

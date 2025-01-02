@@ -53,6 +53,7 @@ public class CustomFilter implements WebFilter, Ordered {
     private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
         "{\"msg\": \"endpoint not found\"}";
     private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
+    public static final String REFRESH_TOKEN = "refresh_token";
     @Value("${mt.common.domain-name}")
     String domain;
 
@@ -139,7 +140,8 @@ public class CustomFilter implements WebFilter, Ordered {
                 Mono.just(response.bufferFactory().wrap(EMPTY_CACHE_RESPONSE.getBytes())));
         }
         if (!DomainRegistry.getCorsService().checkCors(exchange)) {
-            LogService.reactiveLog(exchange.getRequest(), () -> log.debug("cors request check completed"));
+            LogService.reactiveLog(exchange.getRequest(),
+                () -> log.debug("cors request check completed"));
             return Mono.empty();
         }
         if (DomainRegistry.getEndpointService().findEndpoint(path, method, context.getWebsocket())
@@ -349,10 +351,14 @@ public class CustomFilter implements WebFilter, Ordered {
             Mono<String> modifiedBody = serverRequest.bodyToMono(String.class).map(body -> {
                 if (Utility.isTokenRequest(request)) {
                     Map<String, String> parameters = readFormData(body);
-                    if (DomainRegistry.getRevokeTokenService()
-                        .revoked(context.getAuthHeader(), request.getPath().toString(),
-                            parameters)) {
-                        context.tokenRevoked();
+                    String token = parameters.get(REFRESH_TOKEN);
+                    if (token != null) {
+                        if (!DomainRegistry.getJwtService().verifyBearer(token)) {
+                            context.tokenRevoked();
+                        }
+                        if (DomainRegistry.getRevokeTokenService().revoked(token)) {
+                            context.invalidRefreshToken();
+                        }
                     }
                 } else {
                     String sanitize = DomainRegistry.getJsonSanitizeService().sanitizeRequest(body);
@@ -376,10 +382,8 @@ public class CustomFilter implements WebFilter, Ordered {
                 return Mono.just(decorateRequest(exchange, headers, outputMessage));
             }));
         } else {
-            if (DomainRegistry.getRevokeTokenService()
-                .revoked(context.getAuthHeader(), request.getPath().toString(), null)) {
-                LogService.reactiveLog(request,
-                    () -> log.debug("token revoked"));
+            if (DomainRegistry.getRevokeTokenService().revoked(context.getAuthHeader())) {
+                LogService.reactiveLog(request, () -> log.debug("token revoked"));
                 context.tokenRevoked();
                 return Mono.just(request);
             }

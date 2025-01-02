@@ -322,6 +322,7 @@ public class EndpointApplicationService {
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new ClientId(deserialize.getDomainId().getDomainId())));
                 if (!allByQuery.isEmpty()) {
+                    allByQuery.forEach(e -> e.removeAfterClientDelete(context));
                     DomainRegistry.getEndpointRepository().remove(allByQuery);
                     context
                         .append(new EndpointCollectionModified());
