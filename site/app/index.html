@@ -200,21 +200,45 @@
         <div style="display: flex; justify-content: center; margin-top: 52px;">
             <section style="display: flex; justify-content: center; flex-direction: column; width: 350px;">
                 <label for="sso-url">MT-AUTH 前端 URL</label>
-                <input class="form-input" type="text" id="sso-url" value="http://localhost:4300">
+                <input class="form-input" type="text" id="sso-url" value="">
                 <label for="sso-api-url">MT-AUTH 后端 URL</label>
-                <input class="form-input" type="text" id="sso-api-url" value="http://localhost:8111">
+                <input class="form-input" type="text" id="sso-api-url" value="">
                 <label for="sso-project-id">项目ID</label>
-                <input class="form-input" type="text" id="sso-project-id" value="0P8OMAHSU0W4">
+                <input class="form-input" type="text" id="sso-project-id" value="">
                 <label for="sso-client-id">App ID</label>
-                <input class="form-input" type="text" id="sso-client-id" value="0C8OMAMM2QDC">
+                <input class="form-input" type="text" id="sso-client-id" value="">
                 <label for="sso-client-secret">App Secret</label>
-                <input class="form-input" type="text" id="sso-client-secret"
-                    value="97b29ceb-c445-4178-bb95-84755f14cba6">
+                <input class="form-input" type="text" id="sso-client-secret" value="">
                 <button id="login-btn" class="btn" onclick="save();authorizationLogin()">登录</button>
                 <div id="token-title" style="margin-top: 16px;"></div>
                 <div id="token" style="margin-top: 4px;"></div>
             </section>
         </div>
+        <script>
+            function isEmpty(value) {
+                return value === null || value === undefined || value === ''
+            }
+            if (isEmpty(localStorage.getItem("sso-url"))) {
+                localStorage.setItem("sso-url", "http://localhost:4300")
+            }
+            if (isEmpty(localStorage.getItem("sso-api-url"))) {
+                localStorage.setItem("sso-api-url", "http://localhost:8111")
+            }
+            if (isEmpty(localStorage.getItem("sso-project-id"))) {
+                localStorage.setItem("sso-project-id", "0P8OMAHSU0W4")
+            }
+            if (isEmpty(localStorage.getItem("sso-client-id"))) {
+                localStorage.setItem("sso-client-id", "0C8OMAMM2QDC")
+            }
+            if (isEmpty(localStorage.getItem("sso-client-secret"))) {
+                localStorage.setItem("sso-client-secret", "97b29ceb-c445-4178-bb95-84755f14cba6")
+            }
+            document.getElementById("sso-url").value = localStorage.getItem("sso-url")
+            document.getElementById("sso-api-url").value = localStorage.getItem("sso-api-url")
+            document.getElementById("sso-project-id").value = localStorage.getItem("sso-project-id")
+            document.getElementById("sso-client-id").value = localStorage.getItem("sso-client-id")
+            document.getElementById("sso-client-secret").value = localStorage.getItem("sso-client-secret")
+        </script>
     </nav>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
