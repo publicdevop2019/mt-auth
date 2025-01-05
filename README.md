@@ -16,7 +16,7 @@
 - 事件驱动架构(Event driven architecture)
 - 基于角色的权限控制(Role-Based Access Control)
 - 多租户(Multi-Tenancy)
-- 单点登录(Single-Sign on)与单点登出(Single-Sign out)
+- 单点登录(Single-Sign on)
 - OAuth 2.0 支持
 - 用户管理，多因素认证(Multi-Factor Authentication)
 - API管理(API Management)：路由、鉴权、缓存、跨域CORS、CSRF防护、压缩、隐藏系统错误信息、记录与分析、分享、订阅
@@ -29,7 +29,7 @@
 
 | 模块                  | 概述  | 技术栈                                                          |  
 |:--------------------|:----|:-------------------------------------------------------------|
-| mt-access           | 核心  | Spring Boot, Redis, RabbitMQ, Spring Cloud Eureka            |
+| mt-access           | 核心  | Spring Boot, Redis, RabbitMQ                                 |
 | mt-proxy            | 网关  | Spring Boot, Spring Cloud Gateway, Redis, RabbitMQ           |
 | mt-ui               | 前端  | Angular                                                      |
 | mt-common           | 通用  | Spring Boot                                                  |
