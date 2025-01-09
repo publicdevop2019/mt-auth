@@ -1,15 +1,15 @@
 # Docker
 在Docker上运行MT-AUTH
-# 准备工作
-请确保Docker已安装并且可运行
-# 启动 MT-AUTH
-在Terminal输入Docker命令来启动MT-AUTH
+## 准备工作
+请确保您本地已Docker已安装并且可运行
+## 启动 MT-AUTH
+在terminal输入Docker命令来启动MT-AUTH
 ```shell
 docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:latest
 ```
 MT-AUTH将会使用port 4300
 
-# 登录
+## 登录
 打开MT-AUTH[登录页面](http://localhost:4300/login)
 
 登录系统管理员账号 
@@ -17,7 +17,7 @@ MT-AUTH将会使用port 4300
 - 密码：Password1!
 
 
-# 创建项目
+## 创建项目
 项目等价于租户，是权限管理的最小单位，租户管理员可以为每个项目配置不同的角色，权限，应用，API等。MT-AUTH默认包含项目main, 请仅使用它来管理MT-AUTH。
 
 ##### 创建您的第一个项目
@@ -29,7 +29,7 @@ MT-AUTH将会使用port 4300
    
 <img src="../images/new-project.png" alt="new-project" width="200"/>
 
-# 创建用户
+## 创建用户
 在MT-AUTH中用户是唯一的存在，项目仅管理用户与项目的关联关系
 ##### 创建您的第一个用户
 1. 打开 [登录页面](http://localhost:4300/login)
@@ -38,7 +38,7 @@ MT-AUTH将会使用port 4300
 
 <img src="../images/new-user.png" alt="new-user" width="200"/>
 
-# 创建应用
+## 创建应用
 将您的应用添加到MT-AUTH中来实现用户单点登录
 
 1. 打开 [控制台](http://localhost:4300)
@@ -56,5 +56,5 @@ MT-AUTH将会使用port 4300
 3. 将项目ID，App ID, App Secret替换成对应的值
 4. 点击登录，您将通过本地的MT-AUTH验证您的账户并获取Token
 
-# 下一步
+## 下一步
 体验MT-AUTH云版本来缩短您的开发周期，提升开发体验

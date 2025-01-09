@@ -204,6 +204,16 @@ public class Endpoint extends Auditable {
         }
     }
 
+    public void removeAfterClientDelete(TransactionContext context) {
+        DomainRegistry.getEndpointRepository().remove(this);
+        context
+            .append(new EndpointCollectionModified());
+        if (secured) {
+            context
+                .append(new SecureEndpointRemoved(this));
+        }
+    }
+
     private void canBeRemoved() {
         if (shared && !expired) {
             throw new DefinedRuntimeException(

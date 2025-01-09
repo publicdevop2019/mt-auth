@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveRespLogFilter implements WebFilter, Ordered {
+public class CustomRespLogFilter implements WebFilter, Ordered {
     @Autowired
     private ReportService reportService;
 

@@ -44,7 +44,7 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         command.setProjectId(projectId);
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .tenantCreate(command, changeId)).build();
@@ -58,7 +58,7 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<EndpointCardRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
@@ -73,7 +73,7 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<EndpointCardRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .mgmtQuery(queryParam, pageParam, config);
@@ -85,7 +85,7 @@ public class EndpointResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         EndpointMgmtRepresentation endpoint =
             ApplicationServiceRegistry.getEndpointApplicationService().mgmtQueryById(id);
         return ResponseEntity.ok(endpoint);
@@ -113,7 +113,7 @@ public class EndpointResource {
         @PathVariable String projectId,
         @PathVariable String id
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         Endpoint endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantQueryById(projectId, id);
         return ResponseEntity.ok(new EndpointRepresentation(endpoint));
@@ -127,7 +127,7 @@ public class EndpointResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantUpdate(id, command, changeId);
@@ -141,7 +141,7 @@ public class EndpointResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -155,7 +155,7 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody EndpointExpireCommand command
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .expire(command, projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -189,7 +189,7 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<EndpointProtectedRepresentation> protectedEp =
             ApplicationServiceRegistry.getEndpointApplicationService()

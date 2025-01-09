@@ -22,5 +22,4 @@ public class ClientCreateCommand {
     private Integer refreshTokenValiditySeconds;
     private Set<String> resourceIds;
     private Boolean resourceIndicator;
-    private Boolean autoApprove;
 }

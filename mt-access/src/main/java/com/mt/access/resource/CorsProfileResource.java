@@ -36,7 +36,7 @@ public class CorsProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         String s =
             ApplicationServiceRegistry.getCorsProfileApplicationService()
                 .tenantCreate(projectId, command, changeId);
@@ -51,7 +51,7 @@ public class CorsProfileResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<CorsProfileRepresentation> corsProfile =
             ApplicationServiceRegistry.getCorsProfileApplicationService()
@@ -67,7 +67,7 @@ public class CorsProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getCorsProfileApplicationService()
             .tenantUpdate(id, command, changeId);
@@ -81,7 +81,7 @@ public class CorsProfileResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getCorsProfileApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();

@@ -11,7 +11,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.reactive.function.server.ServerRequest;
 
 public class Utility {
     public static final AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -30,14 +29,6 @@ public class Utility {
 
     public static String getTraceId(HttpMessage request) {
         return request.getHeaders().getFirst(TRACE_ID_HTTP);
-    }
-
-    public static String getSpanId(ServerRequest request) {
-        return request.headers().firstHeader(SPAN_ID_HTTP);
-    }
-
-    public static String getTraceId(ServerRequest request) {
-        return request.headers().firstHeader(TRACE_ID_HTTP);
     }
 
     /**
@@ -59,7 +50,7 @@ public class Utility {
     }
 
     public static boolean isTokenRequest(ServerHttpRequest request) {
-        return request.getPath().toString().contains("/oauth/token");
+        return request.getPath().toString().equals("/auth-svc/oauth/token");
     }
 
     public static Map<String, String> readFormData(String body) throws IndexOutOfBoundsException {
@@ -80,40 +71,35 @@ public class Utility {
     }
 
     /**
-     * get client ip, replace : with _ for report processing purpose
+     * get client ip and port, replace : with _ for report processing purpose
      *
      * @param request ServerHttpRequest
      * @return formatted client ip
      */
-    public static String getClientIp(ServerHttpRequest request) {
-        String clientIp = "NOT_FOUND";
-        String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
-        if (first != null) {
-            clientIp = first;
-        } else {
-            if (request.getRemoteAddress() != null) {
-                clientIp = request.getRemoteAddress().toString();
-            }
-        }
-        return clientIp.replaceAll(":", "_");
+    public static String getClientInfoForReport(ServerHttpRequest request) {
+        return getClientInfo(request).replaceAll(":", "_");
     }
 
     /**
-     * get client ip, replace : with _ for report processing purpose
+     * get client ip and port
      *
-     * @param request ServerRequest
+     * @param request ServerHttpRequest
      * @return formatted client ip
      */
-    public static String getClientIp(ServerRequest request) {
-        String clientIp = "NOT_FOUND";
-        String first = request.headers().firstHeader("X-FORWARDED-FOR");
-        if (first != null) {
+    public static String getClientInfo(ServerHttpRequest request) {
+        String clientIp = "UNKNOWN";
+        String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
+        if (first != null && !first.isBlank()) {
             clientIp = first;
         } else {
-            if (request.remoteAddress().isPresent()) {
-                clientIp = request.remoteAddress().get().toString();
+            if (request.getRemoteAddress() != null) {
+                String ip = request.getRemoteAddress().toString();
+                if (!ip.isBlank()) {
+                    clientIp = ip;
+                }
             }
         }
-        return clientIp.replaceAll(":", "_");
+        return clientIp.replaceFirst("^/", "");
     }
+
 }

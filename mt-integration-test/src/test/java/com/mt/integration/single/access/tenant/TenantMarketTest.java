@@ -1,8 +1,11 @@
 package com.mt.integration.single.access.tenant;
 
+import static com.mt.helper.AppConstant.X_MT_RATELIMIT_LEFT;
+
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.AssignRoleReq;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Permission;
@@ -13,11 +16,15 @@ import com.mt.helper.pojo.UpdateType;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.PermissionUtility;
+import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TestContext;
+import com.mt.helper.utility.TestUtility;
+import com.mt.helper.utility.UserUtility;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +36,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantMarketTest {
@@ -48,12 +59,14 @@ public class TenantMarketTest {
 
         clientA = ClientUtility.createValidBackendClient();
         clientA.setResourceIndicator(true);
+        clientA.setExternalUrl("http://localhost:9999");
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
         clientA.setId(HttpUtility.getId(tenantClient));
 
         log.info("init tenant complete");
     }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
@@ -243,6 +256,69 @@ public class TenantMarketTest {
     }
 
     @Test
+    public void tenant_can_assign_approved_api_to_role_then_call_it_w_rate_limit()
+        throws InterruptedException {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
+        endpoint.setPath("test/expire/" + RandomUtility.randomStringNoNum() + "/random");
+        endpoint.setMethod("GET");
+        endpoint.setReplenishRate(10);
+        endpoint.setBurstCapacity(20);
+
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
+        //send sub req tenantB
+        SubscriptionReq subReq =
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> voidResponseEntity =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), subReq);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
+        //approve sub req
+        MarketUtility.approveSubReq(tenantContextA, subReqId);
+
+        //create tenantB role
+        Role role = RoleUtility.createRandomValidRoleObj();
+        ResponseEntity<Void> tenantRole =
+            RoleUtility.createTenantRole(tenantContextB, role);
+        role.setId(HttpUtility.getId(tenantRole));
+        //update it's api
+        ResponseEntity<SumTotal<Permission>> shared =
+            PermissionUtility.readTenantPermissionShared(tenantContextB);
+        String permissionId = shared.getBody().getData().get(0).getId();
+        role.setExternalPermissionIds(Collections.singleton(permissionId));
+        role.setType(UpdateType.API_PERMISSION.name());
+        ResponseEntity<Void> response4 =
+            RoleUtility.updateTenantRole(tenantContextB, role);
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        //read user
+        User user = tenantContextB.getUsers().get(0);
+        AssignRoleReq assignRoleReq = new AssignRoleReq();
+        assignRoleReq.getRoleIds().add(role.getId());
+        //assign role
+        ResponseEntity<Void> response =
+            UserUtility.assignTenantUserRole(tenantContextB, user, assignRoleReq);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        TestUtility.proxyDefaultWait();
+
+        String tenantAUrl = HttpUtility.getTenantUrl(clientA.getPath(), endpoint.getPath());
+        String jwt = UserUtility.userLoginToTenant(tenantContextB.getProject(),
+            tenantContextB.getLoginClient(), user).getBody().getValue();
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.setBearerAuth(jwt);
+        HttpEntity<Void> entity =
+            new HttpEntity<>(headers1);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(tenantAUrl, HttpMethod.GET, entity, String.class);
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        String first = exchange.getHeaders().getFirst(X_MT_RATELIMIT_LEFT);
+        Assertions.assertEquals("19", first);
+
+    }
+
+    @Test
     public void tenant_assign_approved_api_to_role_when_api_delete_cleanup_performed()
         throws InterruptedException {
         //create shared endpoint tenantA
@@ -271,8 +347,8 @@ public class TenantMarketTest {
         ResponseEntity<SumTotal<Permission>> shared =
             PermissionUtility.readTenantPermissionShared(tenantContextB);
         String permissionId = shared.getBody().getData().stream()
-            .filter(e->e.getName().equalsIgnoreCase(
-            endpoint.getName())).findFirst().get().getId();
+            .filter(e -> e.getName().equalsIgnoreCase(
+                endpoint.getName())).findFirst().get().getId();
 
         role.setExternalPermissionIds(Collections.singleton(permissionId));
         role.setType(UpdateType.API_PERMISSION.name());

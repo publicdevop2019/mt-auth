@@ -53,7 +53,7 @@ public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
         Optional<Object> first = request.exchange().getAttributes().values().stream()
             .filter(e -> e instanceof ResponseStatusException).findFirst();
         if (first.isPresent()) {
-            LogService.reactiveLog(request, () -> {
+            LogService.reactiveLog(request.exchange().getRequest(), () -> {
                 if (logger.isDebugEnabled()) {
                     logger.debug("response status exception");
                 }
@@ -71,14 +71,14 @@ public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
     //modify based on abstract
     @Override
     protected void logError(ServerRequest request, ServerResponse response, Throwable throwable) {
-        LogService.reactiveLog(request, () -> {
+        LogService.reactiveLog(request.exchange().getRequest(), () -> {
             if (logger.isDebugEnabled()) {
                 logger.debug(
                     request.exchange().getLogPrefix() + this.formatError(throwable, request));
             }
         });
         if (HttpStatus.resolve(response.rawStatusCode()) != null) {
-            LogService.reactiveLog(request, () -> {
+            LogService.reactiveLog(request.exchange().getRequest(), () -> {
                 logger.error(LogMessage.of(() -> {
                     return String.format("%s Server Error for %s", response.statusCode().value(),
                         this.formatRequest(request));

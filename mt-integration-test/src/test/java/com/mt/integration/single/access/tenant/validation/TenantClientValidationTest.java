@@ -3,7 +3,6 @@ package com.mt.integration.single.access.tenant.validation;
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
-import com.mt.helper.args.ClientAutoApproveArgs;
 import com.mt.helper.args.ClientExternalUrlArgs;
 import com.mt.helper.args.ClientGrantTypeArgs;
 import com.mt.helper.args.ClientNameArgs;
@@ -25,6 +24,7 @@ import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -259,22 +259,6 @@ public class TenantClientValidationTest {
 
 
     @ParameterizedTest
-    @ArgumentsSource(ClientAutoApproveArgs.class)
-    public void validation_create_auto_approve(Boolean autoApprove,
-                                               Set<String> grantTypes,
-                                               Set<String> redirectUrls,
-                                               HttpStatus status
-    ) {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        client.setAutoApprove(autoApprove);
-        client.setGrantTypeEnums(grantTypes);
-        client.setRegisteredRedirectUri(redirectUrls);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(status, response4.getStatusCode());
-    }
-
-    @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
@@ -482,6 +466,19 @@ public class TenantClientValidationTest {
         Assertions.assertEquals(status, response2.getStatusCode());
     }
 
+    @Test
+    public void validation_update_resource_ids_cannot_be_itself() {
+        Client client = ClientUtility.createValidBackendClient();
+        client.setResourceIndicator(true);
+        ResponseEntity<Void> response1 =
+            ClientUtility.createTenantClient(tenantContext, client);
+        client.setId(HttpUtility.getId(response1));
+        client.setResourceIds(Collections.singleton(client.getId()));
+        ResponseEntity<Void> response2 =
+            ClientUtility.updateTenantClient(tenantContext, client);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+    }
+
     @ParameterizedTest
     @ArgumentsSource(ClientResourceIndicatorArgs.class)
     public void validation_update_resource_indicator(Client client, Boolean indicator,
@@ -493,25 +490,6 @@ public class TenantClientValidationTest {
         ResponseEntity<Void> response5 =
             ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(status, response5.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientAutoApproveArgs.class)
-    public void validation_update_auto_approve(Boolean autoApprove,
-                                               Set<String> grantTypes,
-                                               Set<String> redirectUrls,
-                                               HttpStatus status
-    ) {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        client.setAutoApprove(autoApprove);
-        client.setGrantTypeEnums(grantTypes);
-        client.setRegisteredRedirectUri(redirectUrls);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
 }

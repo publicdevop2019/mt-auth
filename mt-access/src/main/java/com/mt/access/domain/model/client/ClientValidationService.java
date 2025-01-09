@@ -16,6 +16,9 @@ public class ClientValidationService {
 
     private void validateResource(Client client, ValidationNotificationHandler handler) {
         if (!client.getResources().isEmpty()) {
+            if (client.getResources().contains(client.getClientId())) {
+                handler.handleError("client cannot have itself as resource");
+            }
             Set<Client> allByQuery = QueryUtility.getAllByQuery(
                 (query) -> DomainRegistry.getClientRepository().query(query),
                 new ClientQuery(client.getResources()));

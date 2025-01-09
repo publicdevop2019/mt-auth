@@ -36,14 +36,15 @@ public class LogFilter extends GenericFilter {
 
         String spanId = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
         MDC.put(AppInfo.SPAN_ID_LOG, spanId);
-
+        String clientIp;
         String ipFromHeader = httpRequest.getHeader(AppInfo.X_FORWARDED_FOR);
         if (ipFromHeader != null && ipFromHeader.length() > 0) {
-            MDC.put(AppInfo.CLIENT_IP_LOG, ipFromHeader);
+            clientIp = ipFromHeader;
         } else {
-            MDC.put(AppInfo.CLIENT_IP_LOG, servletRequest.getRemoteAddr());
+            clientIp = servletRequest.getRemoteAddr();
         }
-
+        log.info("http client ip {} url: {}", clientIp,
+            ((HttpServletRequest) servletRequest).getRequestURI());
         try {
             filterChain.doFilter(servletRequest, servletResponse);
         } finally {

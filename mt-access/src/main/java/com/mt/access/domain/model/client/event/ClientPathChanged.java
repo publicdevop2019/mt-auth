@@ -13,11 +13,10 @@ public class ClientPathChanged extends DomainEvent {
     {
         setTopic(CLIENT_PATH_CHANGED);
         setName(name);
-
+        setInternal(false);
     }
 
     public ClientPathChanged(ClientId clientId) {
         super(clientId);
-        setInternal(false);
     }
 }

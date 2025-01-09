@@ -14,7 +14,7 @@ public class TicketInfo {
      * below is required.
      */
     public static final String USER_ID = "uid";
-    public static final String CLIENT_ID = "clientId";
+    public static final String CLIENT_ID = "client_id";
     public static final String AUD = "aud";
     public static final String PERMISSION_IDS = "permissionIds";
     public static final String SCOPES = "scope";

@@ -48,7 +48,7 @@ public class ClientResource {
     ) {
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("tenant ip {}", clientIpAddress);
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getClientApplicationService()
@@ -63,7 +63,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String projectId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<ClientCardRepresentation> rep =
             ApplicationServiceRegistry.getClientApplicationService()
@@ -79,7 +79,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String projectId
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<ClientDropdownRepresentation> clients =
             ApplicationServiceRegistry.getClientApplicationService()
@@ -94,7 +94,7 @@ public class ClientResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<ClientCardRepresentation> rep =
             ApplicationServiceRegistry.getClientApplicationService()
                 .mgmtQuery(queryParam, pageParam, skipCount);
@@ -108,7 +108,7 @@ public class ClientResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<ClientDropdownRepresentation> rep =
             ApplicationServiceRegistry.getClientApplicationService()
                 .mgmtDropdownQuery(queryParam, pageParam, skipCount);
@@ -121,7 +121,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         log.debug("admin reading client, id {}", id);
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ClientRepresentation clientRepresentation =
             ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);
         return ResponseEntity.ok(clientRepresentation);
@@ -144,7 +144,7 @@ public class ClientResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ClientRepresentation client =
             ApplicationServiceRegistry.getClientApplicationService().tenantQueryById(id, projectId);
         return ResponseEntity.ok(client);
@@ -158,7 +158,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantUpdate(id, command, changeId);
@@ -172,22 +172,22 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("projects/{projectId}/clients/{id}/autoApprove")
-    public ResponseEntity<ClientAutoApproveRepresentation> uiAutoApproveCheck(
+    @GetMapping("projects/{projectId}/clients/{id}/authorize")
+    public ResponseEntity<ClientAutoApproveRepresentation> authorize(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        Client client =
-            ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId, id);
-        return ResponseEntity.ok(new ClientAutoApproveRepresentation(client));
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
+        ClientAutoApproveRepresentation rep =
+            ApplicationServiceRegistry.getClientApplicationService().getAuthorizeInfo(projectId, id);
+        return ResponseEntity.ok(rep);
     }
 
 }

@@ -36,8 +36,6 @@ public class ClientRepresentation {
 
     private Boolean resourceIndicator;
 
-    private Boolean autoApprove;
-
     private Integer version;
     private String clientSecret;
 
@@ -51,19 +49,14 @@ public class ClientRepresentation {
         grantTypeEnums = new HashSet<>();//avoid lazy load
         grantTypeEnums.addAll(client.getGrantTypes());
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        if (client.getRedirectDetail() != null) {
-            registeredRedirectUri = client.getRedirectDetail().getRedirectUrls(client).stream()
-                .map(RedirectUrl::getValue).collect(Collectors.toSet());
-        }
+        registeredRedirectUri = client.getRedirectUrls().stream()
+            .map(RedirectUrl::getValue).collect(Collectors.toSet());
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
         if (!ObjectUtils.isEmpty(client.getResources())) {
             resourceIds = client.getResources().stream().map(ClientId::getDomainId)
                 .collect(Collectors.toSet());
         }
         resourceIndicator = client.getAccessible();
-        if (client.getRedirectDetail() != null) {
-            autoApprove = client.getRedirectDetail().getAutoApprove();
-        }
         if (client.getExternalUrl() != null) {
             externalUrl = client.getExternalUrl().getValue();
         }

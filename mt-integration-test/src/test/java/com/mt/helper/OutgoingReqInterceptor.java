@@ -1,6 +1,7 @@
 package com.mt.helper;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -34,8 +35,13 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
             log.info("{} request id {}", httpRequest.getURI(), s);
             httpRequest.getHeaders().set("x-mt-request-id", s);
         }
-        httpRequest.getHeaders().set("X-XSRF-TOKEN", "123");
-        httpRequest.getHeaders().add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
+        List<String> list = httpRequest.getHeaders().get(AppConstant.CSRF_DISABLE_HEADER);
+        if (list == null || list.isEmpty()) {
+            httpRequest.getHeaders().set("X-XSRF-TOKEN", "123");
+            httpRequest.getHeaders().add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
+        } else {
+            httpRequest.getHeaders().remove(AppConstant.CSRF_DISABLE_HEADER);
+        }
         return clientHttpRequestExecution.execute(httpRequest, bytes);
     }
 }

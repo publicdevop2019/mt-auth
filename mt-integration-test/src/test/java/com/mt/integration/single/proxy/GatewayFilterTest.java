@@ -3,7 +3,10 @@ package com.mt.integration.single.proxy;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
+import com.mt.helper.utility.OAuth2Utility;
+import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
@@ -25,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
@@ -113,7 +117,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_request_json_replace_single_quote_with_double_quote() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -130,7 +134,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_response_json_replace_single_quote_with_double_quote() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -177,7 +181,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_ask_for_csrf_token_when_post() {
-        String url = HttpUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("http/post");
         HttpHeaders headers1 = new HttpHeaders();
         TestRestTemplate restTemplate = new TestRestTemplate();
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("Test", headers1);
@@ -193,17 +197,14 @@ public class GatewayFilterTest {
     }
 
     @Test
-    public void should_add_csrf_token_when_call_access() {
-        String url = HttpUtility.getAccessUrl("csrf");
+    public void should_return_not_found_when_call_not_exist_ep() {
+        String url = HttpUtility.getAccessUrl(RandomUtility.randomHttpPath());
         HttpHeaders headers1 = new HttpHeaders();
         TestRestTemplate restTemplate = new TestRestTemplate();
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
         ResponseEntity<String> exchange =
             restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String first = exchange.getHeaders().getFirst("set-cookie");
-        int sameSite = first == null ? -1 : first.indexOf("SameSite");
-        Assertions.assertNotEquals(-1, sameSite);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, exchange.getStatusCode());
     }
 
 }

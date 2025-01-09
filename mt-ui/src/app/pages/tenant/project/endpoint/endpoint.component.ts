@@ -73,6 +73,13 @@ export class EndpointComponent {
   ) {
     this.deviceSvc.updateDocTitle('EP_DOC_TITLE')
     const endpointId = this.router.getEndpointIdFromUrl();
+    this.fg.get('type').valueChanges.subscribe(next => {
+      if ((next as string) === 'PUBLIC_API') {
+        this.fg.get('csrf').disable()
+      } else {
+        this.fg.get('csrf').enable()
+      }
+    })
     if (endpointId === 'template') {
       if (this.router.getData() === undefined) {
         this.router.navProjectHome()
@@ -151,7 +158,9 @@ export class EndpointComponent {
         this.performanceWarnning = false;
       } else {
         this.fg.get('method').enable()
-        this.fg.get('csrf').enable()
+        if (this.fg.get('type').value !== 'PUBLIC_API') {
+          this.fg.get('csrf').enable()
+        }
         this.fg.get('cors').enable()
         this.fg.get('replenishRate').enable()
         this.fg.get('burstCapacity').enable()

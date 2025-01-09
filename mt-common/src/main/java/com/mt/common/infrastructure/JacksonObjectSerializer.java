@@ -74,7 +74,7 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException ex) {
             throw new DefinedRuntimeException("error during object mapper serialize", "0052",
-                HttpResponseCode.BAD_REQUEST, ex);
+                HttpResponseCode.INTERNAL_SERVER_ERROR, ex);
         }
     }
 

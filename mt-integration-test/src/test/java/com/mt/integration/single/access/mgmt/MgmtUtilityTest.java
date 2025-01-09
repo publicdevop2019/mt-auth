@@ -3,9 +3,11 @@ package com.mt.integration.single.access.mgmt;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.User;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
@@ -33,15 +36,6 @@ public class MgmtUtilityTest{
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
-    }
-
-    @Test
-    public void can_get_csrf_value() {
-        RestTemplate restTemplate = TestContext.getRestTemplate();
-        ResponseEntity<Void> exchange =
-            restTemplate.exchange(HttpUtility.getAccessUrl("csrf"),
-                HttpMethod.GET, null, Void.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -68,6 +62,6 @@ public class MgmtUtilityTest{
         ResponseEntity<Void> exchange2 =
             restTemplate.exchange(HttpUtility.getAccessUrl("health"),
                 HttpMethod.GET, null, Void.class);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, exchange2.getStatusCode());
     }
 }

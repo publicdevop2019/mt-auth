@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveReqLogFilter implements WebFilter, Ordered {
+public class CustomReqLogFilter implements WebFilter, Ordered {
     @Autowired
     UniqueIdGeneratorService idGeneratorService;
 
@@ -46,26 +46,25 @@ public class ReactiveReqLogFilter implements WebFilter, Ordered {
         String finalNewTraceId = newTraceId;
         request = request.mutate().headers(h -> h.set(TRACE_ID_HTTP, finalNewTraceId)).build();
         String requestId = Utility.getRequestId(request);
+        String clientInfo = Utility.getClientInfo(request);
         if (requestId == null) {
             requestId = idGeneratorService.idString() + "_g";
             String finalRequestId = requestId;
             ServerHttpRequest finalRequest = request;
             LogService.reactiveLog(exchange.getRequest(),
-                () -> {
-                    log.info("created request id {} for endpoint {}",
-                        finalRequestId,
-                        finalRequest.getPath().value());
-                });
+                () -> log.info("created request id {} for endpoint {}",
+                    finalRequestId,
+                    finalRequest.getPath().value()));
         } else {
             String finalRequestId = requestId;
             ServerHttpRequest finalRequest = request;
             LogService.reactiveLog(exchange.getRequest(),
-                () -> {
-                    log.info("received request id {} for endpoint {}",
-                        finalRequestId,
-                        finalRequest.getPath().value());
-                });
+                () -> log.info("received request id {} for endpoint {}",
+                    finalRequestId,
+                    finalRequest.getPath().value()));
         }
+        LogService.reactiveLog(exchange.getRequest(),
+            () -> log.info("client info {}", clientInfo));
         return chain
             .filter(exchange.mutate().request(request).build());
     }

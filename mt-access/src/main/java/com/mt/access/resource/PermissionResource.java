@@ -38,7 +38,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getPermissionApplicationService()
@@ -54,7 +54,7 @@ public class PermissionResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<Permission> rep =
             ApplicationServiceRegistry.getPermissionApplicationService()
@@ -74,7 +74,7 @@ public class PermissionResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<Permission> rep =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .sharedQuery(projectId, queryParam, pageParam);
@@ -89,7 +89,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -100,7 +100,7 @@ public class PermissionResource {
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         UiPermissionInfo ui =
             ApplicationServiceRegistry.getPermissionApplicationService().uiQuery(projectId);
         return ResponseEntity.ok(ui);

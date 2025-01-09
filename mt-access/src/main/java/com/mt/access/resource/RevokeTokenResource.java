@@ -31,7 +31,7 @@ public class RevokeTokenResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getRevokeTokenApplicationService().revoke(command, changeId);
         return ResponseEntity.ok().build();
     }

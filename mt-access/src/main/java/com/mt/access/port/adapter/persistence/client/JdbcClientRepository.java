@@ -51,7 +51,6 @@ public class JdbcClientRepository implements ClientRepository {
         "modified_by, " +
         "version, " +
         "accessible_, " +
-        "auto_approve, " +
         "domain_id, " +
         "description, " +
         "name, " +
@@ -63,7 +62,7 @@ public class JdbcClientRepository implements ClientRepository {
         "refresh_token_validity_seconds, " +
         "external_url" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String INSERT_REDIRECT_URL_SQL = "INSERT INTO client_redirect_url_map " +
         "(" +
         "id, " +
@@ -149,7 +148,6 @@ public class JdbcClientRepository implements ClientRepository {
         "c.modified_by = ?, " +
         "c.version = ?, " +
         "c.accessible_ = ?, " +
-        "c.auto_approve = ?, " +
         "c.description = ?, " +
         "c.name = ?, " +
         "c.path = ?, " +
@@ -183,8 +181,6 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getModifiedBy(),
                 0,
                 client.getAccessible(),
-                Checker.isNull(client.getRedirectDetail()) ? null :
-                    client.getRedirectDetail().getAutoApprove(),
                 client.getClientId().getDomainId(),
                 client.getDescription(),
                 client.getName(),
@@ -197,12 +193,10 @@ public class JdbcClientRepository implements ClientRepository {
                 Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
         //for linked tables
-        if (Checker.notNull(client.getRedirectDetail())
-            &&
-            Checker.notNullOrEmpty(client.getRedirectDetail().getRedirectUrls(client))) {
+        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
-                client.getRedirectDetail().getRedirectUrls(client).stream()
+                client.getRedirectUrls().stream()
                     .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getValue())).collect(
                         Collectors.toList());
             keyValues.addAll(collect);
@@ -302,8 +296,7 @@ public class JdbcClientRepository implements ClientRepository {
                     client.getId()
                 );
         }
-        if (Checker.notNull(client.getRedirectDetail()) &&
-            Checker.notNullOrEmpty(client.getRedirectDetail().getRedirectUrls(client))) {
+        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_REDIRECT_URL_BY_ID_SQL,
                     client.getId()
@@ -502,6 +495,38 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     @Override
+    public void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated){
+        DatabaseUtility.updateMap(old, updated,
+            (added) -> {
+                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
+                List<BatchInsertKeyValue> collect = added.stream()
+                    .map(ee -> new BatchInsertKeyValue(id, ee.getDomainId()))
+                    .collect(
+                        Collectors.toList());
+                insertKeyValues.addAll(collect);
+                CommonDomainRegistry.getJdbcTemplate()
+                    .batchUpdate(INSERT_EXT_RESOURCE_SQL, insertKeyValues,
+                        insertKeyValues.size(),
+                        (ps, perm) -> {
+                            ps.setLong(1, perm.getId());
+                            ps.setString(2, perm.getValue());
+                        });
+            }, (removed) -> {
+                String inClause = DatabaseUtility.getInClause(removed.size());
+                List<Object> args = new ArrayList<>();
+                args.add(id);
+                args.addAll(
+                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                CommonDomainRegistry.getJdbcTemplate()
+                    .update(
+                        String.format(BATCH_DELETE_EXT_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
+                            inClause),
+                        args.toArray()
+                    );
+            });
+    }
+
+    @Override
     public Set<GrantType> getGrantType(Long id) {
         List<GrantType> data = CommonDomainRegistry.getJdbcTemplate()
             .query(FIND_GRANT_TYPE_BY_ID_SQL,
@@ -569,8 +594,6 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getModifiedBy(),
                 updated.getVersion() + 1,
                 updated.getAccessible(),
-                Checker.isNull(updated.getRedirectDetail()) ? null :
-                    updated.getRedirectDetail().getAutoApprove(),
                 updated.getDescription(),
                 updated.getName(),
                 updated.getPath(),
@@ -612,14 +635,10 @@ public class JdbcClientRepository implements ClientRepository {
                         args.toArray()
                     );
             });
-        Set<RedirectUrl> oldRedirectUrls = new HashSet<>();
-        Set<RedirectUrl> updatedRedirectUrls = new HashSet<>();
-        if (Checker.notNull(old.getRedirectDetail())) {
-            oldRedirectUrls = old.getRedirectDetail().getRedirectUrls(old);
-        }
-        if (Checker.notNull(updated.getRedirectDetail())) {
-            updatedRedirectUrls = updated.getRedirectDetail().getRedirectUrls(updated);
-        }
+        Set<RedirectUrl> oldRedirectUrls;
+        Set<RedirectUrl> updatedRedirectUrls;
+        oldRedirectUrls = old.getRedirectUrls();
+        updatedRedirectUrls = updated.getRedirectUrls();
         DatabaseUtility.updateMap(oldRedirectUrls,
             updatedRedirectUrls,
             (added) -> {
@@ -823,7 +842,6 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         DatabaseUtility.getNullableBoolean(rs, "accessible_"),
-                        DatabaseUtility.getNullableBoolean(rs, "auto_approve"),
                         new ClientId(rs.getString("domain_id")),
                         rs.getString("description"),
                         rs.getString("name"),

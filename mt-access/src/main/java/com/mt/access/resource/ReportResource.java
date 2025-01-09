@@ -49,7 +49,7 @@ public class ReportResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY) String queryParam
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         EndpointReport report = ApplicationServiceRegistry
             .getReportApplicationService().analyze(projectId, endpointRawId, queryParam);
         return ResponseEntity.ok().body(new EndpointReportRepresentation(report));

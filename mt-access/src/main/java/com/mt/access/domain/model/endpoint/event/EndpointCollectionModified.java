@@ -13,11 +13,10 @@ public class EndpointCollectionModified extends DomainEvent {
     {
         setTopic(ENDPOINT_COLLECTION_MODIFIED);
         setName(name);
-
+        setInternal(false);
     }
 
     public EndpointCollectionModified() {
         super(new AnyDomainId());
-        setInternal(false);
     }
 }

@@ -23,13 +23,17 @@ public class ClientValidator {
     }
 
     private void redirectAndGrantType() {
-        if ((client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
-            client.getRedirectDetail() == null)) {
+        if (
+            client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
+                && client.getRedirectUrls().isEmpty()
+        ) {
             handler
                 .handleError("redirect details and authorization grant must both exist");
         }
-        if ((!client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
-            client.getRedirectDetail() != null)) {
+        if (
+            !client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
+                && !client.getRedirectUrls().isEmpty()
+        ) {
             handler
                 .handleError("redirect details and authorization grant must both exist");
         }

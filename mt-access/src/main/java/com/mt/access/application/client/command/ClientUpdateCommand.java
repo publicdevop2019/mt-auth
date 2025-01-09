@@ -18,6 +18,5 @@ public class ClientUpdateCommand {
     private Integer refreshTokenValiditySeconds;
     private Set<String> resourceIds;
     private Boolean resourceIndicator;
-    private Boolean autoApprove;
     private Integer version;
 }

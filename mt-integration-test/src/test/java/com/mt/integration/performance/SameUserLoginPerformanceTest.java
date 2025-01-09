@@ -23,7 +23,7 @@ import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@Disabled
+@Disabled // for perf, enable if required
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class SameUserLoginPerformanceTest {

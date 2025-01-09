@@ -65,7 +65,7 @@ public class NotificationResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
                 .userQueryBell(queryParam, pageParam, skipCount);
@@ -78,7 +78,7 @@ public class NotificationResource {
         @PathVariable(name = "id") String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ApplicationServiceRegistry.getNotificationApplicationService()
             .userAckBell(id);
         return ResponseEntity

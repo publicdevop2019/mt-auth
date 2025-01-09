@@ -59,7 +59,7 @@ public class JwtCurrentUserService implements CurrentUserService {
     }
 
     @Override
-    public void setUser(Object jwt) {
+    public void setUserJwt(Object jwt) {
         userJwt.setValue((String) jwt);
     }
 

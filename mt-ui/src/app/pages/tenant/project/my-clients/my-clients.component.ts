@@ -18,7 +18,7 @@ import { DeviceService } from 'src/app/services/device.service';
   templateUrl: './my-clients.component.html',
   styleUrls: ['./my-clients.component.css']
 })
-export class MyClientsComponent{
+export class MyClientsComponent {
   public projectId = this.router.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
   columnList: any = {};
@@ -63,6 +63,9 @@ export class MyClientsComponent{
   doDeleteById(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(next => {
       this.deviceSvc.notify(next)
+      this.tableSource.refresh()
+    }, () => {
+      this.tableSource.refresh()
     })
   }
 }

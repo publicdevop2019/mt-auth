@@ -14,7 +14,6 @@ public class AppInfo {
     public static final String TRACE_ID_HTTP = "trace-id";
     public static final String REQUEST_ID_HTTP = "request-id";
     public static final String TRACE_ID_LOG = "TRACE_ID";
-    public static final String CLIENT_IP_LOG = "CLIENT_IP";
     public static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
 
     public static class EventName {

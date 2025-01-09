@@ -20,10 +20,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -36,11 +33,6 @@ public class JwtService {
     private HttpUtility httpHelper;
     @Autowired
     private LogService logService;
-
-    @Bean
-    public ReactiveJwtDecoder jwtDecoder() {
-        return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
-    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadKeys() {
@@ -58,7 +50,8 @@ public class JwtService {
         return httpHelper.getAccessUrl() + JWT_KEY_URL;
     }
 
-    public boolean verify(String jwt) {
+    public boolean verifyBearer(String jwt) {
+        jwt = jwt.replace("Bearer ", "");
         SignedJWT parse;
         try {
             parse = SignedJWT.parse(jwt);
@@ -66,13 +59,22 @@ public class JwtService {
             log.error("error during parse signed jwt", e);
             return false;
         }
+        boolean verify;
         try {
-            return parse.verify(new RSASSAVerifier(publicKey));
+            verify = parse.verify(new RSASSAVerifier(publicKey));
         } catch (JOSEException e) {
             log.error("error during validate jwt", e);
             return false;
         }
-
+        if (!verify) {
+            return false;
+        }
+        Long expSec = (Long) parse.getPayload().toJSONObject().get("exp");
+        if (expSec == null) {
+            return false;
+        }
+        long currentMilli = System.currentTimeMillis();
+        return currentMilli <= expSec * 1000;
     }
 
     public Set<String> getResourceIds(String jwtRaw) throws ParseException {
@@ -110,7 +112,7 @@ public class JwtService {
     private Set<String> getClaims(String jwtRaw, String field) throws ParseException {
         JWT jwt = JWTParser.parse(jwtRaw);
         JWTClaimsSet jwtClaimsSet = jwt.getJWTClaimsSet();
-        log.trace("getting clain for {}", field);
+        log.trace("getting claim for {}", field);
         if (jwtClaimsSet.getClaim(field) instanceof String) {
             String claim = (String) jwtClaimsSet.getClaim(field);
             Set<String> objects = new HashSet<>();

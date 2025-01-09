@@ -20,7 +20,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@Disabled
+@Disabled // for perf, enable if required
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class SendVerificationCodePerformanceTest {

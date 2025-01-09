@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CsrfService {
+    private static final String DEFAULT_CSRF_COOKIE_NAME = "XSRF-TOKEN";
+    private static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
     private Set<Endpoint> bypassList = new HashSet<>();
 
     public void refresh(Set<Endpoint> endpoints) {
@@ -24,6 +27,14 @@ public class CsrfService {
             endpoints.stream().filter(e -> !Boolean.TRUE.equals(e.getCsrfEnabled()))
                 .collect(Collectors.toSet());
         log.debug("refresh csrf config completed");
+    }
+
+    public boolean checkCsrf(ServerHttpRequest request) {
+        boolean bypassCsrf = checkBypassCsrf(request);
+        if (!bypassCsrf) {
+            return checkCsrfValue(request);
+        }
+        return true;
     }
 
     public boolean checkBypassCsrf(ServerHttpRequest request) {
@@ -52,5 +63,11 @@ public class CsrfService {
             }
             return contains;
         }
+    }
+
+    public boolean checkCsrfValue(ServerHttpRequest request) {
+        HttpCookie cookie = request.getCookies().getFirst(DEFAULT_CSRF_COOKIE_NAME);
+        String header = request.getHeaders().getFirst(DEFAULT_CSRF_HEADER_NAME);
+        return cookie != null && cookie.getValue().equals(header);
     }
 }

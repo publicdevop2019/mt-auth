@@ -5,7 +5,6 @@ import com.mt.helper.TenantContext;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.ClientType;
 import com.mt.helper.pojo.GrantType;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import java.util.Arrays;
@@ -13,12 +12,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class ClientUtility {
     private static final ParameterizedTypeReference<SumTotal<Client>> reference =
@@ -164,16 +158,23 @@ public class ClientUtility {
         return Utility.createResource(tenantContext.getCreator(), url, client);
     }
 
+    public static ResponseEntity<Void> createTenantClient(TenantContext tenantContext, String token,
+                                                          Client client, String changeId) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.createResource(token, url, client, changeId);
+    }
+
     public static ResponseEntity<Void> updateTenantClient(TenantContext tenantContext,
                                                           Client client) {
         String url = getUrl(tenantContext.getProject());
         return Utility.updateResource(tenantContext.getCreator(), url, client, client.getId());
     }
 
-    public static ResponseEntity<Void> patchTenantClient(TenantContext tenantContext,
-                                                         Client client, PatchCommand command) {
+    public static ResponseEntity<Void> updateTenantClient(TenantContext tenantContext, String token,
+                                                          Client client, String changeId) {
         String url = getUrl(tenantContext.getProject());
-        return Utility.patchResource(tenantContext.getCreator(), url, command, client.getId());
+        return Utility.updateResource(token, url, client, client.getId(),
+            changeId);
     }
 
     public static ResponseEntity<Client> readTenantClient(TenantContext tenantContext,
@@ -194,16 +195,9 @@ public class ClientUtility {
         return Utility.deleteResource(tenantContext.getCreator(), url, client.getId());
     }
 
-    public static ResponseEntity<String> createClient(String token, Client client, String changeId) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(token);
-        headers.set("changeId", changeId);
-        headers.set("X-XSRF-TOKEN", "123");
-        headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        return TestContext.getRestTemplate()
-            .exchange(AppConstant.CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
+    public static ResponseEntity<Void> deleteTenantClient(TenantContext tenantContext, String token,
+                                                          Client client, String changeId) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.deleteResource(token, url, client.getId(), changeId);
     }
-
 }

@@ -58,11 +58,6 @@
                             <input matInput formControlName="registeredRedirectUri">
                             <mat-error>{{registeredRedirectUriErrorMsg | translate}}</mat-error>
                         </mat-form-field>
-                        <div style="margin-bottom: 8px;">
-                            <mat-checkbox formControlName="autoApprove">
-                                {{'AUTO_APPROVE_AUTHORIZE_REQUEST'|translate}}
-                            </mat-checkbox>
-                        </div>
                     </div>
                 </div>
                 <mat-divider *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'"></mat-divider>
