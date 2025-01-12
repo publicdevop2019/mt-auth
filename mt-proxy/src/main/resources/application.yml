@@ -23,19 +23,6 @@ spring:
   loadbalancer:
     ribbon:
       enabled: false
-  redis:
-    port:
-    database: 0
-    host:
-    password:
-    lettuce:
-      shutdown-timeout: 500ms
-      pool:
-        max-active: 10
-        max-idle: 5
-        min-idle: 1
-        max-wait: 0
-    timeout: 1s
 ribbon:
   ReadTimeout: 15000
 hystrix:
