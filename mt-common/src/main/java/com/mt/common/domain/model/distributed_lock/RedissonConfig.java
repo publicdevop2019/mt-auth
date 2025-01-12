@@ -18,14 +18,19 @@ import org.springframework.context.annotation.Configuration;
 public class RedissonConfig {
     @Value("${mt.common.url.lock}")
     private String url;
+    @Value("${mt.common.password.lock:#{null}}")
+    private String password;
 
     @Bean
     public RedissonClient configRedisson() {
         log.debug("start of configure redisson");
         Config config = new Config();
-        config.useSingleServer().setAddress(url);
-        RedissonClient redisson = Redisson.create(config);
-        return redisson;
-
+        config
+            .useSingleServer()
+            .setAddress(url)
+            .setPassword(password)
+            .setTimeout(1000)
+        ;
+        return Redisson.create(config);
     }
 }

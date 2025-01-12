@@ -5,8 +5,9 @@ import com.mt.access.domain.model.token.AuthorizeInfo;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.util.Base64;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Service;
 public class RedisAuthorizationCodeRepository implements AuthorizationCodeRepository {
     private static final String CODE_PREFIX = "AUTHORIZATION_CODE_";
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private RedissonClient redissonClient;
 
     public void store(String code, AuthorizeInfo authorizeInfo) {
         byte[] bytes = CommonDomainRegistry.getCustomObjectSerializer()
@@ -25,17 +26,18 @@ public class RedisAuthorizationCodeRepository implements AuthorizationCodeReposi
             log.debug("stored {}", serialize);
         }
         Base64.Encoder encoder = Base64.getEncoder();
-        String s = encoder.encodeToString(bytes);
-        String combined = CODE_PREFIX + code;
+        String encoded = encoder.encodeToString(bytes);
+        String key = CODE_PREFIX + code;
         log.debug("stored info for {}", code);
-        redisTemplate.opsForValue().set(combined, s);
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        bucket.set(encoded);
     }
 
     public AuthorizeInfo remove(String code) {
         log.debug("retrieve stored info for {}", code);
-        String combined = CODE_PREFIX + code;
-        String value = redisTemplate.opsForValue().get(combined);
-        redisTemplate.delete(code);
+        String key = CODE_PREFIX + code;
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        String value = bucket.getAndDelete();
         if (value != null) {
             Base64.Decoder decoder = Base64.getDecoder();
             byte[] decoded = decoder.decode(value);

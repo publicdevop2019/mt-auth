@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ApplicationInfoService {
     @Value("${spring.application.name}")
-    String applicationId;
+    private String applicationId;
 
     public String getApplicationId() {
         return applicationId;
