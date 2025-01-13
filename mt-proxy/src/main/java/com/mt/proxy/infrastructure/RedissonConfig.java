@@ -20,7 +20,8 @@ public class RedissonConfig {
     private String url;
     @Value("${mt.common.password.lock:#{null}}")
     private String password;
-
+    @Value("${spring.application.name}")
+    private String name;
     @Bean
     public RedissonClient configRedisson() {
         log.debug("start of configure redisson");
@@ -29,6 +30,7 @@ public class RedissonConfig {
             .useSingleServer()
             .setAddress(url)
             .setPassword(password)
+            .setClientName(name)
             .setTimeout(1000)
         ;
         return Redisson.create(config);

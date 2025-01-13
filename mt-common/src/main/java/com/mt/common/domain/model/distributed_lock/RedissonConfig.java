@@ -1,5 +1,6 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -20,7 +21,8 @@ public class RedissonConfig {
     private String url;
     @Value("${mt.common.password.lock:#{null}}")
     private String password;
-
+    @Value("${spring.application.name}")
+    private String name;
     @Bean
     public RedissonClient configRedisson() {
         log.debug("start of configure redisson");
@@ -29,6 +31,7 @@ public class RedissonConfig {
             .useSingleServer()
             .setAddress(url)
             .setPassword(password)
+            .setClientName(name)
             .setTimeout(1000)
         ;
         return Redisson.create(config);
