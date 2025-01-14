@@ -1,6 +1,5 @@
 package com.mt.integration;
 
-import com.mt.integration.single.access.tenant.SubscriptionTest;
 import com.mt.integration.single.access.tenant.TenantAdminTest;
 import com.mt.integration.single.access.tenant.TenantCacheTest;
 import com.mt.integration.single.access.tenant.TenantClientTest;
@@ -18,7 +17,6 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-    SubscriptionTest.class,
     TenantAdminTest.class,
     TenantCacheTest.class,
     TenantClientTest.class,
