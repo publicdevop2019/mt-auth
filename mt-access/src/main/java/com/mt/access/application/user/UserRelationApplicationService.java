@@ -22,7 +22,6 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.UserRelationQuery;
-import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -199,24 +198,6 @@ public class UserRelationApplicationService {
                 UserRelation update =
                     userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
                 DomainRegistry.getUserRelationRepository().update(userRelation, update);
-                return null;
-            }, USER_RELATION);
-    }
-
-    /**
-     * remove all deleted user related user relation
-     *
-     * @param event user deleted event
-     */
-    public void handle(UserDeleted event) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle user deleted event");
-                UserId userId = new UserId(event.getDomainId().getDomainId());
-                Set<UserRelation> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getUserRelationRepository().query(query),
-                    new UserRelationQuery(userId));
-                DomainRegistry.getUserRelationRepository().removeAll(allByQuery);
                 return null;
             }, USER_RELATION);
     }

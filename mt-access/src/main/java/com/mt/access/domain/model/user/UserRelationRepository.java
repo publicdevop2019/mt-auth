@@ -30,8 +30,6 @@ public interface UserRelationRepository {
 
     long countProjectAdmin(RoleId adminRoleId);
 
-    void removeAll(Set<UserRelation> allByQuery);
-
     Set<UserId> getUserIds();
 
     void update(UserRelation relation, UserRelation userRelation);

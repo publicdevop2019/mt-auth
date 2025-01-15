@@ -55,13 +55,6 @@ public class UserRelationQuery extends QueryCriteria {
         setQueryConfig(new QueryConfig(config));
     }
 
-    public UserRelationQuery(UserId userId) {
-        userIds = new HashSet<>();
-        userIds.add(userId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-    }
-
     public static UserRelationQuery findTenantAdmin(RoleId tenantAdminRole, String pageConfig) {
         UserRelationQuery userRelationQuery = new UserRelationQuery();
         userRelationQuery.projectIds = Collections.singleton(new ProjectId(MT_AUTH_PROJECT_ID));

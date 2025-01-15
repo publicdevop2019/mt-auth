@@ -15,7 +15,6 @@ import com.mt.access.domain.model.revoke_token.RevokeToken;
 import com.mt.access.domain.model.revoke_token.RevokeTokenId;
 import com.mt.access.domain.model.revoke_token.RevokeTokenQuery;
 import com.mt.access.domain.model.user.event.UserAuthorityChanged;
-import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.application.CommonApplicationServiceRegistry;
@@ -66,14 +65,6 @@ public class RevokeTokenApplicationService {
     }
 
     public void handle(UserAuthorityChanged deserialize) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (context) -> {
-                DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
-                return null;
-            }, REVOKE_TOKEN);
-    }
-
-    public void handle(UserDeleted deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (context) -> {
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());

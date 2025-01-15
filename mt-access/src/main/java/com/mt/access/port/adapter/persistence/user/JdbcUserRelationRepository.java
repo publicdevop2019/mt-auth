@@ -61,16 +61,10 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         "DELETE FROM user_relation_role_map urrm WHERE urrm.id = ?";
     private static final String DELETE_TENANT_MAP_SQL =
         "DELETE FROM user_relation_tenant_map urtm WHERE urtm.id = ?";
-    private static final String BATCH_DELETE_SQL =
-        "DELETE FROM user_relation ur WHERE ur.id IN (%s)";
-    private static final String BATCH_DELETE_ROLE_MAP_SQL =
-        "DELETE FROM user_relation_role_map urrm WHERE urrm.id (%s)";
     private static final String BATCH_DELETE_ROLE_MAP_BY_ROLE_SQL =
         "DELETE FROM user_relation_role_map urrm WHERE urrm.id = ? AND urrm.role IN (%s)";
     private static final String BATCH_DELETE_TENANT_MAP_BY_TENANT_SQL =
         "DELETE FROM user_relation_tenant_map urtm WHERE urtm.id = ? AND urtm.tenant IN (%s)";
-    private static final String BATCH_DELETE_TENANT_MAP_SQL =
-        "DELETE FROM user_relation_tenant_map urtm WHERE urtm.id (%s)";
     private static final String FIND_USER_IDS = "SELECT DISTINCT ur.user_id FROM user_relation ur";
     private static final String COUNT_PROJECT_ADMIN =
         "SELECT COUNT(*) AS count FROM user_relation_role_map mt WHERE mt.role = ?";
@@ -344,24 +338,6 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
                 adminRoleId.getDomainId()
             );
         return count;
-    }
-
-    @Override
-    public void removeAll(Set<UserRelation> allByQuery) {
-        Set<Long> ids = allByQuery.stream().map(Auditable::getId).collect(Collectors.toSet());
-        String inClause = DatabaseUtility.getInClause(ids.size());
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(String.format(BATCH_DELETE_ROLE_MAP_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(String.format(BATCH_DELETE_TENANT_MAP_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(String.format(BATCH_DELETE_SQL, inClause),
-                ids.toArray()
-            );
     }
 
     @Override

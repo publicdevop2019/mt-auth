@@ -223,7 +223,6 @@ export const enUS = {
     "SYSTEM_ROLE_DELETED": "System Role Deleted",
     "USER_AUTHORITY_CHANGED": "User Authority Changed",
     "USER_CREATED": "User Created",
-    "USER_DELETED": "User Deleted",
     "USER_GET_LOCKED": "User Locked",
     "USER_PASSWORD_CHANGED": "User Password Changed",
     "USER_PWD_RESET_CODE_UPDATED": "User Password Reset Code Changed",

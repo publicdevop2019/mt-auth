@@ -223,7 +223,6 @@ export const zhHans = {
     "SYSTEM_ROLE_DELETED": "角色删除",
     "USER_AUTHORITY_CHANGED": "用户权限变更",
     "USER_CREATED": "用户创建",
-    "USER_DELETED": "用户删除",
     "USER_GET_LOCKED": "用户锁定",
     "USER_PASSWORD_CHANGED": "用户密码变更",
     "USER_PWD_RESET_CODE_UPDATED": "用户密码重置令牌变更",

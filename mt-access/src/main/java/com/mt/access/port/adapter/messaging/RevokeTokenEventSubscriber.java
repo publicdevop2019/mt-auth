@@ -11,7 +11,6 @@ import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
 import com.mt.access.domain.model.user.event.UserAuthorityChanged;
-import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -37,13 +36,6 @@ public class RevokeTokenEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener3() {
         ListenerHelper.listen(new UserAuthorityChanged(),
-            (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handle(event));
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener4() {
-        ListenerHelper.listen(new UserDeleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handle(event));
     }
