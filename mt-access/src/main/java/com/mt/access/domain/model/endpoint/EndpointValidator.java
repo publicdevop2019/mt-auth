@@ -22,6 +22,7 @@ public class EndpointValidator {
         onlyGetCanHaveCacheConfig();
         replenishRateAndBurstCapacity();
         publicEndpointCannotHaveCsrf();
+        checkEndpointConfig();
     }
 
     private void publicEndpointCannotHaveCsrf() {
@@ -31,6 +32,33 @@ public class EndpointValidator {
         ) {
             handler.handleError("public endpoint can not have csrf enabled");
         }
+    }
+
+    private void checkEndpointConfig() {
+        if (Checker.isTrue(this.endpoint.getShared())
+        ) {
+            //shared endpoint
+            if (Checker.isTrue(this.endpoint.getExternal()) &&
+                Checker.isTrue(this.endpoint.getSecured())) {
+                return;
+            }
+        } else {
+            if (Checker.isTrue(this.endpoint.getExternal())) {
+                if (Checker.isTrue(this.endpoint.getSecured())) {
+                    //protected endpoint
+                    return;
+                } else {
+                    //public endpoint
+                    return;
+                }
+            } else {
+                if (Checker.isFalse(this.endpoint.getSecured())) {
+                    //private endpoint
+                    return;
+                }
+            }
+        }
+        handler.handleError("invalid endpoint config");
     }
 
     private void checkNotNullValue() {
