@@ -650,4 +650,5 @@ export const zhHans = {
     "USER_ROLE_NOTE": "用户拥有的角色",
     "ADD_USER_ROLE": "添加角色",
     "CACHE_ENABLED": "启用HTTP缓存",
+    "FINAL_URL": "URL",
 }

@@ -9,6 +9,7 @@ import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interc
 export class CopyFieldComponent implements OnInit {
 
   @Input() inputValue: string = '';
+  @Input() maxWidth: string = '150px';
   displayEdit = 'hidden';
   editView: false;
   constructor(private _httpInterceptor: CustomHttpInterceptor) {

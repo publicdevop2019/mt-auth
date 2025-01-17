@@ -650,4 +650,5 @@ export const enUS = {
     "USER_ROLE_NOTE": "All roles assigned to this user",
     "ADD_USER_ROLE": "Add role",
     "CACHE_ENABLED": "Enalbe Cache",
+    "FINAL_URL": "URL",
 }

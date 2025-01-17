@@ -1,6 +1,6 @@
-<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showIcon()"
-    (mouseleave)="hideIcon()">
-    <div style="max-width: 150px; text-overflow: ellipsis; overflow: hidden;" title="{{inputValue}}">{{(inputValue!==undefined || inputValue!==null) ?inputValue:''}}</div>
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showIcon()" (mouseleave)="hideIcon()">
+    <div [ngStyle]="{'max-width':maxWidth}" style="text-overflow: ellipsis; overflow: hidden;" title="{{inputValue}}">
+        {{(inputValue!==undefined || inputValue!==null) ?inputValue:''}}</div>
     <mat-icon *ngIf="inputValue" [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doCopy()"
         style="padding-right: 8px;cursor: pointer;">content_copy
     </mat-icon>

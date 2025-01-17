@@ -236,6 +236,9 @@ export interface IOption {
     label: string;
     value: string;
 }
+export interface IEndpointClient extends IOption {
+    path: string;
+}
 export interface IQueryProvider {
     readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => Observable<ISumRep<IIdName>>;
 }
