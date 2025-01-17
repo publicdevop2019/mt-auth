@@ -329,7 +329,6 @@ public class UserProfileValidationTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange8.getStatusCode());
     }
 
-    //TODO merge it with other pwd tests
     @Test
     public void validation_update_pwd_current_password() {
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");

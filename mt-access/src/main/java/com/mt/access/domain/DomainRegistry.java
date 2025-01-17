@@ -11,6 +11,7 @@ import com.mt.access.domain.model.NewUserService;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.PwdResetService;
 import com.mt.access.domain.model.RemoteProxyService;
+import com.mt.access.domain.model.RevokeTokenValidationService;
 import com.mt.access.domain.model.TokenGrantService;
 import com.mt.access.domain.model.VerificationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
@@ -95,6 +96,8 @@ public class DomainRegistry {
     private static EndpointValidationService endpointValidationService;
     @Getter
     private static ClientValidationService clientValidationService;
+    @Getter
+    private static RevokeTokenValidationService revokeTokenValidationService;
     @Getter
     private static TicketService ticketService;
     @Getter
@@ -184,6 +187,11 @@ public class DomainRegistry {
     @Autowired
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
+    }
+
+    @Autowired
+    public void setRevokeTokenValidationService(RevokeTokenValidationService services) {
+        DomainRegistry.revokeTokenValidationService = services;
     }
 
     @Autowired

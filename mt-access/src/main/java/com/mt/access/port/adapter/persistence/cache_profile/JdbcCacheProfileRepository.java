@@ -129,7 +129,6 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                 cacheProfile.getProjectId().getDomainId()
             );
         if (Checker.notNullOrEmpty(cacheProfile.getCacheControl())) {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             cacheProfile.getCacheControl().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(cacheProfile.getId(), e.name()));
@@ -198,7 +197,6 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
             );
         DatabaseUtility.checkUpdate(update);
         DatabaseUtility.updateMap(old.getCacheControl(), updated.getCacheControl(), (added) -> {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             added.forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(updated.getId(), e.name()));

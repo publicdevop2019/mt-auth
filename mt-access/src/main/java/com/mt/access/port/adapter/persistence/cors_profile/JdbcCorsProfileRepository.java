@@ -147,7 +147,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                 corsProfile.getProjectId().getDomainId()
             );
         if (Checker.notNullOrEmpty(corsProfile.getAllowedHeaders())) {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getAllowedHeaders().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e));
@@ -160,7 +159,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                     });
         }
         if (Checker.notNullOrEmpty(corsProfile.getExposedHeaders())) {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getExposedHeaders().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e));
@@ -173,7 +171,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                     });
         }
         if (Checker.notNullOrEmpty(corsProfile.getAllowOrigin())) {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getAllowOrigin().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e.getValue()));
@@ -206,7 +203,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
             );
         DatabaseUtility.checkUpdate(update);
         DatabaseUtility.updateMap(old.getAllowedHeaders(), updated.getAllowedHeaders(), (added) -> {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             added.forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(updated.getId(), e));
@@ -229,7 +225,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                 );
         });
         DatabaseUtility.updateMap(old.getExposedHeaders(), updated.getExposedHeaders(), (added) -> {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             added.forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(updated.getId(), e));
@@ -252,7 +247,6 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                 );
         });
         DatabaseUtility.updateMap(old.getAllowOrigin(), updated.getAllowOrigin(), (added) -> {
-            //TODO manually convert batch?
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             added.forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(updated.getId(), e.getValue()));

@@ -70,6 +70,7 @@
 | 1092               | endpoint重复                                            |
 | 1093               | mobile或email或username已经被占用                         |
 | 1094               | 角色Project Id错误                         |
+| 1095               | jwt创建失败                         |
 ## mt-common
 | Code                         | Explain                   |
 |------------------------------|---------------------------|

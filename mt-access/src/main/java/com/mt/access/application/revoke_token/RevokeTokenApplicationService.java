@@ -31,6 +31,7 @@ public class RevokeTokenApplicationService {
 
     public void revoke(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
+        DomainRegistry.getRevokeTokenValidationService().checkToken(revokeTokenId);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));

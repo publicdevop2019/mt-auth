@@ -16,4 +16,9 @@ public class ClientId extends GeneratedDomainId implements Serializable {
     protected String getPrefix() {
         return "0C";
     }
+
+    public static String getClientPrefix() {
+        return "0C";
+    }
+
 }

@@ -77,7 +77,6 @@
                 <ng-container matColumnDef="linkedApi">
                     <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['linkedApi']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
-                        <!-- @todo create new component with my-cors for below -->
                         <ng-container *ngIf="row.linkedApiNames && row.linkedApiNames.length>1">
                             <mat-chip-list aria-label="chip list selection">
                                 <mat-chip>

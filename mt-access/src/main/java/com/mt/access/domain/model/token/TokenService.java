@@ -381,8 +381,8 @@ public class TokenService {
         try {
             signedJWT.sign(new RSASSASigner(keyPair.getPrivate()));
         } catch (JOSEException e) {
-            //TODO add custom error code
-            log.error("error during generating token", e);
+            throw new DefinedRuntimeException("unable to create jwt token", "1095",
+                HttpResponseCode.INTERNAL_SERVER_ERROR, e);
         }
         return signedJWT.serialize();
     }
