@@ -273,6 +273,24 @@ public class TokenGrantService {
                     HttpResponseCode.BAD_REQUEST);
             }
         }
+        if (grantType.equals(TokenGrantType.PASSWORD)) {
+            if (!client.getGrantTypes().contains(GrantType.PASSWORD)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+        if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)) {
+            if (!client.getGrantTypes().contains(GrantType.CLIENT_CREDENTIALS)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+        if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
+            if (!client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
         context.setClient(new TokenGrantClient(client));
     }
 

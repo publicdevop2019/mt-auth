@@ -42,7 +42,7 @@ export class ProjectService {
   resolveNameById(id: Observable<string>) {
     return id.pipe(map(ee => this.totalProjects.find(e => e.id === ee)?.name))
   }
-  showMgmtPanel() {
+  containMainProject() {
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
   hasTenantProjects() {

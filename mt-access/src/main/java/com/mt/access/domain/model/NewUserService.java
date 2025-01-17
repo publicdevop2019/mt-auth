@@ -25,8 +25,8 @@ public class NewUserService {
             .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
                 VerificationCode.OPERATION_TYPE,
                 userMobile.getValue());
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+        UserRelation.initNewUser(new RoleId(AppConstant.MAIN_USER_ROLE_ID), userId,
+            new ProjectId(AppConstant.MAIN_PROJECT_ID));
         User user = User.newUser(userMobile, userId);
         DomainRegistry.getUserRepository().add(user);
         context
@@ -36,8 +36,8 @@ public class NewUserService {
 
     public UserId create(UserMobile userMobile, UserPassword userPassword, UserId userId,
                          TransactionContext context) {
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+        UserRelation.initNewUser(new RoleId(AppConstant.MAIN_USER_ROLE_ID), userId,
+            new ProjectId(AppConstant.MAIN_PROJECT_ID));
         User user = User.newUser(userMobile, userPassword, userId);
         DomainRegistry.getUserRepository().add(user);
         context
@@ -51,8 +51,8 @@ public class NewUserService {
             .verifyCode(code.getValue(), VerificationCode.EXPIRE_AFTER_MILLI,
                 VerificationCode.OPERATION_TYPE,
                 email.getEmail());
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+        UserRelation.initNewUser(new RoleId(AppConstant.MAIN_USER_ROLE_ID), userId,
+            new ProjectId(AppConstant.MAIN_PROJECT_ID));
         User user = User.newUser(email, userId);
         DomainRegistry.getUserRepository().add(user);
         context
@@ -62,8 +62,8 @@ public class NewUserService {
 
     public UserId create(UserEmail email, UserPassword userPassword, UserId userId,
                          TransactionContext context) {
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+        UserRelation.initNewUser(new RoleId(AppConstant.MAIN_USER_ROLE_ID), userId,
+            new ProjectId(AppConstant.MAIN_PROJECT_ID));
         User user = User.newUser(email, userPassword, userId);
         DomainRegistry.getUserRepository().add(user);
         context
@@ -73,8 +73,8 @@ public class NewUserService {
 
     public UserId create(UserName username, UserPassword password, UserId userId,
                          TransactionContext context) {
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+        UserRelation.initNewUser(new RoleId(AppConstant.MAIN_USER_ROLE_ID), userId,
+            new ProjectId(AppConstant.MAIN_PROJECT_ID));
         User user = User.newUser(username, password, userId);
         DomainRegistry.getUserRepository().add(user);
         context

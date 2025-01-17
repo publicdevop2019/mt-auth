@@ -49,7 +49,7 @@ export class MyClientsComponent {
     const dialogRef = this.dialog.open(ClientCreateDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        Logger.debugObj('client basic info', next)
+        Logger.traceObj('client basic info', next)
         this.router.navProjectNewClientsDetail(next)
       }
     })

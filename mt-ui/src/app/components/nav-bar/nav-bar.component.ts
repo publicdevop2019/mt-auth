@@ -324,7 +324,7 @@ export class NavBarComponent implements OnInit {
     }
   }
   hasAuth() {
-    return this.projectSvc.showMgmtPanel()
+    return this.projectSvc.containMainProject()
   }
   hasTenants() {
     return this.projectSvc.hasTenantProjects()

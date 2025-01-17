@@ -26,9 +26,9 @@ public class RateLimitService {
     private static final String LUA_SCRIPT =
             "local tokens_key = KEYS[1]\n" +
             "local timestamp_key = KEYS[2]\n" +
-            "local rate = tonumber(ARGV[1]) or error(\"Missing or invalid rate (ARGV[1])\")\n" +
-            "local capacity = tonumber(ARGV[2]) or error(\"Missing or invalid rate (ARGV[2])\")\n" +
-            "local now = tonumber(ARGV[3]) or error(\"Missing or invalid rate (ARGV[3])\")\n" +
+            "local rate = tonumber(ARGV[1])\n" +
+            "local capacity = tonumber(ARGV[2])\n" +
+            "local now = tonumber(ARGV[3])\n" +
             "local fill_time = capacity/rate\n" +
             "local ttl = math.floor(fill_time*2)\n" +
             "local last_tokens = tonumber(redis.call(\"get\", tokens_key))\n" +

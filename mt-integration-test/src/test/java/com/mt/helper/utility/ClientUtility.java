@@ -61,7 +61,7 @@ public class ClientUtility {
         client.setName(RandomUtility.randomStringWithNum());
         client.setClientSecret(RandomUtility.randomStringWithNum());
         client.setGrantTypeEnums(
-            new HashSet<>(Collections.singletonList(GrantType.PASSWORD.name())));
+            new HashSet<>(Collections.singletonList(GrantType.CLIENT_CREDENTIALS.name())));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);

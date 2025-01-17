@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.client;
 
 
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
@@ -20,6 +21,19 @@ public class ClientValidator {
         redirectAndGrantType();
         pathAndType();
         externalUrlAndType();
+        onlyMainCanHavePasswordGrant();
+    }
+
+    private void onlyMainCanHavePasswordGrant() {
+        if (!Checker.isNullOrEmpty(client.getGrantTypes())) {
+            if (client.getGrantTypes().contains(GrantType.PASSWORD)) {
+                if (!AppConstant.MAIN_PROJECT_ID.equalsIgnoreCase(
+                    client.getProjectId().getDomainId())) {
+                    handler
+                        .handleError("only main project can have password grant");
+                }
+            }
+        }
     }
 
     private void redirectAndGrantType() {

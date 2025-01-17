@@ -131,7 +131,7 @@ public class TokenService {
                 log.debug("get user relation for root project");
                 Optional<UserRelation> optional =
                     DomainRegistry.getUserRelationRepository()
-                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                        .query(userId, new ProjectId(AppConstant.MAIN_PROJECT_ID));
                 if (optional.isPresent()) {
                     UserRelation userRelation = optional.get();
                     log.debug("auth user relation for token is {}", userRelation);
@@ -234,7 +234,7 @@ public class TokenService {
                 log.debug("retrieve permissions for new view tenant id");
                 Optional<UserRelation> optional =
                     DomainRegistry.getUserRelationRepository()
-                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                        .query(userId, new ProjectId(AppConstant.MAIN_PROJECT_ID));
                 if (optional.isPresent()) {
                     UserRelation userRelation = optional.get();
                     //get default project instead of all projects' permission to reduce header size

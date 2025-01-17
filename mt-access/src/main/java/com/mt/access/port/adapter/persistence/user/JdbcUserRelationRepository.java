@@ -1,6 +1,6 @@
 package com.mt.access.port.adapter.persistence.user;
 
-import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
+import static com.mt.access.infrastructure.AppConstant.MAIN_PROJECT_ID;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
@@ -507,7 +507,7 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
 
         List<Object> args = new ArrayList<>();
         args.add(query.getRoleId().getDomainId());
-        args.add(MT_AUTH_PROJECT_ID);
+        args.add(MAIN_PROJECT_ID);
         args.add(query.getPageConfig().getPageSize());
         args.add(query.getPageConfig().getOffset());
         List<UserRelation> data = CommonDomainRegistry.getJdbcTemplate()
@@ -521,7 +521,7 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
                 COUNT_BY_ROLE_SQL,
                 new DatabaseUtility.ExtractCount(),
                 query.getRoleId().getDomainId(),
-                MT_AUTH_PROJECT_ID
+                MAIN_PROJECT_ID
             );
         return new SumPagedRep<>(data, count);
     }

@@ -82,7 +82,7 @@ public class PermissionQuery extends QueryCriteria {
     ) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.projectIds =
-            Collections.singleton(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+            Collections.singleton(new ProjectId(AppConstant.MAIN_PROJECT_ID));
         Validator.notEmpty(tenantIds);
         permissionQuery.tenantIds = tenantIds;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());

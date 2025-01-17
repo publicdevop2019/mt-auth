@@ -81,7 +81,7 @@ public class TokenGrantContext {
 
     public ProjectId getParsedScope() {
         return Checker.notNull(scope) ? scope :
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
+            new ProjectId(AppConstant.MAIN_PROJECT_ID);
     }
 
 

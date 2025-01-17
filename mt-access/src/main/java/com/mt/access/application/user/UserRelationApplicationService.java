@@ -5,7 +5,7 @@ import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ADM
 import static com.mt.access.domain.model.permission.Permission.ADMIN_MGMT;
 import static com.mt.access.domain.model.permission.Permission.USER_MGMT;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
-import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
+import static com.mt.access.infrastructure.AppConstant.MAIN_PROJECT_ID;
 
 import com.mt.access.application.user.command.AssignRoleCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
@@ -172,7 +172,7 @@ public class UserRelationApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
+                ProjectId projectId2 = new ProjectId(MAIN_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
                 UserRelation current =
@@ -190,7 +190,7 @@ public class UserRelationApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
+                ProjectId projectId2 = new ProjectId(MAIN_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 UserRelation userRelation =
                     checkCondition(userId, tenantProjectId, projectId2, false);
@@ -217,7 +217,7 @@ public class UserRelationApplicationService {
                 log.info("handle new project role created event, project id {}",
                     tenantId.getDomainId());
                 UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
-                    new ProjectId(MT_AUTH_PROJECT_ID), context);
+                    new ProjectId(MAIN_PROJECT_ID), context);
                 return null;
             }, USER_RELATION);
     }
@@ -243,7 +243,7 @@ public class UserRelationApplicationService {
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
         UserRelation relation = DomainRegistry.getUserRelationRepository()
             .get(userId,
-                new ProjectId(MT_AUTH_PROJECT_ID));
+                new ProjectId(MAIN_PROJECT_ID));
         if (isAdd) {
             if (relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
                 throw new DefinedRuntimeException("already admin", "1080",

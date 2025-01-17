@@ -61,11 +61,13 @@ public class ClientCredentialsTest{
     @Test
     public void use_client_with_wrong_grant_type() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
-            OAuth2Utility.getToken(AppConstant.GRANT_TYPE_PASSWORD,
+            OAuth2Utility.getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_PASSWORD,
                 AppConstant.CLIENT_ID_OAUTH2_ID,
-                AppConstant.COMMON_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET,
+                AppConstant.ACCOUNT_EMAIL_ADMIN,
+                AppConstant.ACCOUNT_PASSWORD_ADMIN
+            );
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse.getStatusCode());
-
     }
 
     @Test

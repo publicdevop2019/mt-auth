@@ -232,7 +232,7 @@ public class Permission extends Auditable {
     public static void onboardNewProject(ProjectId tenantId,
                                          UserId creatorId, TransactionContext context) {
         log.debug("start of creating new permissions");
-        ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
+        ProjectId projectId = new ProjectId(AppConstant.MAIN_PROJECT_ID);
         //project
         Permission p0 = Permission
             .autoCreateForProject(projectId, new PermissionId(), PROJECT_INFO_MGMT,

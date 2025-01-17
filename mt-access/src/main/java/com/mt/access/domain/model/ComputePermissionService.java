@@ -48,7 +48,7 @@ public class ComputePermissionService {
                 nextRoles.stream().filter(e -> e.getTenantId().equals(defaultProject)).findFirst();
 
             nextRoles = nextRoles.stream()
-                .filter(e -> e.getTenantId().equals(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID)))
+                .filter(e -> e.getTenantId().equals(new ProjectId(AppConstant.MAIN_PROJECT_ID)))
                 .collect(Collectors.toSet());
 
             optionalRole.ifPresent(nextRoles::add);

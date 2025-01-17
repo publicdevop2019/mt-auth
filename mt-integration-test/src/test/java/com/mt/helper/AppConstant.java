@@ -2,8 +2,8 @@ package com.mt.helper;
 
 public class AppConstant {
     public static final String TEST_CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID = "0C8YKJ5EW16Q";
-    public static final String TEST_CLIENT_ID_SUB = "0C8YKJ91OGSI";
     public static final String TEST_PROJECT_ID = "0P8YKJ2XAXAB";
+    public static final String MAIN_PROJECT_ID = "0P8HE307W6IO";
     public static final String CLIENT_ID_LOGIN_ID = "0C8AZZ16LZB4";
     public static final String CLIENT_ID_OAUTH2_ID = "0C8AZTODP4HT";
     public static final String CLIENT_ID_NONE_LOGIN_ID = "0C8B00098WLD";
@@ -15,7 +15,6 @@ public class AppConstant {
     public static final String ACCOUNT_EMAIL_ADMIN = "admin@sample.com";
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
     public static final String ACCOUNT_EMAIL_MALL_ADMIN = "mall@sample.com";
-    public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_USER = "user1@sample.com";
     public static final String ACCOUNT_PASSWORD_USER = "Password1!";
     public static final String ACCOUNT_USERNAME_TEST = "test@sample.com";
@@ -28,7 +27,7 @@ public class AppConstant {
     public static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     public static final String AUTHORIZE_STATE = "login";
     public static final String AUTHORIZE_RESPONSE_TYPE = "code";
-    public static final String MT_ACCESS_PROJECT_ID = "0P8HPG99R56P";
+    public static final String MT_MALL_PROJECT_ID = "0P8HPG99R56P";
     public static final String CLIENTS = "/projects/0P8HE307W6IO/clients";
     public static final String TENANT_PROJECTS_PREFIX = "/projects";
     public static final String TENANT_PROJECTS_CREATE = "/projects";

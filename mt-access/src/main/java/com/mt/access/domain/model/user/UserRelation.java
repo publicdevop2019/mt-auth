@@ -169,7 +169,7 @@ public class UserRelation extends Auditable {
             CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         //remove default user so mt-auth will not be miss added to tenant list
         Set<RoleId> newRoleIds =
-            rawRoleIds.stream().filter(e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e))
+            rawRoleIds.stream().filter(e -> !AppConstant.MAIN_USER_ROLE_ID.equals(e))
                 .map(RoleId::new).collect(Collectors.toCollection(LinkedHashSet::new));
         Set<RoleId> existingRoleIds = update.getStandaloneRoles();
         newRoleIds.addAll(existingRoleIds);

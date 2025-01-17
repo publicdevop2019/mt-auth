@@ -62,7 +62,6 @@ export class ClientComponent {
   ) {
     this.deviceSvc.updateDocTitle('CLIENT_DOC_TITLE')
     const clientId = this.router.getClientIdFromUrl();
-    Logger.debug(clientId)
     if (clientId === 'template') {
       if (this.router.getData() === undefined) {
         this.router.navProjectHome()
@@ -72,10 +71,16 @@ export class ClientComponent {
         this.fg.get('projectId').setValue(this.router.getProjectIdFromUrl())
         this.fg.get('frontOrBackApp').setValue(createData.type)
         this.fg.get('name').setValue(createData.name)
-        this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])
+        if (this.projectSvc.containMainProject()) {
+          this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])
+          this.fg.get('refreshToken').setValue(true)
+          this.fg.get('refreshTokenValiditySeconds').setValue(1200)
+        } else {
+          this.fg.get('grantType').setValue(['AUTHORIZATION_CODE'])
+          this.fg.get('refreshToken').disable()
+          this.fg.get('refreshTokenValiditySeconds').disable()
+        }
         this.fg.get('accessTokenValiditySeconds').setValue(120)
-        this.fg.get('refreshToken').setValue(true)
-        this.fg.get('refreshTokenValiditySeconds').setValue(1200)
         this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
         this.fg.get('clientSecret').setValue(Utility.getChangeId())
         if (createData.type === 'BACKEND_APP') {
@@ -116,7 +121,9 @@ export class ClientComponent {
     })
     this.httpProxySvc.readEntityByQuery<IClient>(this.url, this.resourceNum, this.resourceSize, `resourceIndicator:1`, undefined, undefined, undefined)
       .subscribe(next => {
-        next.data = next.data.filter(e => e.id !== this.data.id);
+        if (this.data) {
+          next.data = next.data.filter(e => e.id !== this.data.id);
+        }
         this.options = next.data.map(e => {
           return {
             label: e.name,

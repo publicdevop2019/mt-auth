@@ -193,7 +193,7 @@ public class RoleApplicationService {
                 ProjectId tenantProjectId = event.getProjectId();
                 log.info("handle new project permission created event, project id {}",
                     tenantProjectId.getDomainId());
-                ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
+                ProjectId authPId = new ProjectId(AppConstant.MAIN_PROJECT_ID);
                 UserId creator = event.getCreator();
                 Role.onboardNewProject(authPId, tenantProjectId, event.getCommonPermissionIds(),
                     event.getLinkedPermissionIds(), creator, context);
