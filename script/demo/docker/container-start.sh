@@ -17,7 +17,6 @@ PROXY_ARG="
 --mt.misc.instance-id=1
 --mt.misc.url.access=http://localhost:8080
 "
-VM_ARGS="-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 # prepare h2 db data
 java -cp h2*.jar org.h2.tools.RunScript -url "jdbc:h2:file:./demo;MODE=MySQL;IGNORECASE=TRUE" -user sa -script ./init.sql
 # start nginx, rabbitmq, redis, db, app
@@ -25,10 +24,10 @@ nginx &
 rabbitmq-server &
 redis-server &
 java -cp h2*.jar org.h2.tools.Server -tcpAllowOthers -webAllowOthers &
-java $VM_ARGS -jar access.jar $ACCESS_ARGS &
+java -jar access.jar $ACCESS_ARGS &
 echo "sleeping start"
 # required to sleep to wait for app ready to connect
 sleep 10
 echo "sleeping end"
-java $VM_ARGS -jar proxy.jar $PROXY_ARG &
+java -jar proxy.jar $PROXY_ARG &
 tail -f /dev/null
