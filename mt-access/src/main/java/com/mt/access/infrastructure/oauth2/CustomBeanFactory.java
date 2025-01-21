@@ -30,11 +30,11 @@ public class CustomBeanFactory {
         KeyStoreKeyFactory keyStoreKeyFactory =
             new KeyStoreKeyFactory(
                 new ClassPathResource(
-                    Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.key-store"))),
-                Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.password"))
+                    Objects.requireNonNull(env.getProperty("mt.jwt.key-store"))),
+                Objects.requireNonNull(env.getProperty("mt.jwt.password"))
                     .toCharArray());
 
-        return keyStoreKeyFactory.getKeyPair(env.getProperty("mt.feature.oauth.jwt.alias"));
+        return keyStoreKeyFactory.getKeyPair(env.getProperty("mt.jwt.alias"));
     }
 
     @Bean

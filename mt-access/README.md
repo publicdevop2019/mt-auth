@@ -5,14 +5,12 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 ```
 - configure program arguments as below, replace value accordingly
 ```
---mt.common.url.lock=redis://localhost:6381
---mt.common.url.message-queue=localhost:5673
---mt.common.instance-id=0
---mt.common.url.proxy=http://localhost:8111
---mt.mgmt.email=your@email.com
---mt.feature.oauth.jwt.password=localdev
---spring.redis.host=localhost
---spring.redis.port=6381
+--mt.redis.url=redis://localhost:6381
+--mt.rabbitmq.url=localhost:5673
+--mt.misc.instance-id=0
+--mt.misc.url.proxy=http://localhost:8111
+--mt.misc.mgmt-email=your@email.com
+--mt.jwt.password=localdev
 --spring.datasource.url=jdbc:mysql://localhost:3306/auth_dev?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
 --spring.datasource.username=
 --spring.datasource.password=

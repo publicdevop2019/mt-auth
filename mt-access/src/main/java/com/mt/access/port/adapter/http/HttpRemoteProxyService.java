@@ -24,7 +24,7 @@ public class HttpRemoteProxyService implements RemoteProxyService {
     private static final String URL_DELIMITER = ",";
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${mt.common.url.proxy}")
+    @Value("${mt.misc.url.proxy}")
     private String url;
 
     @Override

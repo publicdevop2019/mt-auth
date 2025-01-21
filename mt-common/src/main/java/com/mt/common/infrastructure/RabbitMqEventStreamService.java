@@ -77,7 +77,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         new HashMap<>();
 
     public RabbitMqEventStreamService(
-        @Value("${mt.common.url.message-queue}") final String url,
+        @Value("${mt.rabbitmq.url}") final String url,
         @Autowired @Qualifier("event-exe") ThreadPoolExecutor eventExePoolExecutor
     ) {
         log.debug("initializing event stream service with url {}", url);

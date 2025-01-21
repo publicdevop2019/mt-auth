@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CrossDomainValidationService {
 
-    @Value("${mt.mgmt.email}")
+    @Value("${mt.misc.mgmt-email}")
     private String adminEmail;
 
     public void validate(TransactionContext context) {

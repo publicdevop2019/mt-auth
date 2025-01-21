@@ -1,0 +1,25 @@
+mt:
+  jwt:
+    alias:
+    password:
+    key-store:
+    url:
+    client-id:
+    client-secret:
+  redis:
+    url:
+    password:
+    client-name:
+  rabbitmq:
+    url:
+  sms:
+    type:
+  email:
+    type:
+  misc:
+    instance-id:
+    domain:
+    mgmt-email:
+    url:
+      proxy:
+      access:

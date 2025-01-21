@@ -41,7 +41,7 @@ public class RedisDistributedJobService implements DistributedJobService {
     private ThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
-    @Value("${mt.common.instance-id}")
+    @Value("${mt.misc.instance-id}")
     private Long instanceId;
 
     private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,

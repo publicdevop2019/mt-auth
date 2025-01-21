@@ -45,7 +45,7 @@ public class ReportService {
     private EndpointService endpointService;
     @Autowired
     private LogService logService;
-    @Value("${mt.common.instance-id}")
+    @Value("${mt.misc.instance-id}")
     private String instanceId;
     @Autowired
     private HttpUtility httpHelper;

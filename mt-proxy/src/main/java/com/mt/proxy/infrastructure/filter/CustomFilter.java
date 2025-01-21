@@ -54,7 +54,7 @@ public class CustomFilter implements WebFilter, Ordered {
         "{\"msg\": \"endpoint not found\"}";
     private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
     public static final String REFRESH_TOKEN = "refresh_token";
-    @Value("${mt.common.domain-name}")
+    @Value("${mt.misc.domain}")
     String domain;
 
     private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,

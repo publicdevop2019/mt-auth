@@ -12,16 +12,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-@ConditionalOnProperty(
-    value = "mt.distributed_lock",
-    havingValue = "true",
-    matchIfMissing = true)
 public class RedissonConfig {
-    @Value("${mt.common.url.lock}")
+    @Value("${mt.redis.url}")
     private String url;
-    @Value("${mt.common.password.lock:#{null}}")
+    @Value("${mt.redis.password:#{null}}")
     private String password;
-    @Value("${spring.application.name}")
+    @Value("${mt.redis.client-name:#{null}}")
     private String name;
     @Bean
     public RedissonClient configRedisson() {
