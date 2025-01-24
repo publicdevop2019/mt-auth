@@ -50,6 +50,7 @@ public class AppConstant {
     public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
     public static final String MFA_CODE = "654321";
     public static String PROXY_URL = "http://localhost:" + 8111;
+    public static String PROXY_SOCKET_URL = "ws://localhost:" + 8111;
     public static String ACCESS_URL = "http://localhost:" + 8080;
     public static final String CLIENT_MGMT_URL = PROXY_URL + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";

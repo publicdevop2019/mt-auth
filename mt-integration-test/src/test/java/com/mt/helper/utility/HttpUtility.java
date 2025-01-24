@@ -34,6 +34,11 @@ public class HttpUtility {
         return AppConstant.PROXY_URL + "/auth-svc/" + normalized;
     }
 
+    public static String getAccessSocketUrl(String path) {
+        String normalized = removeLeadingSlash(path);
+        return AppConstant.PROXY_SOCKET_URL + "/auth-svc/" + normalized;
+    }
+
     public static String getTenantUrl(String clientPath, String path) {
         String normalized = removeLeadingSlash(path);
         String normalized2 = removeLeadingSlash(clientPath);
