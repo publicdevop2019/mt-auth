@@ -26,7 +26,7 @@
                     <th mat-header-cell *matHeaderCellDef> {{columnList['locked']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-boolean [inputValue]="row.locked"
-                            (newValue)="doPatchBoolean(row.id,$event,'locked')" [readOnly]="true">
+                            (newValue)="lockUser(row.id, $event)" [readOnly]="false">
                         </app-editable-boolean>
                     </td>
                 </ng-container>

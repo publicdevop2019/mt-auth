@@ -189,6 +189,15 @@ export class HttpProxyService {
             });
         });
     }
+    lockUser(id: string, locked: boolean): Observable<boolean> {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', Utility.getChangeId())
+        return new Observable<boolean>(e => {
+            this._httpClient.put<any>(environment.serverUri + '/auth-svc/mgmt/users/' + id, { "locked": locked }, { headers: headerConfig }).subscribe(next => {
+                e.next(true)
+            });
+        });
+    }
     revokeClientToken(clientId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', Utility.getChangeId())
