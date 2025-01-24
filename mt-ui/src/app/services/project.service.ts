@@ -34,7 +34,7 @@ export class ProjectService {
     return this.httpProxy.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId, { 'loading': 'false' })
   };
   ready(projectId: string) {
-    return this.httpProxy.checkPorjectReady(projectId)
+    return this.httpProxy.checkProjectReady(projectId)
   };
   getMyProject(projectId: string) {
     return this.httpProxy.readEntityById<IProjectDashboard>(environment.serverUri + '/auth-svc/projects', projectId)

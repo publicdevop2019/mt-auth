@@ -85,7 +85,7 @@ export class HttpProxyService {
         const exp: number = +(JSON.parse(decoded) as any).exp
         return exp - Math.ceil(new Date().getTime() / 1000);
     }
-    checkPorjectReady(projectId: string) {
+    checkProjectReady(projectId: string) {
         return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
     }
     getJobStatus() {
