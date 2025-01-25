@@ -142,16 +142,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
 
     public <T extends DomainEvent> void listen(
-        String appName,
-        boolean internal,
         @Nullable String queueName,
         Class<T> clazz,
         Consumer<T> consumer,
         Integer concurrent,
         String... eventNames) {
 
-        String routingKeyPrefix =
-            appName + "." + (internal ? "internal" : "external") + ".";
         boolean autoDelete;
         if (queueName == null) {
             //auto delete random generated queue
@@ -159,9 +155,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
             String s;
             if (eventNames.length == 1) {
-                s = MqHelper.handlerOf(appName, eventNames[0]);
+                s = MqHelper.handlerOf(eventNames[0]);
             } else {
-                s = MqHelper.handlerOf(appName, "combined_events");
+                s = MqHelper.handlerOf("combined_events");
             }
             queueName = Long.toString(id, 36) + "_" + s;
 
@@ -170,7 +166,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         }
         String finalQueueName = queueName;
         IntStream.range(0, concurrent).forEach((ignore) -> {
-            subscribe(null, routingKeyPrefix, finalQueueName, autoDelete,
+            subscribe(null, finalQueueName, autoDelete,
                 ErrorHandleStrategy.MANUAL,
                 consumer, clazz,
                 eventNames);
@@ -179,14 +175,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public <T extends DomainEvent> void subscribe(String exchangeName,
-                                                  String routingKey,
                                                   String queueName,
                                                   boolean autoDelete,
                                                   ErrorHandleStrategy strategy,
                                                   Consumer<T> consumer,
                                                   Class<T> clazz,
                                                   String... topics) {
-        subscribeImpl(exchangeName, routingKey, queueName, autoDelete, strategy, null, consumer,
+        subscribeImpl(exchangeName, queueName, autoDelete, strategy, null, consumer,
             clazz,
             topics);
     }
@@ -199,14 +194,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                           Consumer<StoredEvent> consumer,
                           ErrorHandleStrategy strategy,
                           String... topics) {
-        subscribeImpl(exchangeName, routingKey, queueName, autoDelete, strategy, consumer,
+        subscribeImpl(exchangeName, queueName, autoDelete, strategy, consumer,
             null, null,
             topics);
     }
 
     private <T extends DomainEvent> void subscribeImpl(
         String exchangeName,
-        String routingKeyPrefix,
         String queueName,
         boolean autoDelete,
         ErrorHandleStrategy strategy,
@@ -226,8 +220,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     checkExchange(channel);
                 } catch (IOException e) {
                     throw new DefinedRuntimeException(
-                        "unable create subscribe channel with routing key " + routingKeyPrefix +
-                            " and queue name " + queueName, "0003",
+                        "unable create subscribe channel with queue name" + queueName, "0003",
                         HttpResponseCode.NOT_HTTP, e);
                 }
                 subChannel.put(thread, channel);
@@ -246,14 +239,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     channel.basicQos(250);
                     for (String topic : topics) {
                         channel.queueBind(queueName,
-                            exchangeName == null ? EXCHANGE_NAME : exchangeName,
-                            routingKeyPrefix + topic);
+                            exchangeName == null ? EXCHANGE_NAME : exchangeName, topic);
                     }
                 } catch (IOException e) {
                     throw new DefinedRuntimeException(
-                        "unable create queue with routing key " + routingKeyPrefix +
-                            " and queue name " +
-                            queueName, "0004",
+                        "unable create queue with queue name " + queueName, "0004",
                         HttpResponseCode.NOT_HTTP, e);
                 }
             }
@@ -304,9 +294,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 });
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
-                    "unable consume message with routing key " + routingKeyPrefix +
-                        " and queue name " +
-                        queueName, "0005",
+                    "unable consume message with and queue name " + queueName, "0005",
                     HttpResponseCode.NOT_HTTP, e);
             }
         });
@@ -314,46 +302,40 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public <T extends DomainEvent> void replyOf(String subAppName, boolean internal,
-                                                String eventName, Class<T> clazz,
+    public <T extends DomainEvent> void replyOf(String eventName, Class<T> clazz,
                                                 Consumer<T> consumer) {
-        listen(subAppName, internal, MqHelper.handleReplyOf(subAppName, eventName),
+        listen(MqHelper.handleReplyOf(eventName),
             clazz, consumer, 1, MqHelper.replyOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void replyCancelOf(String subAppName,
-                                                      boolean internal, String eventName,
-                                                      Class<T> clazz,
+    public <T extends DomainEvent> void replyCancelOf(String eventName, Class<T> clazz,
                                                       Consumer<T> consumer) {
-        listen(subAppName, internal,
-            MqHelper.handleReplyCancelOf(subAppName, eventName), clazz, consumer, 1,
+        listen(MqHelper.handleReplyCancelOf(eventName), clazz, consumer, 1,
             MqHelper.replyCancelOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void cancelOf(String subAppName, boolean internal,
-                                                 String eventName, Class<T> clazz,
+    public <T extends DomainEvent> void cancelOf(String eventName, Class<T> clazz,
                                                  Consumer<T> consumer) {
-        listen(subAppName, internal, MqHelper.handleCancelOf(subAppName, eventName),
+        listen(MqHelper.handleCancelOf(eventName),
             clazz, consumer, 1, MqHelper.cancelOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void of(String subAppName, boolean internal,
-                                           String eventName, Class<T> clazz,
+    public <T extends DomainEvent> void of(String eventName, Class<T> clazz,
                                            Consumer<T> consumer) {
-        listen(subAppName, internal, MqHelper.handlerOf(subAppName, eventName),
+        listen(MqHelper.handlerOf(eventName),
             clazz, consumer, 1, eventName);
     }
 
     @Override
     public void next(StoredEvent event) {
-        next(event.getApplicationId(), event.getInternal(), event.getTopic(), event);
+        next(event.getTopic(), event);
     }
 
     @Override
-    public void next(String appId, boolean internal, String topic, StoredEvent event) {
+    public void next(String topic, StoredEvent event) {
         log.debug("before submit event {} with id {} to pub pool", event.getName(),
             event.getId());
         Analytics start = Analytics.start(Analytics.Type.EVENT_START_PUBLISH);
@@ -372,7 +354,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             start.stop();
             Analytics pubAnalytics = Analytics.start(Analytics.Type.EVENTS_PUBLISH);
             Thread currentThread = Thread.currentThread();
-            String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
             Channel channel = pubChannel.get(currentThread);
             ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms =
                 pendingConfirms.get(currentThread);
@@ -387,7 +368,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     log.debug("complete exchange check");
                 } catch (IOException e) {
                     throw new DefinedRuntimeException(
-                        "unable create channel for " + appId + " with routing key " + routingKey,
+                        "unable create channel with routing key " + topic,
                         "0006",
                         HttpResponseCode.NOT_HTTP, e);
                 }
@@ -507,17 +488,17 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 outstandingConfirmsStartAt.put(nextPublishSeqNo,
                     Instant.now().toEpochMilli());
                 byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
-                channel.basicPublish(EXCHANGE_NAME, routingKey, true,
+                channel.basicPublish(EXCHANGE_NAME, topic, true,
                     null, bytes
                 );
                 log.debug(
                     "channel num {} published next event id {} with routing key {} size {}(bytes)",
-                    channel.getChannelNumber(), event.getId(), routingKey, bytes.length);
+                    channel.getChannelNumber(), event.getId(), topic, bytes.length);
                 pubAnalytics.stop();
             } catch (IOException e) {
                 //when msg has no matching route and alternate exchange is also down
                 throw new DefinedRuntimeException(
-                    "unable publish message for " + appId + " with routing key " + routingKey,
+                    "unable publish message with routing key " + topic,
                     "0007",
                     HttpResponseCode.NOT_HTTP, e);
             }

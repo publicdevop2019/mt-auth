@@ -16,7 +16,7 @@ public class ListenerHelper {
         IntStream.range(0, concurrent).forEach((ignore) -> {
             Class<? extends DomainEvent> aClass = event.getClass();
             CommonDomainRegistry.getEventStreamService()
-                .of(AppInfo.MT_ACCESS_APP_ID, event.getInternal(), event.getTopic(), (Class<T>) aClass, consumer);
+                .of(event.getTopic(), (Class<T>) aClass, consumer);
         });
     }
 }

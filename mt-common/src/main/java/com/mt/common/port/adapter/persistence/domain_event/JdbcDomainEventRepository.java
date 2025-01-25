@@ -25,17 +25,15 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
         "id, " +
         "domain_id, " +
         "event_body, " +
-        "internal, " +
         "name, " +
         "timestamp, " +
         "topic, " +
         "send, " +
         "routable, " +
         "rejected, " +
-        "application_id, " +
         "trace_id" +
         ") VALUES" +
-        "(?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?)";
     private static final String FIND_BY_ID_SQL = "SELECT * FROM stored_event se WHERE se.id = ?";
     private static final String UPDATE_SQL = "UPDATE stored_event se SET " +
         "se.rejected = ? ," +
@@ -54,14 +52,12 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
                 event.getId(),
                 event.getDomainId(),
                 event.getEventBody(),
-                event.getInternal(),
                 event.getName(),
                 event.getTimestamp(),
                 event.getTopic(),
                 event.getSend(),
                 event.getRoutable(),
                 event.getRejected(),
-                event.getApplicationId(),
                 event.getTraceId()
             );
     }
@@ -182,14 +178,12 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_ID),
                         rs.getString("domain_id"),
                         rs.getString("event_body"),
-                        DatabaseUtility.getNullableBoolean(rs, "internal"),
                         rs.getString("name"),
                         DatabaseUtility.getNullableLong(rs, "timestamp"),
                         rs.getString("topic"),
                         DatabaseUtility.getNullableBoolean(rs, "send"),
                         DatabaseUtility.getNullableBoolean(rs, "routable"),
                         DatabaseUtility.getNullableBoolean(rs, "rejected"),
-                        rs.getString("application_id"),
                         rs.getString("trace_id")
                     );
                     list.add(event);

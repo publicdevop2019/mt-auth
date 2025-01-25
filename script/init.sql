@@ -965,14 +965,12 @@ CREATE TABLE `stored_event` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `domain_id` varchar(255) NOT NULL,
   `event_body` longtext,
-  `internal` bit(1) NOT NULL,
   `name` varchar(255) NOT NULL,
   `timestamp` bigint NOT NULL,
   `topic` varchar(255) NOT NULL,
   `send` bit(1) NOT NULL,
   `routable` bit(1) NOT NULL,
   `rejected` bit(1) NOT NULL,
-  `application_id` varchar(255) NOT NULL,
   `trace_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

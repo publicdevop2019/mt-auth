@@ -78,8 +78,7 @@ public class RevokeTokenEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener11() {
         ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
-            .listen(AppInfo.MT_ACCESS_APP_ID, true,
-                MqHelper.handlerOf(AppInfo.MT_ACCESS_APP_ID + "_token", CLIENT_DELETED),
+            .listen(MqHelper.handlerOf("revoke_token_" + CLIENT_DELETED),
                 ClientDeleted.class,
                 (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                     .handle(event), 1, CLIENT_DELETED);

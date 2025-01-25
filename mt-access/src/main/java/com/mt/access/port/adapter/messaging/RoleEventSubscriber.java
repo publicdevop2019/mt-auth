@@ -37,7 +37,7 @@ public class RoleEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener2() {
         ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
-            .listen(AppInfo.MT_ACCESS_APP_ID, true, "role_" + CLIENT_DELETED + "_handler",
+            .listen("role_" + CLIENT_DELETED + "_handler",
                 ClientDeleted.class,
                 (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event), 1,
                 CLIENT_DELETED);

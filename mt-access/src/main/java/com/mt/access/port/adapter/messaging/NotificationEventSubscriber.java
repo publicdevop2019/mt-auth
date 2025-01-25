@@ -17,7 +17,6 @@ import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceived;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceived;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -86,7 +85,7 @@ public class NotificationEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     protected void sendBellNotificationListener() {
         ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
-            .listen(AppInfo.MT_ACCESS_APP_ID, true, null, SendBellNotification.class,
+            .listen(null, SendBellNotification.class,
                 (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                     .handle(event), 20, SEND_BELL_NOTIFICATION_EVENT);
     }

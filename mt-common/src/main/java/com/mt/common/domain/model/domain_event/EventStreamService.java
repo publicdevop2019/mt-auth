@@ -8,7 +8,6 @@ public interface EventStreamService {
      * basic event stream with deserialize stored event
      *
      * @param exchangeName exchange
-     * @param routingKey   routing key
      * @param queueName    queue name
      * @param autoDelete   auto delete queue
      * @param consumer     consumer function
@@ -18,7 +17,6 @@ public interface EventStreamService {
      * @param <T>          domain event type
      */
     <T extends DomainEvent> void subscribe(String exchangeName,
-                                           String routingKey,
                                            String queueName,
                                            boolean autoDelete,
                                            ErrorHandleStrategy strategy,
@@ -45,7 +43,7 @@ public interface EventStreamService {
                    ErrorHandleStrategy strategy,
                    String... topics);
 
-    void next(String appName, boolean internal, String topic, StoredEvent event);
+    void next(String topic, StoredEvent event);
 
     void next(StoredEvent event);
 

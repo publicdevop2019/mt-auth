@@ -11,7 +11,6 @@ public class EndpointReloadRequested extends DomainEvent {
     {
         setTopic(ENDPOINT_RELOAD_REQUESTED);
         setName(name);
-        setInternal(false);
     }
 
     public EndpointReloadRequested() {

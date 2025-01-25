@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.constant;
 
 public class AppInfo {
-    public static final String MT_ACCESS_APP_ID = "0C8AZTODP4HT";
     public static final String MISSED_EVENT_SCAN_JOB_NAME = "MISSED_EVENT_SCAN";
     public static final String SPAN_ID_LOG = "SPAN_ID";
     public static final String TRACE_ID_HTTP = "trace-id";
