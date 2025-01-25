@@ -119,7 +119,7 @@ public class JobDetail extends Auditable implements Serializable {
         return null;
     }
 
-    public boolean notifyJobStarving() {
+    public boolean starving() {
         long idleTime = Instant.now().toEpochMilli() - this.lastExecution;
         return idleTime > this.minimumIdleTimeMilli;
     }

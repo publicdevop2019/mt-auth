@@ -19,7 +19,6 @@ public class RawAccessRecordProcessService {
 
 
     public void process(TransactionContext context) {
-        CommonDomainRegistry.getLogService().initTrace();
         log.debug("start of access record ETL job");
         Optional<DataProcessTracker> trackerStored =
             DomainRegistry.getDataProcessTrackerRepository().get();

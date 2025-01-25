@@ -21,7 +21,6 @@ public class EventApplicationServiceScheduler {
         CommonDomainRegistry.getJobService()
             .execute(MISSED_EVENT_SCAN_JOB_NAME,
                 (ignored) -> {
-                    CommonDomainRegistry.getLogService().initTrace();
                     log.debug("running task for not send event");
                     Set<StoredEvent> allByQuery = QueryUtility
                         .getAllByQuery(

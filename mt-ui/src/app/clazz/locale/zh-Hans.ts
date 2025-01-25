@@ -452,7 +452,7 @@ export const zhHans = {
     "SINGLE": "单点",
     "FAILURE": "失败",
     "MAX_LOCK_ACQUIRE_FAILURE_COUNT": "允许获取锁失败次数",
-    "JOB_STARVING": "任务无法正常获取锁",
+    "JOB_STARVING": "任务长时间未执行",
     "JOB_PAUSED": "任务暂停中",
     "JOB_EXECUTION": "任务执行异常",
     "LOCK_LOST": "锁丢失",

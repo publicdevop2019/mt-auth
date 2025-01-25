@@ -103,7 +103,7 @@ public class RedisDistributedJobService implements DistributedJobService {
 
     private static void checkJobStarving(String jobName, JobDetail job) {
         //check if job was executed in time, otherwise send notification
-        if (job.notifyJobStarving()) {
+        if (job.starving()) {
             log.warn("job {} exceed max idle time, last execution time {}",
                 jobName, job.getLastExecution());
             if (!job.getNotifiedAdmin()) {
@@ -130,18 +130,16 @@ public class RedisDistributedJobService implements DistributedJobService {
     @Override
     public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional,
                         int ignoreCount) {
-        MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
-        MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+        CommonDomainRegistry.getLogService().initTrace();
         Integer orDefault = jobIgnoreCount.getOrDefault(jobName, ignoreCount);
         if (orDefault != 0) {
             jobIgnoreCount.put(jobName, --orDefault);
             return;
         }
         taskExecutor.execute(() -> {
-            MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
-            MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+            CommonDomainRegistry.getLogService().initTrace();
             Analytics start = Analytics.start(Analytics.Type.JOB_EXECUTION);
-            log.info("running job {}", jobName);
+            log.info("started job {}", jobName);
             //check if job exist
             Optional<JobDetail> byName =
                 CommonDomainRegistry.getJobRepository().getByName(jobName);
@@ -184,6 +182,7 @@ public class RedisDistributedJobService implements DistributedJobService {
                 jobWrapper(jobFn, transactional, jobDetail);
             }
             start.stop();
+            log.info("finished job {}", jobName);
         });
     }
 

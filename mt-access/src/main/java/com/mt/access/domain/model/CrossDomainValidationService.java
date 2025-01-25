@@ -49,8 +49,7 @@ public class CrossDomainValidationService {
     private String adminEmail;
 
     public void validate(TransactionContext context) {
-        CommonDomainRegistry.getLogService().initTrace();
-        log.trace("start of validate job");
+        log.debug("start of validate existing data");
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().query();
         ValidationResult validationResult;
@@ -70,22 +69,31 @@ public class CrossDomainValidationService {
         boolean b8 = false;
         boolean b9 = false;
         if (b) {
+            log.debug("check client and endpoint");
             b1 = validateClientAndEndpoint(context);
             if (b1) {
+                log.debug("check client and project");
                 b2 = validateClientAndProject(context);
                 if (b2) {
+                    log.debug("check client and role");
                     b3 = validateClientAndRole(context);
                     if (b3) {
+                        log.debug("check cors and endpoint");
                         b4 = validateCorsProfileAndEndpoint(context);
                         if (b4) {
+                            log.debug("check project and role");
                             b5 = validateProjectAndRole(context);
                             if (b5) {
+                                log.debug("check project and user");
                                 b6 = validateProjectAndUser(context);
                                 if (b6) {
+                                    log.debug("check endpoint and permission");
                                     b7 = validateEndpointAndPermission(context);
                                     if (b7) {
+                                        log.debug("check role and permission");
                                         b8 = validateRoleAndPermission(context);
                                         if (b8) {
+                                            log.debug("check user and user relation");
                                             b9 = validateUserAndUserRelation(context);
                                         }
                                     }

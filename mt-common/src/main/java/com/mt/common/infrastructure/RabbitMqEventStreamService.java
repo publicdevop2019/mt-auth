@@ -109,38 +109,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         log.debug("event stream service initialize success");
     }
 
-    /**
-     * release resource
-     */
-    public void releaseResource() {
-        log.info("closing event stream resource");
-        try {
-            connectionSub.close();
-        } catch (IOException ex) {
-            log.error("error during close subscribe connection", ex);
-        }
-        try {
-            connectionPub.close();
-        } catch (IOException ex) {
-            log.error("error during close publish connection", ex);
-        }
-        subChannel.values().forEach(e -> {
-            try {
-                e.close();
-            } catch (TimeoutException | IOException ex) {
-                log.error("error during close subscribe channel", ex);
-            }
-        });
-        pubChannel.values().forEach(e -> {
-            try {
-                e.close();
-            } catch (TimeoutException | IOException ex) {
-                log.error("error during close subscribe channel", ex);
-            }
-        });
-    }
-
-
     public <T extends DomainEvent> void listen(
         @Nullable String queueName,
         Class<T> clazz,
