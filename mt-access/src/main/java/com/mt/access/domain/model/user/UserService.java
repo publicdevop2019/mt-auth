@@ -6,7 +6,7 @@ import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.Optional;
 import javax.annotation.Nullable;
 import org.springframework.stereotype.Service;
@@ -17,9 +17,9 @@ public class UserService {
     public void updatePassword(User user, @Nullable CurrentPassword currentPwd,
                                UserPassword password,
                                TransactionContext context) {
-        if (Checker.notNull(user.getPassword())) {
+        if (Utility.notNull(user.getPassword())) {
             if (!DomainRegistry.getEncryptionService()
-                .compare(Checker.notNull(currentPwd) ? currentPwd.getRawPassword() : null,
+                .compare(Utility.notNull(currentPwd) ? currentPwd.getRawPassword() : null,
                     user.getPassword().getPassword())) {
                 throw new DefinedRuntimeException("wrong password", "1000",
                     HttpResponseCode.BAD_REQUEST);

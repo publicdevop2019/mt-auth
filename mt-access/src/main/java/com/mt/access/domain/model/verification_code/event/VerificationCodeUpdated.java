@@ -4,7 +4,7 @@ import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
 import com.mt.access.domain.model.verification_code.VerificationCode;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -47,7 +47,7 @@ public class VerificationCodeUpdated extends DomainEvent {
     }
 
     private void setEmail(RegistrationEmail registrationEmail) {
-        if (Checker.notNull(registrationEmail)) {
+        if (Utility.notNull(registrationEmail)) {
             this.email = registrationEmail.getDomainId();
         }
     }

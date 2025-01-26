@@ -10,7 +10,7 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
@@ -26,7 +26,7 @@ public class RoleValidationService {
     public void validate(boolean newProjectOrClient, Role role,
                          ValidationNotificationHandler handler) {
         //skip validation for system create to boost performance
-        if (Checker.isFalse(role.getSystemCreate())) {
+        if (Utility.isFalse(role.getSystemCreate())) {
             checkParentId(newProjectOrClient, role);
             permissionMustBeSameProject(role, handler);
             checkPermission(role.getApiPermissionIds(), PermissionType.API);

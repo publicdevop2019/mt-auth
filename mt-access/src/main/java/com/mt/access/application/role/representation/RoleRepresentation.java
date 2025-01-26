@@ -15,7 +15,7 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,7 +74,7 @@ public class RoleRepresentation {
             this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();
-        if (Checker.notNullOrEmpty(role.getCommonPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getCommonPermissionIds())) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
                     .query(e), PermissionQuery.internalQuery(role.getCommonPermissionIds()));
@@ -86,7 +86,7 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Checker.notNullOrEmpty(role.getApiPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getApiPermissionIds())) {
             Set<Permission> permissions =
                 new HashSet<>(
                     QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
@@ -106,7 +106,7 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Checker.notNullOrEmpty(role.getExternalPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getExternalPermissionIds())) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
                     .query(e), PermissionQuery.internalQuery(role.getExternalPermissionIds()));

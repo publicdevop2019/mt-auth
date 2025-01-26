@@ -5,7 +5,7 @@ import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,7 +41,7 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
     }
 
     public void setEmail(UserEmail userEmail) {
-        if (Checker.notNull(userEmail)) {
+        if (Utility.notNull(userEmail)) {
             this.email = userEmail.getEmail();
         }
     }

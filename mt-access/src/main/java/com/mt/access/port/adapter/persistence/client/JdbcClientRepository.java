@@ -17,7 +17,7 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -69,12 +69,7 @@ public class JdbcClientRepository implements ClientRepository {
         "redirect_url" +
         ") VALUES " +
         "(?,?)";
-    private static final String INSERT_RESOURCE_SQL = "INSERT INTO resources_map " +
-        "(" +
-        "id, " +
-        "domain_id" +
-        ") VALUES " +
-        "(?,?)";
+
     private static final String INSERT_GRANT_TYPE_SQL = "INSERT INTO client_grant_type_map " +
         "(" +
         "id, " +
@@ -95,8 +90,6 @@ public class JdbcClientRepository implements ClientRepository {
         "(?,?)";
     private static final String DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id = ?";
     private static final String BATCH_DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id IN (%s)";
-    private static final String DELETE_RESOURCE_BY_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.id = ?";
     private static final String BATCH_DELETE_RESOURCE_BY_ID_SQL =
         "DELETE FROM resources_map rm WHERE rm.id IN (%s)";
     private static final String BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL =
@@ -133,8 +126,6 @@ public class JdbcClientRepository implements ClientRepository {
         "SELECT COUNT(*) AS count FROM client c WHERE c.project_id = ?";
     private static final String COUNT_RESOURCE_SQL =
         "SELECT COUNT(DISTINCT rm.id) AS count FROM resources_map rm LEFT JOIN client c ON rm.id = c.id WHERE rm.domain_id IN (%s)";
-    private static final String FIND_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +
-        "FROM resources_map m WHERE m.id = ?";
     private static final String FIND_EXT_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +
         "FROM external_resources_map m WHERE m.id = ?";
     private static final String FIND_GRANT_TYPE_BY_ID_SQL = "SELECT m.grant_type " +
@@ -156,8 +147,6 @@ public class JdbcClientRepository implements ClientRepository {
         "c.refresh_token_validity_seconds = ?, " +
         "c.external_url = ? " +
         "WHERE c.id = ? AND c.version = ? ";
-    private static final String DELETE_RESOURCE_BY_DOMAIN_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.domain_id = ?";
 
 
     @Override
@@ -190,10 +179,10 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getSecret(),
                 client.getTokenDetail().getAccessTokenValiditySeconds(),
                 client.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
+                Utility.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
         //for linked tables
-        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
+        if (Utility.notNullOrEmpty(client.getRedirectUrls())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
                 client.getRedirectUrls().stream()
@@ -208,22 +197,7 @@ public class JdbcClientRepository implements ClientRepository {
                         ps.setString(2, perm.getValue());
                     });
         }
-        if (Checker.notNullOrEmpty(client.getResources())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getResources().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_RESOURCE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (Checker.notNullOrEmpty(client.getExternalResources())) {
+        if (Utility.notNullOrEmpty(client.getExternalResources())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
                 client.getExternalResources().stream()
@@ -238,7 +212,7 @@ public class JdbcClientRepository implements ClientRepository {
                         ps.setString(2, perm.getValue());
                     });
         }
-        if (Checker.notNullOrEmpty(client.getTypes())) {
+        if (Utility.notNullOrEmpty(client.getTypes())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
                 client.getTypes().stream()
@@ -253,7 +227,7 @@ public class JdbcClientRepository implements ClientRepository {
                         ps.setString(2, perm.getValue());
                     });
         }
-        if (Checker.notNullOrEmpty(client.getGrantTypes())) {
+        if (Utility.notNullOrEmpty(client.getGrantTypes())) {
             List<BatchInsertKeyValue> keyValues = new ArrayList<>();
             List<BatchInsertKeyValue> collect =
                 client.getGrantTypes().stream()
@@ -272,31 +246,25 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public void remove(Client client) {
-        if (Checker.notNullOrEmpty(client.getResources())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_RESOURCE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        if (Checker.notNullOrEmpty(client.getExternalResources())) {
+        if (Utility.notNullOrEmpty(client.getExternalResources())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_EXT_RESOURCE_BY_ID_SQL,
                     client.getId()
                 );
         }
-        if (Checker.notNullOrEmpty(client.getGrantTypes())) {
+        if (Utility.notNullOrEmpty(client.getGrantTypes())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL,
                     client.getId()
                 );
         }
-        if (Checker.notNullOrEmpty(client.getTypes())) {
+        if (Utility.notNullOrEmpty(client.getTypes())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CLIENT_TYPE_BY_ID_SQL,
                     client.getId()
                 );
         }
-        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
+        if (Utility.notNullOrEmpty(client.getRedirectUrls())) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_REDIRECT_URL_BY_ID_SQL,
                     client.getId()
@@ -349,21 +317,21 @@ public class JdbcClientRepository implements ClientRepository {
             return resourceSearch(query);
         }
         List<String> whereClause = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getClientIds())) {
+        if (Utility.notNullOrEmpty(query.getClientIds())) {
             String inClause = DatabaseUtility.getInClause(query.getClientIds().size());
             String byDomainIds = String.format("c.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNull(query.getResourceFlag())) {
+        if (Utility.notNull(query.getResourceFlag())) {
             String accessible =
                 query.getResourceFlag() ? "c.accessible_ = 1" : "c.accessible_ = 0";
             whereClause.add(accessible);
         }
-        if (Checker.notNull(query.getName())) {
+        if (Utility.notNull(query.getName())) {
             String name = "c.name LIKE ?";
             whereClause.add(name);
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("c.project_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
@@ -379,15 +347,15 @@ public class JdbcClientRepository implements ClientRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getClientIds())) {
+        if (Utility.notNullOrEmpty(query.getClientIds())) {
             args.addAll(
                 query.getClientIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getName())) {
+        if (Utility.notNull(query.getName())) {
             args.add("%" + query.getName() + "%");
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
@@ -472,16 +440,6 @@ public class JdbcClientRepository implements ClientRepository {
                 projectId.getDomainId()
             );
         return query;
-    }
-
-    @Override
-    public Set<ClientId> getResources(Long id) {
-        List<ClientId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_RESOURCE_IDS_BY_ID_SQL,
-                new ClientIdRowMapper(),
-                id
-            );
-        return new HashSet<>(data);
     }
 
     @Override
@@ -600,7 +558,7 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getSecret(),
                 updated.getTokenDetail().getAccessTokenValiditySeconds(),
                 updated.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Checker.isNull(updated.getExternalUrl()) ? null :
+                Utility.isNull(updated.getExternalUrl()) ? null :
                     updated.getExternalUrl().getValue(),
                 updated.getId(),
                 updated.getVersion()
@@ -696,34 +654,6 @@ public class JdbcClientRepository implements ClientRepository {
                         args.toArray()
                     );
             });
-        DatabaseUtility.updateMap(old.getResources(), updated.getResources(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_RESOURCE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
         DatabaseUtility.updateMap(old.getExternalResources(), updated.getExternalResources(),
             (added) -> {
                 List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
@@ -753,16 +683,6 @@ public class JdbcClientRepository implements ClientRepository {
                     );
             });
     }
-
-    @Override
-    public void removeRef(ClientId removedClientId) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                DELETE_RESOURCE_BY_DOMAIN_ID_SQL,
-                removedClientId.getDomainId()
-            );
-    }
-
 
     private SumPagedRep<Client> resourceSearch(ClientQuery query) {
         Set<String> resourceIds =
@@ -851,7 +771,7 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString("secret"),
                         DatabaseUtility.getNullableInteger(rs, "access_token_validity_seconds"),
                         DatabaseUtility.getNullableInteger(rs, "refresh_token_validity_seconds"),
-                        Checker.notNull(rs.getString("external_url")) ?
+                        Utility.notNull(rs.getString("external_url")) ?
                             new ExternalUrl(rs.getString("external_url")) : null
                     );
                     list.add(client);
@@ -862,22 +782,4 @@ public class JdbcClientRepository implements ClientRepository {
         }
     }
 
-    private static class ClientIdRowMapper implements ResultSetExtractor<List<ClientId>> {
-
-        @Override
-        public List<ClientId> extractData(ResultSet rs)
-            throws SQLException, DataAccessException {
-            if (!rs.next()) {
-                return Collections.emptyList();
-            }
-            List<ClientId> list = new ArrayList<>();
-            do {
-                String idRaw = rs.getString("domain_id");
-                if (Checker.notNull(idRaw)) {
-                    list.add(new ClientId(idRaw));
-                }
-            } while (rs.next());
-            return list;
-        }
-    }
 }

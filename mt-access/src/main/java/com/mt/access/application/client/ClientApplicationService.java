@@ -10,12 +10,14 @@ import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientAutoApproveRepresentation;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
+import com.mt.access.application.client.representation.ClientMgmtCardRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
+import com.mt.access.domain.model.client.ClientResource;
 import com.mt.access.domain.model.client.ExternalUrl;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
@@ -28,15 +30,11 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
-import com.mt.access.domain.model.token.TokenGrantClient;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainId;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.Collections;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,33 +48,6 @@ public class ClientApplicationService {
 
     private static final String CLIENT = "Client";
 
-    private static void updateDetails(List<ClientCardRepresentation> data) {
-        Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
-            .flatMap(e -> e.getResourceIds().stream()).map(ClientId::new)
-            .collect(Collectors.toSet());
-        if (!collect.isEmpty()) {
-            Set<Client> allByIds = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect));
-            data.forEach(e -> {
-                if (e.getResourceIds() != null) {
-                    Set<ClientCardRepresentation.ResourceClientInfo> collect1 =
-                        e.getResourceIds().stream().map(ee -> {
-                            Optional<Client> first = allByIds.stream()
-                                .filter(el -> el.getClientId().getDomainId().equals(ee))
-                                .findFirst();
-                            return first.map(
-                                    client -> new ClientCardRepresentation.ResourceClientInfo(
-                                        client.getName(), ee))
-                                .orElseGet(
-                                    () -> new ClientCardRepresentation.ResourceClientInfo(ee, ee));
-                        }).collect(Collectors.toSet());
-                    e.setResources(collect1);
-                }
-            });
-        }
-    }
-
     public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
                                                              String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
@@ -84,10 +55,7 @@ public class ClientApplicationService {
             .canAccess(clientQuery.getProjectIds(), CLIENT_MGMT);
         SumPagedRep<Client> clients =
             DomainRegistry.getClientRepository().query(clientQuery);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        updateDetails(rep.getData());
-        return rep;
+        return new SumPagedRep<>(clients, ClientCardRepresentation::new);
     }
 
     /**
@@ -115,17 +83,47 @@ public class ClientApplicationService {
             .canAccess(projectId1, CLIENT_MGMT);
         Client client =
             DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
-        return new ClientRepresentation(client);
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        return new ClientRepresentation(client, resources);
     }
 
-    public SumPagedRep<ClientCardRepresentation> mgmtQuery(String queryParam, String pagingParam,
-                                                           String configParam) {
+    public SumPagedRep<ClientMgmtCardRepresentation> mgmtQuery(String queryParam,
+                                                               String pagingParam,
+                                                               String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
         SumPagedRep<Client> clients =
             DomainRegistry.getClientRepository().query(clientQuery);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        updateDetails(rep.getData());
+        SumPagedRep<ClientMgmtCardRepresentation> rep =
+            new SumPagedRep<>(clients, (c) -> {
+                Set<ClientId> query = DomainRegistry.getClientResourceRepository().query(c);
+                return new ClientMgmtCardRepresentation(c, query);
+            });
+        List<ClientMgmtCardRepresentation> data = rep.getData();
+        Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
+            .flatMap(e -> e.getResourceIds().stream()).map(ClientId::new)
+            .collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            Set<Client> allByIds = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            data.forEach(e -> {
+                if (e.getResourceIds() != null) {
+                    Set<ClientMgmtCardRepresentation.ResourceClientInfo> collect1 =
+                        e.getResourceIds().stream().map(ee -> {
+                            Optional<Client> first = allByIds.stream()
+                                .filter(el -> el.getClientId().getDomainId().equals(ee))
+                                .findFirst();
+                            return first.map(
+                                    client -> new ClientMgmtCardRepresentation.ResourceClientInfo(
+                                        client.getName(), ee))
+                                .orElseGet(
+                                    () -> new ClientMgmtCardRepresentation.ResourceClientInfo(ee,
+                                        ee));
+                        }).collect(Collectors.toSet());
+                    e.setResources(collect1);
+                }
+            });
+        }
         return rep;
     }
 
@@ -148,7 +146,8 @@ public class ClientApplicationService {
 
     public ClientRepresentation mgmtQueryById(String id) {
         Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
-        return new ClientRepresentation(client);
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        return new ClientRepresentation(client, resources);
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
@@ -179,9 +178,6 @@ public class ClientApplicationService {
                         command.getClientSecret(),
                         command.getDescription(),
                         command.getResourceIndicator(),
-                        command.getResourceIds() != null
-                            ? command.getResourceIds().stream().map(ClientId::new)
-                            .collect(Collectors.toSet()) : Collections.emptySet(),
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
@@ -191,7 +187,9 @@ public class ClientApplicationService {
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
                     );
-                    DomainRegistry.getClientRepository().add(client);
+                    Set<ClientId> resources =
+                        Utility.mapToSet(command.getResourceIds(), ClientId::new);
+                    ClientResource.addResources(client, resources);
                     return client.getClientId().getDomainId();
                 }, CLIENT
             );
@@ -205,23 +203,19 @@ public class ClientApplicationService {
             .canAccess(new ProjectId(command.getProjectId()), CLIENT_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
+                ProjectId projectId = new ProjectId(command.getProjectId());
                 ClientQuery clientQuery =
-                    new ClientQuery(clientId, new ProjectId(command.getProjectId()));
+                    new ClientQuery(clientId, projectId);
                 Optional<Client> optionalClient =
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (optionalClient.isPresent()) {
                     Client client = optionalClient.get();
-                    Client replace = client.replace(
+                    Client updated = client.update(
                         command.getName(),
                         command.getClientSecret(),
                         command.getPath(),
                         command.getDescription(),
                         command.getResourceIndicator(),
-                        command.getResourceIds() != null
-                            ?
-                            command.getResourceIds().stream().map(ClientId::new)
-                                .collect(Collectors.toSet())
-                            : Collections.emptySet(),
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
@@ -230,7 +224,12 @@ public class ClientApplicationService {
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
                     );
-                    DomainRegistry.getClientRepository().update(client, replace);
+                    Set<ClientId> newResources =
+                        Utility.mapToSet(command.getResourceIds(), ClientId::new);
+                    Set<ClientId> oldResources =
+                        DomainRegistry.getClientResourceRepository().query(client);
+                    ClientResource.updateResources(updated, oldResources, newResources, context);
+
                 }
                 return null;
             }, CLIENT);
@@ -243,47 +242,28 @@ public class ClientApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
-                Optional<Client> client =
+                Optional<Client> optionalClient =
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
-                if (client.isPresent()) {
-                    Client tobeRemove = client.get();
-                    if (tobeRemove.removable()) {
-                        DomainRegistry.getClientRepository().remove(tobeRemove);
-                        tobeRemove.removeAllReferenced(context);
-                        DomainRegistry.getAuditService()
-                            .storeAuditAction(DELETE_TENANT_CLIENT,
-                                tobeRemove);
-                        DomainRegistry.getAuditService()
-                            .logUserAction(log, DELETE_TENANT_CLIENT,
-                                tobeRemove);
-                    } else {
-                        throw new DefinedRuntimeException("client cannot be deleted", "1009",
-                            HttpResponseCode.BAD_REQUEST);
-                    }
+                if (optionalClient.isPresent()) {
+                    Client client = optionalClient.get();
+                    client.remove(context);
+                    DomainRegistry.getAuditService().storeAuditAction(DELETE_TENANT_CLIENT,
+                        client);
+                    DomainRegistry.getAuditService().logUserAction(log, DELETE_TENANT_CLIENT,
+                        client);
+                    Set<ClientId> resources =
+                        DomainRegistry.getClientResourceRepository().query(client);
+                    DomainRegistry.getClientResourceRepository().remove(client, resources);
                 }
                 return null;
             }, CLIENT);
-    }
-
-    public TokenGrantClient getClientBy(ClientId id) {
-        Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
-        log.debug("loading client by id started");
-        Client client =
-            DomainRegistry.getClientRepository().query(id);
-        log.debug("loading client by id end");
-        start.stop();
-        if (client == null) {
-            return null;
-        }
-        return new TokenGrantClient(client);
     }
 
     public void handle(ClientAsResourceDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 //remove deleted client from resource_map
-                DomainId domainId = event.getDomainId();
-                ClientId removedClientId = new ClientId(domainId.getDomainId());
+                ClientId removedClientId = new ClientId(event.getDomainId().getDomainId());
                 //for all ref client for revoke
                 Set<Client> refClients = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getClientRepository().query(query),
@@ -293,7 +273,7 @@ public class ClientApplicationService {
                 refClientIds.add(removedClientId);
                 context.append(new ClientResourceCleanUpCompleted(refClientIds));
                 //delete all ref
-                DomainRegistry.getClientRepository().removeRef(removedClientId);
+                DomainRegistry.getClientResourceRepository().removeRef(removedClientId);
                 return null;
             }, CLIENT);
     }

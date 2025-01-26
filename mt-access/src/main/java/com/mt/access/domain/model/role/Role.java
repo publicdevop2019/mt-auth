@@ -17,7 +17,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -188,13 +188,13 @@ public class Role extends Auditable {
             }
             role.setCommonPermissionIds(false, commonPermissionIds);
         }
-        if (Checker.notNull(apiPermissionIds)) {
+        if (Utility.notNull(apiPermissionIds)) {
             Validator.lessThanOrEqualTo(apiPermissionIds, 10);
-            if (Checker.notNull(linkedApiPermission)) {
+            if (Utility.notNull(linkedApiPermission)) {
                 apiPermissionIds.addAll(linkedApiPermission);
             }
         } else {
-            if (Checker.notNull(linkedApiPermission)) {
+            if (Utility.notNull(linkedApiPermission)) {
                 apiPermissionIds = linkedApiPermission;
             }
         }
@@ -300,7 +300,7 @@ public class Role extends Auditable {
         if (command.getType().equals(UpdateType.BASIC)) {
             update.updateName(command.getName());
             update.setDescription(command.getDescription());
-            if (Checker.isFalse(update.getSystemCreate()) && command.getParentId() != null) {
+            if (Utility.isFalse(update.getSystemCreate()) && command.getParentId() != null) {
                 update.parentId = new RoleId(command.getParentId());
             }
         } else if (command.getType().equals(UpdateType.API_PERMISSION)) {
@@ -323,7 +323,7 @@ public class Role extends Auditable {
 
     private void setApiPermissionIds(boolean isNewProjectOnboarding,
                                      Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds) && Checker.notEmpty(permissionIds)) {
+        if (Utility.notNull(permissionIds) && Utility.notEmpty(permissionIds)) {
             Validator.noNullMember(permissionIds);
             if (!isNewProjectOnboarding) {
                 Validator.lessThanOrEqualTo(permissionIds, 10);
@@ -349,7 +349,7 @@ public class Role extends Auditable {
     }
 
     private void setCommonPermissionIds(boolean newProject, Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds) && Checker.notEmpty(permissionIds)) {
+        if (Utility.notNull(permissionIds) && Utility.notEmpty(permissionIds)) {
             Validator.noNullMember(permissionIds);
             if (!newProject) {
                 Validator.lessThanOrEqualTo(permissionIds, 10);
@@ -370,7 +370,7 @@ public class Role extends Auditable {
                 "client project client root type's name cannot be changed", "1054",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (Checker.isTrue(getSystemCreate())) {
+        if (Utility.isTrue(getSystemCreate())) {
             throw new DefinedRuntimeException("system created role cannot be changed", "1055",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -435,7 +435,7 @@ public class Role extends Auditable {
         if (isCreate) {
             return apiPermissionIds;
         }
-        if (Checker.isFalse(this.apiPermissionIdsLoaded)) {
+        if (Utility.isFalse(this.apiPermissionIdsLoaded)) {
             this.apiPermissionIds = DomainRegistry.getRoleRepository().findApiPermission(this);
             this.apiPermissionIdsLoaded = true;
         }
@@ -446,7 +446,7 @@ public class Role extends Auditable {
         if (isCreate) {
             return externalPermissionIds;
         }
-        if (Checker.isFalse(this.extPermissionIdsLoaded)) {
+        if (Utility.isFalse(this.extPermissionIdsLoaded)) {
             this.externalPermissionIds = DomainRegistry.getRoleRepository().findExtPermission(this);
             this.extPermissionIdsLoaded = true;
         }
@@ -457,7 +457,7 @@ public class Role extends Auditable {
         if (isCreate) {
             return commonPermissionIds;
         }
-        if (Checker.isFalse(this.commonPermissionIdsLoaded)) {
+        if (Utility.isFalse(this.commonPermissionIdsLoaded)) {
             this.commonPermissionIds =
                 DomainRegistry.getRoleRepository().findCommonPermission(this);
             this.commonPermissionIdsLoaded = true;

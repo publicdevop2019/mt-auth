@@ -16,7 +16,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -298,7 +298,7 @@ public class Endpoint extends Auditable {
     }
 
     private void setReplenishRate(Integer replenishRate) {
-        if (Checker.notNull(replenishRate)) {
+        if (Utility.notNull(replenishRate)) {
             Validator.greaterThanOrEqualTo(replenishRate, 1);
             Validator.lessThanOrEqualTo(replenishRate, 1000);
         }
@@ -306,7 +306,7 @@ public class Endpoint extends Auditable {
     }
 
     private void setBurstCapacity(Integer burstCapacity) {
-        if (Checker.notNull(burstCapacity)) {
+        if (Utility.notNull(burstCapacity)) {
             Validator.greaterThanOrEqualTo(burstCapacity, 1);
             Validator.lessThanOrEqualTo(burstCapacity, 1500);
         }

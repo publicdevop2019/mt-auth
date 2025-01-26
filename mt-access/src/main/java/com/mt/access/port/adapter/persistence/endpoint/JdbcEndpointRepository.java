@@ -14,7 +14,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -124,9 +124,9 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 update.getModifiedAt(),
                 update.getModifiedBy(),
                 update.getVersion() + 1,
-                Checker.isNull(update.getCacheProfileId()) ? null :
+                Utility.isNull(update.getCacheProfileId()) ? null :
                     update.getCacheProfileId().getDomainId(),
-                Checker.isNull(update.getCorsProfileId()) ? null :
+                Utility.isNull(update.getCorsProfileId()) ? null :
                     update.getCorsProfileId().getDomainId(),
                 update.getCsrfEnabled(),
                 update.getDescription(),
@@ -154,10 +154,10 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 endpoint.getModifiedAt(),
                 endpoint.getModifiedBy(),
                 0,
-                Checker.isNull(endpoint.getCacheProfileId()) ? null :
+                Utility.isNull(endpoint.getCacheProfileId()) ? null :
                     endpoint.getCacheProfileId().getDomainId(),
                 endpoint.getClientId().getDomainId(),
-                Checker.isNull(endpoint.getCorsProfileId()) ? null :
+                Utility.isNull(endpoint.getCorsProfileId()) ? null :
                     endpoint.getCorsProfileId().getDomainId(),
                 endpoint.getCsrfEnabled(),
                 endpoint.getDescription(),
@@ -166,7 +166,7 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 endpoint.getMethod(),
                 endpoint.getName(),
                 endpoint.getPath(),
-                Checker.isNull(endpoint.getPermissionId()) ? null :
+                Utility.isNull(endpoint.getPermissionId()) ? null :
                     endpoint.getPermissionId().getDomainId(),
                 endpoint.getProjectId().getDomainId(),
                 endpoint.getSecured(),
@@ -199,53 +199,53 @@ public class JdbcEndpointRepository implements EndpointRepository {
     @Override
     public SumPagedRep<Endpoint> query(EndpointQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getEndpointIds())) {
+        if (Utility.notNullOrEmpty(query.getEndpointIds())) {
             String inClause = DatabaseUtility.getInClause(query.getEndpointIds().size());
             String byDomainIds = String.format("e.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getClientIds())) {
+        if (Utility.notNullOrEmpty(query.getClientIds())) {
             String inClause = DatabaseUtility.getInClause(query.getClientIds().size());
             String byDomainIds = String.format("e.client_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("e.project_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getPermissionIds())) {
+        if (Utility.notNullOrEmpty(query.getPermissionIds())) {
             String inClause = DatabaseUtility.getInClause(query.getPermissionIds().size());
             String byDomainIds = String.format("e.permission_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getCacheProfileIds())) {
+        if (Utility.notNullOrEmpty(query.getCacheProfileIds())) {
             String inClause = DatabaseUtility.getInClause(query.getCacheProfileIds().size());
             String byDomainIds = String.format("e.cache_profile_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getCorsProfileIds())) {
+        if (Utility.notNullOrEmpty(query.getCorsProfileIds())) {
             String inClause = DatabaseUtility.getInClause(query.getCorsProfileIds().size());
             String byDomainIds = String.format("e.cors_profile_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNull(query.getPath())) {
+        if (Utility.notNull(query.getPath())) {
             String path = "e.path = ?";
             whereClause.add(path);
         }
-        if (Checker.notNull(query.getMethod())) {
+        if (Utility.notNull(query.getMethod())) {
             String method = "e.method = ?";
             whereClause.add(method);
         }
-        if (Checker.notNull(query.getIsWebsocket())) {
+        if (Utility.notNull(query.getIsWebsocket())) {
             String websocket =
                 query.getIsWebsocket() ? "e.websocket = 1" : "e.websocket = 0";
             whereClause.add(websocket);
         }
-        if (Checker.notNull(query.getIsShared()) && query.getIsShared()) {
+        if (Utility.notNull(query.getIsShared()) && query.getIsShared()) {
             whereClause.add("((e.external = 1 AND e.secured = 0) OR e.shared = 1)");
         }
-        if (Checker.notNull(query.getIsSecured())) {
+        if (Utility.notNull(query.getIsSecured())) {
             String secured =
                 query.getIsSecured() ? "e.secured = 1" : "e.secured = 0";
             whereClause.add(secured);
@@ -262,40 +262,40 @@ public class JdbcEndpointRepository implements EndpointRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getEndpointIds())) {
+        if (Utility.notNullOrEmpty(query.getEndpointIds())) {
             args.addAll(
                 query.getEndpointIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getClientIds())) {
+        if (Utility.notNull(query.getClientIds())) {
             args.addAll(
                 query.getClientIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getPermissionIds())) {
+        if (Utility.notNullOrEmpty(query.getPermissionIds())) {
             args.addAll(
                 query.getPermissionIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getCacheProfileIds())) {
+        if (Utility.notNullOrEmpty(query.getCacheProfileIds())) {
             args.addAll(
                 query.getCacheProfileIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getCorsProfileIds())) {
+        if (Utility.notNullOrEmpty(query.getCorsProfileIds())) {
             args.addAll(
                 query.getCorsProfileIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getPath())) {
+        if (Utility.notNull(query.getPath())) {
             args.add(query.getPath());
         }
-        if (Checker.notNull(query.getMethod())) {
+        if (Utility.notNull(query.getMethod())) {
             args.add(query.getMethod());
         }
         Long count;
@@ -454,10 +454,10 @@ public class JdbcEndpointRepository implements EndpointRepository {
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        Checker.notNull(rs.getString("cache_profile_id")) ?
+                        Utility.notNull(rs.getString("cache_profile_id")) ?
                             new CacheProfileId(rs.getString("cache_profile_id")) : null,
                         new ClientId(rs.getString("client_id")),
-                        Checker.notNull(rs.getString("cors_profile_id")) ?
+                        Utility.notNull(rs.getString("cors_profile_id")) ?
                             new CorsProfileId(rs.getString("cors_profile_id")) : null,
                         DatabaseUtility.getNullableBoolean(rs, "csrf_enabled"),
                         rs.getString("description"),
@@ -466,7 +466,7 @@ public class JdbcEndpointRepository implements EndpointRepository {
                         rs.getString("method"),
                         rs.getString("name"),
                         rs.getString("path"),
-                        Checker.notNull(rs.getString("permission_id")) ?
+                        Utility.notNull(rs.getString("permission_id")) ?
                             new PermissionId(rs.getString("permission_id")) : null,
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "secured"),

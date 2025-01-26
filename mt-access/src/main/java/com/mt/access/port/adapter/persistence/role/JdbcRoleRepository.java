@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -142,19 +142,19 @@ public class JdbcRoleRepository implements RoleRepository {
         List<BatchInsertKeyValue> commonPermList = new ArrayList<>();
         List<BatchInsertKeyValue> apiPermList = new ArrayList<>();
         List<BatchInsertKeyValue> extPermList = new ArrayList<>();
-        if (Checker.notNullOrEmpty(role.getCommonPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getCommonPermissionIds())) {
             List<BatchInsertKeyValue> collect = role.getCommonPermissionIds().stream()
                 .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
             commonPermList.addAll(collect);
         }
-        if (Checker.notNullOrEmpty(role.getApiPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getApiPermissionIds())) {
             List<BatchInsertKeyValue> collect = role.getApiPermissionIds().stream()
                 .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
             apiPermList.addAll(collect);
         }
-        if (Checker.notNullOrEmpty(role.getExternalPermissionIds())) {
+        if (Utility.notNullOrEmpty(role.getExternalPermissionIds())) {
             List<BatchInsertKeyValue> collect = role.getExternalPermissionIds().stream()
                 .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
@@ -214,19 +214,19 @@ public class JdbcRoleRepository implements RoleRepository {
         List<BatchInsertKeyValue> apiPermList = new ArrayList<>();
         List<BatchInsertKeyValue> extPermList = new ArrayList<>();
         roles.forEach(e -> {
-            if (Checker.notNullOrEmpty(e.getCommonPermissionIds())) {
+            if (Utility.notNullOrEmpty(e.getCommonPermissionIds())) {
                 List<BatchInsertKeyValue> collect = e.getCommonPermissionIds().stream()
                     .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 commonPermList.addAll(collect);
             }
-            if (Checker.notNullOrEmpty(e.getApiPermissionIds())) {
+            if (Utility.notNullOrEmpty(e.getApiPermissionIds())) {
                 List<BatchInsertKeyValue> collect = e.getApiPermissionIds().stream()
                     .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 apiPermList.addAll(collect);
             }
-            if (Checker.notNullOrEmpty(e.getExternalPermissionIds())) {
+            if (Utility.notNullOrEmpty(e.getExternalPermissionIds())) {
                 List<BatchInsertKeyValue> collect = e.getExternalPermissionIds().stream()
                     .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
@@ -292,35 +292,35 @@ public class JdbcRoleRepository implements RoleRepository {
     @Override
     public SumPagedRep<Role> query(RoleQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byDomainIds = String.format("r.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNull(query.getParentId())) {
+        if (Utility.notNull(query.getParentId())) {
             String byParentId = "r.parent_id = ?";
             whereClause.add(byParentId);
         }
-        if (Checker.notNull(query.getParentIdNull())) {
+        if (Utility.notNull(query.getParentIdNull())) {
             String byParentId = "r.parent_id IS NULL";
             whereClause.add(byParentId);
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byProjectIds = String.format("r.project_id IN (%s)", inClause);
             whereClause.add(byProjectIds);
         }
-        if (Checker.notNullOrEmpty(query.getTenantIds())) {
+        if (Utility.notNullOrEmpty(query.getTenantIds())) {
             String inClause = DatabaseUtility.getInClause(query.getTenantIds().size());
             String byTenantIds = String.format("r.tenant_id IN (%s)", inClause);
             whereClause.add(byTenantIds);
         }
-        if (Checker.notNullOrEmpty(query.getNames())) {
+        if (Utility.notNullOrEmpty(query.getNames())) {
             String inClause = DatabaseUtility.getInClause(query.getNames().size());
             String byNames = String.format("r.name IN (%s)", inClause);
             whereClause.add(byNames);
         }
-        if (Checker.notNullOrEmpty(query.getTypes())) {
+        if (Utility.notNullOrEmpty(query.getTypes())) {
             String inClause = DatabaseUtility.getInClause(query.getTypes().size());
             String byTypes = String.format("r.type IN (%s)", inClause);
             whereClause.add(byTypes);
@@ -336,29 +336,29 @@ public class JdbcRoleRepository implements RoleRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getParentId())) {
+        if (Utility.notNull(query.getParentId())) {
             args.add(
                 query.getParentId().getDomainId());
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getTenantIds())) {
+        if (Utility.notNullOrEmpty(query.getTenantIds())) {
             args.addAll(
                 query.getTenantIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getNames())) {
+        if (Utility.notNullOrEmpty(query.getNames())) {
             args.addAll(
                 query.getNames());
         }
-        if (Checker.notNullOrEmpty(query.getTypes())) {
+        if (Utility.notNullOrEmpty(query.getTypes())) {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
@@ -604,11 +604,11 @@ public class JdbcRoleRepository implements RoleRepository {
                         rs.getString("name"),
                         rs.getString("description"),
                         new RoleId(rs.getString("domain_id")),
-                        Checker.notNull(rs.getString("parent_id")) ?
+                        Utility.notNull(rs.getString("parent_id")) ?
                             new RoleId(rs.getString("parent_id")) : null,
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "system_create"),
-                        Checker.notNull(rs.getString("tenant_id")) ?
+                        Utility.notNull(rs.getString("tenant_id")) ?
                             new ProjectId(rs.getString("tenant_id")) : null,
                         RoleType.valueOf(rs.getString("type"))
                     );
@@ -631,7 +631,7 @@ public class JdbcRoleRepository implements RoleRepository {
             List<PermissionId> list = new ArrayList<>();
             do {
                 String idRaw = rs.getString("permission");
-                if (Checker.notNull(idRaw)) {
+                if (Utility.notNull(idRaw)) {
                     list.add(new PermissionId(idRaw));
                 }
             } while (rs.next());

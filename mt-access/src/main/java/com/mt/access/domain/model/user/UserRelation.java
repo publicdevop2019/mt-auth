@@ -12,7 +12,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.time.Instant;
@@ -120,7 +120,7 @@ public class UserRelation extends Auditable {
     }
 
     private void setStandaloneRoles(Set<RoleId> roleIds) {
-        if (Checker.notNull(roleIds)) {
+        if (Utility.notNull(roleIds)) {
             Validator.notEmpty(roleIds);
         }
         CommonUtility.updateCollection(this.standaloneRoles, roleIds,
@@ -129,7 +129,7 @@ public class UserRelation extends Auditable {
     }
 
     private void setTenantIds(Set<ProjectId> tenantIds) {
-        if (Checker.notNull(tenantIds)) {
+        if (Utility.notNull(tenantIds)) {
             Validator.notEmpty(tenantIds);
             Validator.noNullMember(tenantIds);
         }

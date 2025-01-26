@@ -15,7 +15,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -165,13 +165,13 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         //for mapped tables
         List<BatchInsertKeyValue> standaloneRoles = new ArrayList<>();
         List<BatchInsertKeyValue> tenantIds = new ArrayList<>();
-        if (Checker.notNullOrEmpty(userRelation.getStandaloneRoles())) {
+        if (Utility.notNullOrEmpty(userRelation.getStandaloneRoles())) {
             List<BatchInsertKeyValue> collect = userRelation.getStandaloneRoles().stream()
                 .map(ee -> new BatchInsertKeyValue(userRelation.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
             standaloneRoles.addAll(collect);
         }
-        if (Checker.notNullOrEmpty(userRelation.getTenantIds())) {
+        if (Utility.notNullOrEmpty(userRelation.getTenantIds())) {
             List<BatchInsertKeyValue> collect = userRelation.getTenantIds().stream()
                 .map(ee -> new BatchInsertKeyValue(userRelation.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
@@ -211,12 +211,12 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         }
 
         List<String> whereClause = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getUserIds())) {
+        if (Utility.notNullOrEmpty(query.getUserIds())) {
             String inClause = DatabaseUtility.getInClause(query.getUserIds().size());
             String byDomainIds = String.format("ur.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("ur.project_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
@@ -225,11 +225,11 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         String finalDataQuery = String.format(DYNAMIC_DATA_QUERY_SQL, join);
         String finalCountQuery = String.format(DYNAMIC_COUNT_QUERY_SQL, join);
         List<Object> args = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getUserIds())) {
+        if (Utility.notNullOrEmpty(query.getUserIds())) {
             args.addAll(
                 query.getUserIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getProjectIds())) {
+        if (Utility.notNull(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
@@ -555,12 +555,12 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
                 }
                 Set<RoleId> roles = userRelation.getStandaloneRoles();
                 String roleId = rs.getString("role");
-                if (Checker.notNull(roleId)) {
+                if (Utility.notNull(roleId)) {
                     roles.add(new RoleId(roleId));
                 }
                 Set<ProjectId> commonPermissionIds = userRelation.getTenantIds();
                 String projectId = rs.getString("tenant");
-                if (Checker.notNull(projectId)) {
+                if (Utility.notNull(projectId)) {
                     commonPermissionIds.add(new ProjectId(projectId));
                 }
             } while (rs.next());

@@ -263,7 +263,6 @@ export const zhHans = {
     "PROJECT_CREATED_AT": "创建于",
     "PROJECT_CREATED_BY": "创建者",
     "CREATED_BY": "创建者",
-    "TYPES": "类型",
     "BACKEND_APP": "标准web应用",
     "FRONTEND_APP": "单页web应用",
     "API": "API",

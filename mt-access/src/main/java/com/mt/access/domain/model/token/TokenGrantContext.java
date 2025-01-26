@@ -10,7 +10,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import lombok.Data;
 
 @Data
@@ -59,11 +59,11 @@ public class TokenGrantContext {
         this.agentInfo = agentInfo;
         this.ipAddress = ipAddress;
         this.changeId = changeId;
-        this.scope = Checker.isNull(scope) ? null : new ProjectId(scope);
+        this.scope = Utility.isNull(scope) ? null : new ProjectId(scope);
         this.refreshToken = refreshToken;
-        this.type = Checker.isNull(type) ? null : LoginType.parse(type);
+        this.type = Utility.isNull(type) ? null : LoginType.parse(type);
         this.code = code;
-        this.email = Checker.isNull(email) ? null : new UserEmail(email);
+        this.email = Utility.isNull(email) ? null : new UserEmail(email);
         this.username = username;
         this.password = password;
         this.mfaMethod = mfaMethod;
@@ -71,8 +71,8 @@ public class TokenGrantContext {
         this.redirectUri = redirectUri;
         this.grantType = grantType;
         this.viewTenantId =
-            Checker.isBlank(viewTenantId) ? null : new ProjectId(viewTenantId);
-        if (Checker.notNull(countryCode) && Checker.notNull(mobileNumber)) {
+            Utility.isBlank(viewTenantId) ? null : new ProjectId(viewTenantId);
+        if (Utility.notNull(countryCode) && Utility.notNull(mobileNumber)) {
             this.userMobile =
                 new UserMobile(countryCode, mobileNumber);
         }
@@ -80,7 +80,7 @@ public class TokenGrantContext {
     }
 
     public ProjectId getParsedScope() {
-        return Checker.notNull(scope) ? scope :
+        return Utility.notNull(scope) ? scope :
             new ProjectId(AppConstant.MAIN_PROJECT_ID);
     }
 

@@ -39,8 +39,6 @@ public interface ClientRepository {
 
     long countProjectTotal(ProjectId projectId);
 
-    Set<ClientId> getResources(Long id);
-
     Set<ClientId> getExternalResources(Long id);
 
     void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated);
@@ -52,6 +50,4 @@ public interface ClientRepository {
     Set<RedirectUrl> getRedirectUrls(Long id);
 
     void update(Client old, Client update);
-
-    void removeRef(ClientId removedClientId);
 }

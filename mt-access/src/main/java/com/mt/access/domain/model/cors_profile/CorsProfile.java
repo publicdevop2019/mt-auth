@@ -8,7 +8,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.LinkedHashSet;
@@ -156,7 +156,7 @@ public class CorsProfile extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(100, description);
-        if (Checker.notNull(description)) {
+        if (Utility.notNull(description)) {
             description = description.trim();
         }
         this.description = description;
@@ -176,7 +176,7 @@ public class CorsProfile extends Auditable {
      * @param maxAge max age
      */
     private void setMaxAge(Long maxAge) {
-        if (Checker.notNull(maxAge)) {
+        if (Utility.notNull(maxAge)) {
             Validator.lessThanOrEqualTo(maxAge, 60 * 60 * 2);
             Validator.greaterThanOrEqualTo(maxAge, 5);
         }
@@ -189,7 +189,7 @@ public class CorsProfile extends Auditable {
 
     private void setAllowedHeaders(Set<String> allowedHeaders) {
         Validator.validOptionalCollection(10, allowedHeaders);
-        if (Checker.notNull(allowedHeaders)) {
+        if (Utility.notNull(allowedHeaders)) {
             validateHeaderName(allowedHeaders);
         }
         CommonUtility.updateCollection(this.allowedHeaders, allowedHeaders,
@@ -204,7 +204,7 @@ public class CorsProfile extends Auditable {
 
     private void setExposedHeaders(Set<String> headers) {
         Validator.validOptionalCollection(10, headers);
-        if (Checker.notNull(headers)) {
+        if (Utility.notNull(headers)) {
             validateHeaderName(headers);
         }
         CommonUtility.updateCollection(this.exposedHeaders, headers,

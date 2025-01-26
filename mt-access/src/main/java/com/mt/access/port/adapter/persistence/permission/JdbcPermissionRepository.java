@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -110,7 +110,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
             );
         //for linked tables
         List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
-        if (Checker.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
+        if (Utility.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
             List<BatchInsertKeyValue> collect = permission.getLinkedApiPermissionIds().stream()
                 .map(ee -> new BatchInsertKeyValue(permission.getId(), ee.getDomainId())).collect(
                     Collectors.toList());
@@ -150,7 +150,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         //for linked tables
         List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
         permissions.forEach(e -> {
-            if (Checker.notNullOrEmpty(e.getLinkedApiPermissionIds())) {
+            if (Utility.notNullOrEmpty(e.getLinkedApiPermissionIds())) {
                 List<BatchInsertKeyValue> collect = e.getLinkedApiPermissionIds().stream()
                     .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
@@ -168,31 +168,31 @@ public class JdbcPermissionRepository implements PermissionRepository {
     @Override
     public SumPagedRep<Permission> query(PermissionQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byDomainIds = String.format("p.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byProjectIds = String.format("p.project_id IN (%s)", inClause);
             whereClause.add(byProjectIds);
         }
-        if (Checker.notNullOrEmpty(query.getTenantIds())) {
+        if (Utility.notNullOrEmpty(query.getTenantIds())) {
             String inClause = DatabaseUtility.getInClause(query.getTenantIds().size());
             String byTenantIds = String.format("p.tenant_id IN (%s)", inClause);
             whereClause.add(byTenantIds);
         }
-        if (Checker.notNullOrEmpty(query.getNames())) {
+        if (Utility.notNullOrEmpty(query.getNames())) {
             String inClause = DatabaseUtility.getInClause(query.getNames().size());
             String byNames = String.format("p.name IN (%s)", inClause);
             whereClause.add(byNames);
         }
-        if (Checker.notNull(query.getShared())) {
+        if (Utility.notNull(query.getShared())) {
             String shared = "p.shared = ?";
             whereClause.add(shared);
         }
-        if (Checker.notNullOrEmpty(query.getTypes())) {
+        if (Utility.notNullOrEmpty(query.getTypes())) {
             String inClause = DatabaseUtility.getInClause(query.getTypes().size());
             String byTypes = String.format("p.type IN (%s)", inClause);
             whereClause.add(byTypes);
@@ -201,29 +201,29 @@ public class JdbcPermissionRepository implements PermissionRepository {
         String finalDataQuery = String.format(DYNAMIC_DATA_QUERY_SQL, join);
         String finalCountQuery = String.format(DYNAMIC_COUNT_QUERY_SQL, join);
         List<Object> args = new ArrayList<>();
-        if (Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getProjectIds())) {
+        if (Utility.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getTenantIds())) {
+        if (Utility.notNullOrEmpty(query.getTenantIds())) {
             args.addAll(
                 query.getTenantIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNullOrEmpty(query.getNames())) {
+        if (Utility.notNullOrEmpty(query.getNames())) {
             args.addAll(
                 query.getNames());
         }
-        if (Checker.notNull(query.getShared())) {
+        if (Utility.notNull(query.getShared())) {
             args.add(
                 query.getShared());
         }
-        if (Checker.notNullOrEmpty(query.getTypes())) {
+        if (Utility.notNullOrEmpty(query.getTypes())) {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
@@ -285,7 +285,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
     @Override
     public void remove(Permission permission) {
 
-        if (Checker.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
+        if (Utility.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
 
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_LINKED_API_PERMISSION_BY_ID_SQL,
@@ -414,7 +414,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "shared"),
                         DatabaseUtility.getNullableBoolean(rs, "system_create"),
-                        Checker.notNull(rs.getString("tenant_id")) ?
+                        Utility.notNull(rs.getString("tenant_id")) ?
                             new ProjectId(rs.getString("tenant_id")) : null,
                         PermissionType.valueOf(rs.getString("type"))
                     );
@@ -423,7 +423,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                 }
                 Set<PermissionId> linkedApiPermissionIds = permission.getLinkedApiPermissionIds();
                 String rawId = rs.getString("lp_id");
-                if (Checker.notNull(rawId)) {
+                if (Utility.notNull(rawId)) {
                     linkedApiPermissionIds.add(new PermissionId(rawId));
                 }
             } while (rs.next());

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IClient } from 'src/app/misc/interface';
+import { ITenantClientSummary } from 'src/app/misc/interface';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';
@@ -22,7 +22,7 @@ export class MyClientsComponent {
   public projectId = this.router.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
   columnList: any = {};
-  public tableSource: TableHelper<IClient> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
+  public tableSource: TableHelper<ITenantClientSummary> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
     public projectSvc: ProjectService,
@@ -35,12 +35,12 @@ export class MyClientsComponent {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'CLIENT_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         name: 'NAME',
-        types: 'TYPES',
+        type: 'TYPES',
         edit: 'EDIT',
         delete: 'DELETE',
       } : {
         name: 'NAME',
-        types: 'TYPES',
+        type: 'TYPES',
       }
       this.tableSource.loadPage(0)
     })

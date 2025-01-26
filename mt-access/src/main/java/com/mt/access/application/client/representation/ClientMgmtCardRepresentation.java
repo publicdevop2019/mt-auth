@@ -10,21 +10,21 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class ClientRepresentation {
-    private final Set<ClientType> types;
+@NoArgsConstructor
+public class ClientMgmtCardRepresentation {
+
     private String id;
 
     private String name;
-    private String projectId;
-
-    private String path;
 
     private String description;
-    private String externalUrl;
 
     private Set<GrantType> grantTypeEnums;
+
+    private Set<ClientType> types;
 
     private Integer accessTokenValiditySeconds;
 
@@ -32,36 +32,42 @@ public class ClientRepresentation {
 
     private Integer refreshTokenValiditySeconds;
 
+    private Set<ResourceClientInfo> resources;
+
     private Set<String> resourceIds;
 
     private Boolean resourceIndicator;
 
+    private Boolean autoApprove;
+
     private Integer version;
-    private String clientSecret;
 
-    private Boolean hasSecret;
-
-    public ClientRepresentation(Client client, Set<ClientId> resources) {
+    public ClientMgmtCardRepresentation(Client client, Set<ClientId> resources) {
         id = client.getClientId().getDomainId();
         name = client.getName();
-        path = client.getPath();
-        description = client.getDescription();
         grantTypeEnums = new HashSet<>();//avoid lazy load
         grantTypeEnums.addAll(client.getGrantTypes());
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
+        description = client.getDescription();
         registeredRedirectUri = client.getRedirectUrls().stream()
             .map(RedirectUrl::getValue).collect(Collectors.toSet());
-        refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
+        if (client.getTokenDetail() != null) {
+            refreshTokenValiditySeconds = client.getTokenDetail().getRefreshTokenValiditySeconds();
+        }
         resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
         resourceIndicator = client.getAccessible();
-        if (client.getExternalUrl() != null) {
-            externalUrl = client.getExternalUrl().getValue();
-        }
-        version = client.getVersion();
-        clientSecret = client.getSecret();
-        projectId = client.getProjectId().getDomainId();
         types = new HashSet<>();//avoid lazy load
         types.addAll(client.getTypes());
+    }
 
+    @Data
+    public static class ResourceClientInfo {
+        private String name;
+        private String id;
+
+        public ResourceClientInfo(String name, String id) {
+            this.name = name;
+            this.id = id;
+        }
     }
 }

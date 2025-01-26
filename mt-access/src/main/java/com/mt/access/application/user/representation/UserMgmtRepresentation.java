@@ -2,7 +2,7 @@ package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.User;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -28,7 +28,7 @@ public class UserMgmtRepresentation {
 
     public UserMgmtRepresentation(User user, Set<LoginHistory> loginInfoList) {
         this.id = user.getUserId().getDomainId();
-        this.email = Checker.notNull(user.getEmail()) ? user.getEmail().getEmail() : null;
+        this.email = Utility.notNull(user.getEmail()) ? user.getEmail().getEmail() : null;
         this.locked = user.getLocked();
         this.createdBy = user.getCreatedBy();
         this.createdAt = user.getCreatedAt();

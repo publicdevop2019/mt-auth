@@ -1,7 +1,7 @@
 package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.User;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import lombok.Data;
 
 @Data
@@ -15,13 +15,13 @@ public class UserTenantCardRepresentation {
 
     public UserTenantCardRepresentation(Object o) {
         User user = (User) o;
-        if (Checker.notNull(user.getUserName())) {
+        if (Utility.notNull(user.getUserName())) {
             username = user.getUserName().getValue();
         }
-        if (Checker.notNull(user.getEmail())) {
+        if (Utility.notNull(user.getEmail())) {
             email = user.getEmail().getPartialValue();
         }
-        if (Checker.notNull(user.getMobile())) {
+        if (Utility.notNull(user.getMobile())) {
             mobile = user.getMobile().getPartialValue();
         }
         id = user.getUserId().getDomainId();

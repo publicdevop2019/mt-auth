@@ -190,6 +190,12 @@ export interface IClient extends IIdName {
     version: number;
 }
 
+export interface ITenantClientSummary {
+    id: string;
+    name: string;
+    type: CLIENT_TYPE;
+}
+
 export interface ITokenResponse {
     access_token: string;
     permissionIds: string[];

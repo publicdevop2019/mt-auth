@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -146,7 +146,7 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                 corsProfile.getName(),
                 corsProfile.getProjectId().getDomainId()
             );
-        if (Checker.notNullOrEmpty(corsProfile.getAllowedHeaders())) {
+        if (Utility.notNullOrEmpty(corsProfile.getAllowedHeaders())) {
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getAllowedHeaders().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e));
@@ -158,7 +158,7 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                         ps.setString(2, row.getValue());
                     });
         }
-        if (Checker.notNullOrEmpty(corsProfile.getExposedHeaders())) {
+        if (Utility.notNullOrEmpty(corsProfile.getExposedHeaders())) {
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getExposedHeaders().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e));
@@ -170,7 +170,7 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                         ps.setString(2, row.getValue());
                     });
         }
-        if (Checker.notNullOrEmpty(corsProfile.getAllowOrigin())) {
+        if (Utility.notNullOrEmpty(corsProfile.getAllowOrigin())) {
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             corsProfile.getAllowOrigin().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(corsProfile.getId(), e.getValue()));
@@ -273,21 +273,21 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
     @Override
     public void remove(CorsProfile corsProfile) {
 
-        if (Checker.notNullOrEmpty(corsProfile.getAllowedHeaders())) {
+        if (Utility.notNullOrEmpty(corsProfile.getAllowedHeaders())) {
 
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_ALLOWED_HEADER_BY_ID_SQL,
                     corsProfile.getId()
                 );
         }
-        if (Checker.notNullOrEmpty(corsProfile.getExposedHeaders())) {
+        if (Utility.notNullOrEmpty(corsProfile.getExposedHeaders())) {
 
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_EXPOSED_HEADER_BY_ID_SQL,
                     corsProfile.getId()
                 );
         }
-        if (Checker.notNullOrEmpty(corsProfile.getAllowOrigin())) {
+        if (Utility.notNullOrEmpty(corsProfile.getAllowOrigin())) {
 
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CORS_ORIGIN_BY_ID_SQL,
@@ -302,9 +302,9 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
 
     @Override
     public SumPagedRep<CorsProfile> query(CorsProfileQuery query) {
-        if (Checker.notNull(query.getProjectId())) {
+        if (Utility.notNull(query.getProjectId())) {
             //tenant query
-            if (Checker.notNullOrEmpty(query.getIds())) {
+            if (Utility.notNullOrEmpty(query.getIds())) {
                 return queryByProjectIdAndDomainId(query);
             }
             return queryByProjectId(query);
@@ -398,19 +398,19 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
                 Set<String> allowedHeaders =
                     corsProfile.getAllowedHeaders();
                 String allowedHeader = rs.getString("allowed_header");
-                if (Checker.notNull(allowedHeader)) {
+                if (Utility.notNull(allowedHeader)) {
                     allowedHeaders.add(allowedHeader);
                 }
                 Set<String> exposedHeaders =
                     corsProfile.getExposedHeaders();
                 String exposedHeader = rs.getString("exposed_header");
-                if (Checker.notNull(exposedHeader)) {
+                if (Utility.notNull(exposedHeader)) {
                     exposedHeaders.add(exposedHeader);
                 }
                 Set<Origin> allowOrigins =
                     corsProfile.getAllowOrigin();
                 String origin = rs.getString("allowed_origin");
-                if (Checker.notNull(origin)) {
+                if (Utility.notNull(origin)) {
                     allowOrigins.add(new Origin(origin));
                 }
             } while (rs.next());

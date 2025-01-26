@@ -18,6 +18,7 @@ import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
+import com.mt.access.domain.model.client.ClientResourceRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
@@ -68,6 +69,8 @@ import org.springframework.stereotype.Service;
 public class DomainRegistry {
     @Getter
     private static ClientRepository clientRepository;
+    @Getter
+    private static ClientResourceRepository clientResourceRepository;
     @Getter
     private static UserRepository userRepository;
     @Getter
@@ -187,6 +190,10 @@ public class DomainRegistry {
     @Autowired
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
+    }
+    @Autowired
+    public void setClientResourceRepository(ClientResourceRepository repository) {
+        DomainRegistry.clientResourceRepository = repository;
     }
 
     @Autowired

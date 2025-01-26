@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +31,7 @@ public class PermissionValidator {
     }
 
     private void checkName() {
-        if (Checker.isFalse(permission.getSystemCreate())) {
+        if (Utility.isFalse(permission.getSystemCreate())) {
             if (permission.getName() == null ||
                 Permission.reservedName.contains(permission.getName()) ||
                 permission.getName().startsWith(

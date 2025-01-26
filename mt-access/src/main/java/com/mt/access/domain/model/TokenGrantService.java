@@ -25,11 +25,12 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -91,7 +92,7 @@ public class TokenGrantService {
         } else {
             //password
             if (context.getGrantType().equals(TokenGrantType.PASSWORD)) {
-                if (Checker.isTrue(context.getNewUserRequired())) {
+                if (Utility.isTrue(context.getNewUserRequired())) {
                     return false;
                 }
                 //existing user
@@ -132,7 +133,8 @@ public class TokenGrantService {
                 HttpResponseCode.BAD_REQUEST);
         }
         Client client = DomainRegistry.getClientRepository().get(clientId);
-        TokenGrantClient tokenGrantClient = new TokenGrantClient(client);
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        TokenGrantClient tokenGrantClient = new TokenGrantClient(client, resources);
         if (!tokenGrantClient.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
@@ -150,27 +152,27 @@ public class TokenGrantService {
 
     private boolean validPasswordGrant(TokenGrantContext context) {
         LoginType type = context.getType();
-        if (Checker.isNull(type)) {
+        if (Utility.isNull(type)) {
             return false;
         }
         boolean validParams = false;
         if (LoginType.MOBILE_W_CODE.equals(type)) {
-            validParams = Checker.notNull(context.getUserMobile()) &&
-                Checker.notNull(context.getCode());
+            validParams = Utility.notNull(context.getUserMobile()) &&
+                Utility.notNull(context.getCode());
         } else if (LoginType.EMAIL_W_CODE.equals(type)) {
-            validParams = Checker.notNull(context.getEmail()) &&
-                Checker.notNull(context.getCode());
+            validParams = Utility.notNull(context.getEmail()) &&
+                Utility.notNull(context.getCode());
         } else if (LoginType.USERNAME_W_PWD.equals(type)) {
-            validParams = Checker.notNull(context.getUsername()) &&
-                Checker.notNull(context.getPassword());
+            validParams = Utility.notNull(context.getUsername()) &&
+                Utility.notNull(context.getPassword());
         } else if (LoginType.EMAIL_W_PWD.equals(type)) {
-            validParams = Checker.notNull(context.getEmail()) &&
-                Checker.notNull(context.getPassword());
+            validParams = Utility.notNull(context.getEmail()) &&
+                Utility.notNull(context.getPassword());
         } else if (LoginType.MOBILE_W_PWD.equals(type)) {
-            validParams = Checker.notNull(context.getUserMobile()) &&
-                Checker.notNull(context.getPassword());
+            validParams = Utility.notNull(context.getUserMobile()) &&
+                Utility.notNull(context.getPassword());
         }
-        if (Checker.isFalse(validParams)) {
+        if (Utility.isFalse(validParams)) {
             return false;
         }
         LoginUser userInfo = null;
@@ -230,10 +232,10 @@ public class TokenGrantService {
                 }
             }
         }
-        if (Checker.notNull(userInfo) && Checker.isTrue(userInfo.getLocked())) {
+        if (Utility.notNull(userInfo) && Utility.isTrue(userInfo.getLocked())) {
             validParams = false;
         }
-        if (context.getNewUserRequired() && Checker.isNull(context.getChangeId())) {
+        if (context.getNewUserRequired() && Utility.isNull(context.getChangeId())) {
             validParams = false;
         }
         context.setLoginUser(userInfo);
@@ -241,7 +243,7 @@ public class TokenGrantService {
     }
 
     private boolean validAuthorizationCodeGrant(ProjectId scope, ProjectId viewTenantId) {
-        return !(Checker.notNull(viewTenantId) && Checker.notNull(scope));
+        return !(Utility.notNull(viewTenantId) && Utility.notNull(scope));
     }
 
     private boolean validRefreshGrant(String refreshToken) {
@@ -250,7 +252,7 @@ public class TokenGrantService {
             throw new DefinedRuntimeException("refresh token expired", "1090",
                 HttpResponseCode.UNAUTHORIZED);
         }
-        return Checker.notBlank(refreshToken);
+        return Utility.notBlank(refreshToken);
     }
 
 
@@ -263,7 +265,7 @@ public class TokenGrantService {
             throw new DefinedRuntimeException("client not found", "1091",
                 HttpResponseCode.UNAUTHORIZED);
         }
-        if (!Checker.equals(clientSecret, client.getSecret())) {
+        if (!Utility.equals(clientSecret, client.getSecret())) {
             throw new DefinedRuntimeException("wrong client secret", "1070",
                 HttpResponseCode.UNAUTHORIZED);
         }
@@ -291,7 +293,8 @@ public class TokenGrantService {
                     HttpResponseCode.BAD_REQUEST);
             }
         }
-        context.setClient(new TokenGrantClient(client));
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        context.setClient(new TokenGrantClient(client, resources));
     }
 
 
@@ -326,7 +329,7 @@ public class TokenGrantService {
                 }
             } else {
                 MfaDeliverMethod deliverMethod = MfaDeliverMethod.parse(mfaMethod);
-                if (Checker.notNull(deliverMethod)) {
+                if (Utility.notNull(deliverMethod)) {
                     log.debug("mfa required and user selected deliver method");
                     context.setTriggerMfaRequired(true);
                     context.setDeliveryMethod(deliverMethod);

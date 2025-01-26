@@ -5,7 +5,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +17,7 @@ public class VerificationCodeApplicationService {
         DomainRegistry.getVerificationCodeService()
             .validateCreate(command.getCountryCode(), command.getMobileNumber(),
                 command.getEmail());
-        if (Checker.notNull(command.getEmail())) {
+        if (Utility.notNull(command.getEmail())) {
             RegistrationEmail email = new RegistrationEmail(command.getEmail());
             sendCode(email, command.getClientId(), changeId);
         } else {

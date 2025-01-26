@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -128,7 +128,7 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                 cacheProfile.getWeakValidation(),
                 cacheProfile.getProjectId().getDomainId()
             );
-        if (Checker.notNullOrEmpty(cacheProfile.getCacheControl())) {
+        if (Utility.notNullOrEmpty(cacheProfile.getCacheControl())) {
             List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
             cacheProfile.getCacheControl().forEach(e -> {
                 batchArgs.add(new BatchInsertKeyValue(cacheProfile.getId(), e.name()));
@@ -144,7 +144,7 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
 
     @Override
     public void remove(CacheProfile cacheProfile) {
-        if (Checker.notNullOrEmpty(cacheProfile.getCacheControl())) {
+        if (Utility.notNullOrEmpty(cacheProfile.getCacheControl())) {
 
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CACHE_CONTROL_MAP_BY_ID_SQL,
@@ -159,15 +159,15 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
 
     @Override
     public SumPagedRep<CacheProfile> query(CacheProfileQuery query) {
-        if (Checker.notNull(query.getProjectId()) && Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNull(query.getProjectId()) && Utility.notNullOrEmpty(query.getIds())) {
             //tenant query
             return queryByProjectIdAndDomainId(query);
         }
-        if (Checker.notNull(query.getProjectId())) {
+        if (Utility.notNull(query.getProjectId())) {
             //tenant query
             return queryByProjectId(query);
         }
-        if (Checker.notNullOrEmpty(query.getIds())) {
+        if (Utility.notNullOrEmpty(query.getIds())) {
             return queryByDomainIds(query);
         }
         return SumPagedRep.empty();
@@ -311,7 +311,7 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                 Set<CacheControlValue> cacheControl =
                     cacheProfile.getCacheControl();
                 String controlValue = rs.getString("cache_control");
-                if (Checker.notNull(controlValue)) {
+                if (Utility.notNull(controlValue)) {
                     CacheControlValue cacheControlValue =
                         CacheControlValue.valueOf(controlValue);
                     cacheControl.add(cacheControlValue);

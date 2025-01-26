@@ -263,7 +263,6 @@ export const enUS = {
     "PROJECT_CREATED_AT": "Created At",
     "PROJECT_CREATED_BY": "Created by",
     "CREATED_BY": "Created By",
-    "TYPES": "Types",
     "BACKEND_APP": "Standard Web Application",
     "FRONTEND_APP": "Single Page Web Application",
     "API": "API",

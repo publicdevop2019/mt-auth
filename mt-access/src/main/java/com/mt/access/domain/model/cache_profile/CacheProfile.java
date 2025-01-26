@@ -7,7 +7,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
@@ -171,7 +171,7 @@ public class CacheProfile extends Auditable {
     }
 
     private void setSmaxAge(Long smaxAge) {
-        if (Checker.notNull(smaxAge)) {
+        if (Utility.notNull(smaxAge)) {
             Validator.lessThanOrEqualTo(smaxAge, 31536000);
             Validator.greaterThanOrEqualTo(smaxAge, 1);
         }
@@ -179,7 +179,7 @@ public class CacheProfile extends Auditable {
     }
 
     private void setMaxAge(Long maxAge) {
-        if (Checker.notNull(maxAge)) {
+        if (Utility.notNull(maxAge)) {
             Validator.lessThanOrEqualTo(maxAge, 31536000);
             Validator.greaterThanOrEqualTo(maxAge, 1);
         }
@@ -187,7 +187,7 @@ public class CacheProfile extends Auditable {
     }
 
     private void setExpires(Long expires) {
-        if (Checker.notNull(expires)) {
+        if (Utility.notNull(expires)) {
             Validator.lessThanOrEqualTo(expires, 31536000);
             Validator.greaterThanOrEqualTo(expires, 1);
         }
@@ -206,7 +206,7 @@ public class CacheProfile extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(100, description);
-        if (Checker.notNull(description)) {
+        if (Utility.notNull(description)) {
             description = description.trim();
         }
         this.description = description;

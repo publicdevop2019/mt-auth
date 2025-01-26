@@ -19,7 +19,7 @@ import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
@@ -383,7 +383,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         AtomicBoolean eventMissMatch = new AtomicBoolean(false);
                         confirmedStartAt.forEach((sequenceId, startAt) -> {
                             StoredEvent storedEvent = confirmedEvent.get(sequenceId);
-                            if (Checker.isNull(storedEvent)) {
+                            if (Utility.isNull(storedEvent)) {
                                 eventMissMatch.set(true);
                             }
                             Analytics.stopBatchPublish(startAt, storedEvent, sequenceId);

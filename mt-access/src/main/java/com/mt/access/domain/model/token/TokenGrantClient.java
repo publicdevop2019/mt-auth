@@ -5,6 +5,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -24,17 +25,16 @@ public class TokenGrantClient {
     private Set<String> resourceIds;
     private Set<String> registeredRedirectUri;
 
-    public TokenGrantClient(Client client) {
+    public TokenGrantClient(Client client, Set<ClientId> resources) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());
         setGrantTypes(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
-        Set<String> collect =
-            client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
-        Set<String> collect2 = client.getExternalResources().stream().map(ClientId::getDomainId)
-            .collect(Collectors.toSet());
+        Set<String> collect = Utility.mapToSet(resources, ClientId::getDomainId);
+        Set<String> collect2 =
+            Utility.mapToSet(client.getExternalResources(), ClientId::getDomainId);
         collect2.addAll(collect);
         setResourceIds(collect2);
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());

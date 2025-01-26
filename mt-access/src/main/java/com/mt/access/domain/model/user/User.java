@@ -6,7 +6,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
@@ -142,13 +142,13 @@ public class User extends Auditable {
     }
 
     public String getDisplayName() {
-        if (Checker.notNull(userName)) {
+        if (Utility.notNull(userName)) {
             return userName.getValue();
         }
-        if (Checker.notNull(email)) {
+        if (Utility.notNull(email)) {
             return email.getEmail();
         }
-        if (Checker.notNull(mobile)) {
+        if (Utility.notNull(mobile)) {
             return mobile.getValue();
         }
         return null;
@@ -270,10 +270,10 @@ public class User extends Auditable {
     }
 
     public boolean hasMultipleMfaOptions() {
-        return Checker.notNull(mobile) && Checker.notNull(email);
+        return Utility.notNull(mobile) && Utility.notNull(email);
     }
 
     public boolean hasNoMfaOptions() {
-        return Checker.isNull(mobile) && Checker.isNull(email);
+        return Utility.isNull(mobile) && Utility.isNull(email);
     }
 }

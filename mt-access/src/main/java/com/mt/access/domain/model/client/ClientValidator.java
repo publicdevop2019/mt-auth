@@ -2,7 +2,7 @@ package com.mt.access.domain.model.client;
 
 
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
 public class ClientValidator {
@@ -25,7 +25,7 @@ public class ClientValidator {
     }
 
     private void onlyMainCanHavePasswordGrant() {
-        if (!Checker.isNullOrEmpty(client.getGrantTypes())) {
+        if (!Utility.isNullOrEmpty(client.getGrantTypes())) {
             if (client.getGrantTypes().contains(GrantType.PASSWORD)) {
                 if (!AppConstant.MAIN_PROJECT_ID.equalsIgnoreCase(
                     client.getProjectId().getDomainId())) {
@@ -78,12 +78,12 @@ public class ClientValidator {
     }
 
     private void pathAndType() {
-        if (Checker.isBlank(client.getPath())
+        if (Utility.isBlank(client.getPath())
             &&
             client.getTypes().contains(ClientType.BACKEND_APP)) {
             handler.handleError("backend client require path");
         }
-        if (!Checker.isBlank(client.getPath())
+        if (!Utility.isBlank(client.getPath())
             &&
             client.getTypes().contains(ClientType.FRONTEND_APP)) {
             handler.handleError("frontend client should not have path");

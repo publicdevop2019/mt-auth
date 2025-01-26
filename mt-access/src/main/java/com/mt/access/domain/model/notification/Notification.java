@@ -20,7 +20,7 @@ import com.mt.common.domain.model.job.event.JobNotFound;
 import com.mt.common.domain.model.job.event.JobPaused;
 import com.mt.common.domain.model.job.event.JobStarving;
 import com.mt.common.domain.model.job.event.JobThreadStarving;
-import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -124,7 +124,7 @@ public class Notification {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = VerificationCodeUpdated.name;
-        if (Checker.isNull(event.getEmail())) {
+        if (Utility.isNull(event.getEmail())) {
             type = NotificationType.SMS;
         } else {
             type = NotificationType.EMAIL;
