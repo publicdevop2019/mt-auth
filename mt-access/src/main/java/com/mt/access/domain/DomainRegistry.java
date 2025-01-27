@@ -1,6 +1,7 @@
 package com.mt.access.domain;
 
 import com.mt.access.domain.model.CacheProfileValidationService;
+import com.mt.access.domain.model.ClientExternalResourceService;
 import com.mt.access.domain.model.ComputePermissionService;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
@@ -17,9 +18,9 @@ import com.mt.access.domain.model.VerificationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
+import com.mt.access.domain.model.client.ClientExternalResourceRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientResourceRepository;
-import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
@@ -72,6 +73,10 @@ public class DomainRegistry {
     @Getter
     private static ClientResourceRepository clientResourceRepository;
     @Getter
+    private static ClientExternalResourceService clientExternalResourceService;
+    @Getter
+    private static ClientExternalResourceRepository clientExternalResourceRepository;
+    @Getter
     private static UserRepository userRepository;
     @Getter
     private static TemporaryCodeRepository temporaryCodeRepository;
@@ -97,8 +102,6 @@ public class DomainRegistry {
     private static RevokeTokenRepository revokeTokenRepository;
     @Getter
     private static EndpointValidationService endpointValidationService;
-    @Getter
-    private static ClientValidationService clientValidationService;
     @Getter
     private static RevokeTokenValidationService revokeTokenValidationService;
     @Getter
@@ -191,6 +194,17 @@ public class DomainRegistry {
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
     }
+
+    @Autowired
+    public void setClientExternalResourceRepository(ClientExternalResourceRepository services) {
+        DomainRegistry.clientExternalResourceRepository = services;
+    }
+
+    @Autowired
+    public void setClientExternalResourceService(ClientExternalResourceService services) {
+        DomainRegistry.clientExternalResourceService = services;
+    }
+
     @Autowired
     public void setClientResourceRepository(ClientResourceRepository repository) {
         DomainRegistry.clientResourceRepository = repository;
@@ -411,11 +425,6 @@ public class DomainRegistry {
     @Autowired
     public void setTicketService(TicketService ticketService) {
         DomainRegistry.ticketService = ticketService;
-    }
-
-    @Autowired
-    public void setClientValidationService(ClientValidationService clientValidationService) {
-        DomainRegistry.clientValidationService = clientValidationService;
     }
 
     @Autowired

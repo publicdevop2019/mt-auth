@@ -22,16 +22,10 @@ import com.mt.access.domain.model.client.ExternalUrl;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
-import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.domain.model.endpoint.EndpointQuery;
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.role.Role;
-import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Utility;
@@ -228,7 +222,7 @@ public class ClientApplicationService {
                         Utility.mapToSet(command.getResourceIds(), ClientId::new);
                     Set<ClientId> oldResources =
                         DomainRegistry.getClientResourceRepository().query(client);
-                    ClientResource.updateResources(updated, oldResources, newResources, context);
+                    ClientResource.update(updated, oldResources, newResources, context);
 
                 }
                 return null;
@@ -253,7 +247,11 @@ public class ClientApplicationService {
                         client);
                     Set<ClientId> resources =
                         DomainRegistry.getClientResourceRepository().query(client);
-                    DomainRegistry.getClientResourceRepository().remove(client, resources);
+                    DomainRegistry.getClientResourceRepository().removeAll(client, resources);
+                    Set<ClientId> externalResources =
+                        DomainRegistry.getClientExternalResourceRepository().query(client);
+                    DomainRegistry.getClientExternalResourceRepository()
+                        .removeAll(client, externalResources);
                 }
                 return null;
             }, CLIENT);
@@ -287,25 +285,7 @@ public class ClientApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 ProjectId projectId = new ProjectId(event.getDomainId().getDomainId());
-                Set<Client> projectClients = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                        new ClientQuery(projectId));
-                Set<Role> allRoles = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                        new RoleQuery(projectId));
-                Set<PermissionId> externalPermissions =
-                    allRoles.stream().filter(e -> e.getExternalPermissionIds() != null)
-                        .flatMap(e -> e.getExternalPermissionIds().stream())
-                        .collect(Collectors.toSet());
-                if (!externalPermissions.isEmpty()) {
-                    Set<Endpoint> endpoints = QueryUtility.getAllByQuery(e ->
-                            DomainRegistry.getEndpointRepository().query(e),
-                        EndpointQuery.permissionQuery(externalPermissions));
-                    Set<ClientId> collect =
-                        endpoints.stream().map(Endpoint::getClientId)
-                            .collect(Collectors.toSet());
-                    projectClients.forEach(client -> client.updateExternalResource(collect));
-                }
+                DomainRegistry.getClientExternalResourceService().handle(projectId);
                 return null;
             }, CLIENT);
     }

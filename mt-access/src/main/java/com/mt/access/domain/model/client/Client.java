@@ -310,7 +310,6 @@ public class Client extends Auditable {
         getRedirectUrls();
         getGrantTypes();
         getTypes();
-        getExternalResources();
         Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         updated.setPath(path, context);
         updated.setAccessible(accessible, context);
@@ -386,30 +385,6 @@ public class Client extends Auditable {
         removeAllReferenced(context);
     }
 
-    public void updateExternalResource(Set<ClientId> updated) {
-        getExternalResources();
-        if (CommonUtility.collectionWillChange(this.externalResources, updated)) {
-            DomainRegistry.getClientRepository()
-                .updateExternalResources(id, this.externalResources, updated);
-            CommonUtility.updateCollection(this.externalResources, updated,
-                () -> this.externalResources = updated);
-            DomainRegistry.getClientValidationService()
-                .validate(this, new HttpValidationNotificationHandler());
-        }
-    }
-
-    public Set<ClientId> getExternalResources() {
-        if (isCreate) {
-            return externalResources;
-        }
-        if (!externalResourceLoaded) {
-            externalResources =
-                DomainRegistry.getClientRepository().getExternalResources(this.getId());
-            externalResourceLoaded = true;
-        }
-        return externalResources;
-    }
-
     public Set<GrantType> getGrantTypes() {
         if (isCreate) {
             return grantTypes;
@@ -436,7 +411,6 @@ public class Client extends Auditable {
 
     public boolean sameAs(Client o) {
         return
-            Objects.equals(getExternalResources(), o.getExternalResources()) &&
                 Objects.equals(projectId, o.projectId) &&
                 Objects.equals(roleId, o.roleId) &&
                 Objects.equals(clientId, o.clientId) &&

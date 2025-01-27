@@ -16,29 +16,29 @@ public class ClientResource {
     public static void addResources(Client client, Set<ClientId> newResources) {
         if (Utility.notNullOrEmpty(newResources)) {
             Validator.lessThanOrEqualTo(newResources, 10);
-            checkResources(client.getClientId(), client.getProjectId(), newResources);
+            validate(client.getClientId(), client.getProjectId(), newResources);
             DomainRegistry.getClientResourceRepository().add(client, newResources);
         }
     }
 
-    public static void updateResources(Client client,
-                                       Set<ClientId> oldResources,
-                                       Set<ClientId> newResources,
-                                       TransactionContext context) {
+    public static void update(Client client,
+                              Set<ClientId> oldResources,
+                              Set<ClientId> newResources,
+                              TransactionContext context) {
         if (!Utility.sameAs(oldResources, newResources)) {
             Validator.lessThanOrEqualTo(newResources, 10);
             context.append(new ClientResourcesChanged(client.getClientId()));
             Utility.updateSet(oldResources, newResources,
                 (added) -> {
-                    checkResources(client.getClientId(), client.getProjectId(), added);
+                    validate(client.getClientId(), client.getProjectId(), added);
                     DomainRegistry.getClientResourceRepository().add(client, added);
                 },
                 (removed) -> DomainRegistry.getClientResourceRepository().remove(client, removed));
         }
     }
 
-    private static void checkResources(ClientId clientId, ProjectId projectId,
-                                       Set<ClientId> resources) {
+    private static void validate(ClientId clientId, ProjectId projectId,
+                                 Set<ClientId> resources) {
         ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         if (resources.contains(clientId)) {
             handler.handleError("client cannot have itself as resource");

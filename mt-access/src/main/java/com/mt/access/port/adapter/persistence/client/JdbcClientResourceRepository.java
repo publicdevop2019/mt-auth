@@ -5,7 +5,10 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientResourceRepository;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.sql.DatabaseUtility;
 import com.mt.common.domain.model.validate.Utility;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +26,8 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
         "(?,?)";
     private static final String DELETE_RESOURCE_BY_ID_SQL =
         "DELETE FROM resources_map rm WHERE rm.id = ?";
+    private static final String BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL =
+        "DELETE FROM resources_map rm WHERE rm.id = ? AND rm.domain_id IN (%s)";
     private static final String DELETE_RESOURCE_BY_DOMAIN_ID_SQL =
         "DELETE FROM resources_map rm WHERE rm.domain_id = ?";
 
@@ -54,9 +59,15 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
     @Override
     public void remove(Client client, Set<ClientId> resources) {
         if (Utility.notNullOrEmpty(resources)) {
+            String inClause = DatabaseUtility.getInClause(resources.size());
+            List<Object> args = new ArrayList<>();
+            args.add(client.getId());
+            args.addAll(Utility.mapToSet(resources, DomainId::getDomainId));
             CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_RESOURCE_BY_ID_SQL,
-                    client.getId()
+                .update(
+                    String.format(BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
+                        inClause),
+                    args.toArray()
                 );
         }
     }
@@ -68,5 +79,15 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
                 DELETE_RESOURCE_BY_DOMAIN_ID_SQL,
                 removedClientId.getDomainId()
             );
+    }
+
+    @Override
+    public void removeAll(Client client, Set<ClientId> existingResources) {
+        if (Utility.notNullOrEmpty(existingResources)) {
+            CommonDomainRegistry.getJdbcTemplate()
+                .update(DELETE_RESOURCE_BY_ID_SQL,
+                    client.getId()
+                );
+        }
     }
 }

@@ -134,7 +134,9 @@ public class TokenGrantService {
         }
         Client client = DomainRegistry.getClientRepository().get(clientId);
         Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        TokenGrantClient tokenGrantClient = new TokenGrantClient(client, resources);
+        Set<ClientId> extResources =
+            DomainRegistry.getClientExternalResourceRepository().query(client);
+        TokenGrantClient tokenGrantClient = new TokenGrantClient(client, resources, extResources);
         if (!tokenGrantClient.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
@@ -294,7 +296,9 @@ public class TokenGrantService {
             }
         }
         Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        context.setClient(new TokenGrantClient(client, resources));
+        Set<ClientId> extResources =
+            DomainRegistry.getClientExternalResourceRepository().query(client);
+        context.setClient(new TokenGrantClient(client, resources, extResources));
     }
 
 

@@ -25,7 +25,7 @@ public class TokenGrantClient {
     private Set<String> resourceIds;
     private Set<String> registeredRedirectUri;
 
-    public TokenGrantClient(Client client, Set<ClientId> resources) {
+    public TokenGrantClient(Client client, Set<ClientId> resources, Set<ClientId> extResources) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());
@@ -34,7 +34,7 @@ public class TokenGrantClient {
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
         Set<String> collect = Utility.mapToSet(resources, ClientId::getDomainId);
         Set<String> collect2 =
-            Utility.mapToSet(client.getExternalResources(), ClientId::getDomainId);
+            Utility.mapToSet(extResources, ClientId::getDomainId);
         collect2.addAll(collect);
         setResourceIds(collect2);
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
