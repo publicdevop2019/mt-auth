@@ -31,9 +31,7 @@ public class ClientUtility {
     public static Client getClientAsNonResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
         client.setResourceIndicator(false);
-        Set<String> types = new HashSet<>();
-        types.add(ClientType.BACKEND_APP.name());
-        client.setTypes(types);
+        client.setType(ClientType.BACKEND_APP.name());
         client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum());
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
@@ -42,9 +40,7 @@ public class ClientUtility {
     public static Client getClientAsResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
         client.setResourceIndicator(true);
-        Set<String> strings = new HashSet<>();
-        strings.add(ClientType.BACKEND_APP.name());
-        client.setTypes(strings);
+        client.setType(ClientType.BACKEND_APP.name());
         client.setPath(RandomUtility.randomStringNoNum(10));
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
@@ -76,7 +72,7 @@ public class ClientUtility {
         GrantType grantType = RandomUtility.randomEnum(GrantType.values());
         ClientType clientType = RandomUtility.randomEnum(ClientType.values());
         client.setGrantTypeEnums(Collections.singleton(grantType.name()));
-        client.setTypes(Collections.singleton(clientType.name()));
+        client.setType(clientType.name());
         client.setAccessTokenValiditySeconds(RandomUtility.randomInt());
         client.setRefreshTokenValiditySeconds(RandomUtility.randomInt());
         client.setHasSecret(RandomUtility.randomBoolean());
@@ -92,7 +88,7 @@ public class ClientUtility {
      */
     public static Client createValidBackendClient() {
         Client randomClient = ClientUtility.createRandomClientObj();
-        randomClient.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
+        randomClient.setType(ClientType.BACKEND_APP.name());
         randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
         randomClient.setAccessTokenValiditySeconds(180);
         randomClient.setRefreshTokenValiditySeconds(null);
@@ -110,7 +106,7 @@ public class ClientUtility {
      */
     public static Client createValidFrontendClient() {
         Client randomClient = ClientUtility.createRandomClientObj();
-        randomClient.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
+        randomClient.setType(ClientType.FRONTEND_APP.name());
         randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
         randomClient.setAccessTokenValiditySeconds(180);
         randomClient.setRefreshTokenValiditySeconds(null);
@@ -139,7 +135,7 @@ public class ClientUtility {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
         client.setClientSecret(RandomUtility.randomStringWithNum());
-        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
+        client.setType(ClientType.FRONTEND_APP.name());
         client.setGrantTypeEnums(
             new HashSet<>(Collections.singletonList(GrantType.AUTHORIZATION_CODE.name())));
         client.setAccessTokenValiditySeconds(1800);

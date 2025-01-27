@@ -12,7 +12,7 @@ public class Client {
     private String name;
     private String path;
     private String externalUrl;
-    private Set<String> types;
+    private String type;
 
     private Set<String> grantTypeEnums;
 

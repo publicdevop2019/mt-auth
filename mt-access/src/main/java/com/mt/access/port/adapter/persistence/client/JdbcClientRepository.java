@@ -8,7 +8,6 @@ import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.ExternalUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -52,6 +51,7 @@ public class JdbcClientRepository implements ClientRepository {
         "description, " +
         "name, " +
         "path, " +
+        "type, " +
         "project_id, " +
         "role_id, " +
         "secret, " +
@@ -59,22 +59,9 @@ public class JdbcClientRepository implements ClientRepository {
         "refresh_token_validity_seconds, " +
         "external_url" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-    private static final String INSERT_CLIENT_TYPE_SQL = "INSERT INTO client_type_map " +
-        "(" +
-        "id, " +
-        "type" +
-        ") VALUES " +
-        "(?,?)";
     private static final String DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id = ?";
-
-    private static final String DELETE_CLIENT_TYPE_BY_ID_SQL =
-        "DELETE FROM client_type_map ctm WHERE ctm.id = ?";
-    private static final String BATCH_DELETE_CLIENT_TYPE_BY_ID_AND_TYPE_SQL =
-        "DELETE FROM client_type_map ctm WHERE ctm.id = ? AND ctm.type IN (%s)";
-
-
     private static final String FIND_ALL_PROJECT_ID_SQL =
         "SELECT DISTINCT c.project_id FROM client c";
     private static final String FIND_ALL_CLIENT_ID_SQL = "SELECT c.domain_id FROM client c";
@@ -83,8 +70,6 @@ public class JdbcClientRepository implements ClientRepository {
         "SELECT COUNT(*) AS count FROM client c WHERE c.project_id = ?";
     private static final String COUNT_RESOURCE_SQL =
         "SELECT COUNT(DISTINCT rm.id) AS count FROM resources_map rm LEFT JOIN client c ON rm.id = c.id WHERE rm.domain_id IN (%s)";
-    private static final String FIND_CLIENT_TYPE_BY_ID_SQL = "SELECT m.type " +
-        "FROM client_type_map m WHERE m.id = ?";
     private static final String UPDATE_SQL = "UPDATE client c SET " +
         "c.modified_at = ? ," +
         "c.modified_by = ?, " +
@@ -125,6 +110,7 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getDescription(),
                 client.getName(),
                 client.getPath(),
+                client.getType().name(),
                 client.getProjectId().getDomainId(),
                 client.getRoleId().getDomainId(),
                 client.getSecret(),
@@ -132,37 +118,15 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getTokenDetail().getRefreshTokenValiditySeconds(),
                 Utility.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
-        //for linked tables
-        if (Utility.notNullOrEmpty(client.getTypes())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getTypes().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.name())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_CLIENT_TYPE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
     }
 
     @Override
     public void remove(Client client) {
-        if (Utility.notNullOrEmpty(client.getTypes())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_CLIENT_TYPE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-
-        CommonDomainRegistry.getJdbcTemplate()
+        int update = CommonDomainRegistry.getJdbcTemplate()
             .update(DELETE_BY_ID_SQL,
                 client.getId()
             );
+        DatabaseUtility.checkUpdate(update);
     }
 
     @Override
@@ -297,25 +261,6 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     @Override
-    public Set<ClientType> getType(Long id) {
-        List<ClientType> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_CLIENT_TYPE_BY_ID_SQL,
-                rs -> {
-                    if (!rs.next()) {
-                        return Collections.emptyList();
-                    }
-                    List<ClientType> list = new ArrayList<>();
-                    do {
-                        list.add(ClientType.valueOf(rs.getString("type")));
-                    } while (rs.next());
-                    return list;
-                },
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
     public void update(Client old, Client updated) {
         if (old.sameAs(updated)) {
             return;
@@ -338,34 +283,6 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getVersion()
             );
         DatabaseUtility.checkUpdate(update);
-        DatabaseUtility.updateMap(old.getTypes(), updated.getTypes(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.name()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_CLIENT_TYPE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(Enum::name).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_CLIENT_TYPE_BY_ID_AND_TYPE_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
     }
 
     private SumPagedRep<Client> resourceSearch(ClientQuery query) {
@@ -450,6 +367,7 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString("description"),
                         rs.getString("name"),
                         rs.getString("path"),
+                        ClientType.valueOf(rs.getString("type")),
                         new ProjectId(rs.getString("project_id")),
                         new RoleId(rs.getString("role_id")),
                         rs.getString("secret"),

@@ -179,7 +179,7 @@ export interface IClient extends IIdName {
     projectId: string;
     description?: string;
     grantTypeEnums: grantTypeEnums[];
-    types: CLIENT_TYPE[];
+    type: CLIENT_TYPE;
     accessTokenValiditySeconds?: number;
     refreshTokenValiditySeconds?: number;
     resourceIds?: string[]

@@ -75,7 +75,7 @@ export class MgmtClientComponent {
       clientSecret: next.clientSecret,
       name: next.name,
       description: next.description || '',
-      frontOrBackApp: next.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
+      frontOrBackApp: next.type,
       grantType: grantType,
       registeredRedirectUri: next.registeredRedirectUri ? next.registeredRedirectUri.join(',') : '',
       refreshToken: next.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),

@@ -24,12 +24,12 @@ public class ClientValidator {
     private void pathAndType() {
         if (Utility.isBlank(client.getPath())
             &&
-            client.getTypes().contains(ClientType.BACKEND_APP)) {
+            ClientType.BACKEND_APP.equals(client.getType())) {
             handler.handleError("backend client require path");
         }
         if (!Utility.isBlank(client.getPath())
             &&
-            client.getTypes().contains(ClientType.FRONTEND_APP)) {
+            ClientType.FRONTEND_APP.equals(client.getType())) {
             handler.handleError("frontend client should not have path");
         }
     }
@@ -37,19 +37,19 @@ public class ClientValidator {
     private void externalUrlAndType() {
         if (client.getExternalUrl() == null
             &&
-            client.getTypes().contains(ClientType.BACKEND_APP)) {
+            ClientType.BACKEND_APP.equals(client.getType())) {
             handler.handleError("backend client require external url");
         }
         if (client.getExternalUrl() != null
             &&
-            client.getTypes().contains(ClientType.FRONTEND_APP)) {
+            ClientType.FRONTEND_APP.equals(client.getType())) {
             handler.handleError("frontend client should not external url");
         }
     }
 
     private void encryptedSecret() {
         if (client.getSecret() == null) {
-            if (client.getTypes().stream().noneMatch(e -> e.equals(ClientType.FRONTEND_APP))) {
+            if (!ClientType.FRONTEND_APP.equals(client.getType())) {
                 handler.handleError("client secret required");
             }
         }
@@ -58,7 +58,7 @@ public class ClientValidator {
     private void accessAndType() {
         if (client.getAccessible() != null && client.getAccessible()) {
             if (
-                client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
+                !ClientType.BACKEND_APP.equals(client.getType())
             ) {
                 handler.handleError(
                     "invalid client type to be a resource, "
@@ -66,14 +66,14 @@ public class ClientValidator {
                         "must be backend application");
             }
         }
-        if (client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))) {
+        if (!ClientType.BACKEND_APP.equals(client.getType())) {
             if (client.getAccessible() != null) {
                 handler.handleError(
                     "only backend can specify accessible"
                 );
             }
         }
-        if (client.getTypes().stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))) {
+        if (ClientType.BACKEND_APP.equals(client.getType())) {
             if (client.getAccessible() == null) {
                 handler.handleError(
                     "backend must specify accessible"

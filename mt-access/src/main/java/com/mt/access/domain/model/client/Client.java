@@ -21,7 +21,6 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -50,9 +49,6 @@ public class Client extends Auditable {
         reservedClientIds.add(new ClientId(MT_UI_LOGIN_ID));
     }
 
-    @Getter
-    private boolean isCreate = false;
-
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ProjectId projectId;
@@ -79,33 +75,33 @@ public class Client extends Auditable {
     @Getter
     private String description;
 
-    private Set<ClientType> types = new LinkedHashSet<>();
+    @Getter
+    private ClientType type;
 
     @Getter
     private Boolean accessible;
 
     @Getter
     private TokenDetail tokenDetail;
-    private boolean typeLoaded = false;
 
     public Client(ClientId clientId, ProjectId projectId, String name, String path,
                   @Nullable String secret, String description, Boolean accessible,
-                  TokenDetail tokenDetail, Set<ClientType> types,
+                  TokenDetail tokenDetail, ClientType type,
                   ExternalUrl externalUrl, TransactionContext context) {
         super();
-        isCreate = true;
         setClientId(clientId);
         setProjectId(projectId);
         setDescription(description);
         setAccessible(accessible, context);
         setName(name);
         setPath(path, context);
-        initTypes(types);
+        initType(type);
         initSecret(secret);
         setTokenDetail(tokenDetail, context);
         setRoleId();
         setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
+        //TOOD try rm above comment
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         context.append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
@@ -121,7 +117,8 @@ public class Client extends Auditable {
                                          String modifiedBy, Integer version,
                                          Boolean accessible, ClientId domainId,
                                          String description, String name, String path,
-                                         ProjectId projectId, RoleId roleId, String secret,
+                                         ClientType type, ProjectId projectId, RoleId roleId,
+                                         String secret,
                                          Integer accessTokenValiditySeconds,
                                          Integer refreshTokenValiditySeconds,
                                          ExternalUrl externalUrl) {
@@ -138,6 +135,7 @@ public class Client extends Auditable {
         client.path = path;
         client.setClientId(domainId);
         client.setProjectId(projectId);
+        client.type = type;
         client.roleId = roleId;
         client.secret = secret;
         client.externalUrl = externalUrl;
@@ -168,19 +166,13 @@ public class Client extends Auditable {
         this.roleId = new RoleId();
     }
 
-    private void initTypes(Set<ClientType> types) {
-        Validator.notNull(types);
-        Validator.notEmpty(types);
-        if (Utility.notNullOrEmpty(this.types)) {
+    private void initType(ClientType type) {
+        Validator.notNull(type);
+        if (Utility.notNull(this.type)) {
             throw new DefinedRuntimeException("client type can not be updated once created", "1035",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP)) &&
-            types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))) {
-            throw new DefinedRuntimeException("client type conflict", "1036",
-                HttpResponseCode.BAD_REQUEST);
-        }
-        this.types = types;
+        this.type = type;
     }
 
     private void setPath(String path, TransactionContext context) {
@@ -268,9 +260,6 @@ public class Client extends Auditable {
     public Client update(String name, String secret, String path, String description,
                          Boolean accessible, TokenDetail tokenDetail, ExternalUrl externalUrl,
                          TransactionContext context) {
-        //load everything to avoid error
-        //TODO remove after refactor
-        getTypes();
         Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         updated.setPath(path, context);
         updated.setAccessible(accessible, context);
@@ -344,18 +333,6 @@ public class Client extends Auditable {
         removeAllReferenced(context);
     }
 
-    public Set<ClientType> getTypes() {
-        if (isCreate) {
-            return types;
-        }
-        if (!typeLoaded) {
-            types =
-                DomainRegistry.getClientRepository().getType(this.getId());
-            typeLoaded = true;
-        }
-        return types;
-    }
-
     public boolean sameAs(Client o) {
         return
             Objects.equals(projectId, o.projectId) &&
@@ -366,7 +343,7 @@ public class Client extends Auditable {
                 Objects.equals(externalUrl, o.externalUrl) &&
                 Objects.equals(secret, o.secret) &&
                 Objects.equals(description, o.description) &&
-                Objects.equals(getTypes(), o.getTypes()) &&
+                Objects.equals(type, o.type) &&
                 Objects.equals(accessible, o.accessible) &&
                 Objects.equals(tokenDetail, o.tokenDetail);
     }

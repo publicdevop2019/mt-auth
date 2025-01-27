@@ -182,7 +182,7 @@ public class ClientApplicationService {
                         command.getResourceIndicator(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
-                        command.getTypes(),
+                        command.getType(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context

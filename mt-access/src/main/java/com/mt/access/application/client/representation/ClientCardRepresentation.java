@@ -18,6 +18,6 @@ public class ClientCardRepresentation {
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
         name = client1.getName();
-        type = client1.getTypes().stream().findFirst().get();
+        type = client1.getType();
     }
 }

@@ -184,7 +184,7 @@ export class ClientComponent {
       clientSecret: this.data.clientSecret,
       name: this.data.name,
       description: this.data.description || '',
-      frontOrBackApp: this.data.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
+      frontOrBackApp: this.data.type,
       grantType: grantType,
       registeredRedirectUri: this.data.registeredRedirectUri ? this.data.registeredRedirectUri.join(',') : '',
       refreshToken: this.data.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),
@@ -199,22 +199,20 @@ export class ClientComponent {
   private convertToPayload(): IClient {
     let formGroup = this.fg;
     let grants: grantTypeEnums[] = [];
-    const types: CLIENT_TYPE[] = [];
     if (formGroup.get('grantType').value) {
       grants.push(...(formGroup.get('grantType').value || []));
     }
     if (grants.includes(grantTypeEnums.password) && formGroup.get('refreshToken').value) {
       grants.push(grantTypeEnums.refresh_token);
     }
-    types.push(formGroup.get('frontOrBackApp').value);
-    if (types.includes(CLIENT_TYPE.frontend_app)) {
+    if (CLIENT_TYPE.frontend_app === formGroup.get('frontOrBackApp').value) {
       return {
         id: formGroup.get('id').value,
         name: formGroup.get('name').value,
         description: formGroup.get('description').value ? formGroup.get('description').value : null,
         clientSecret: formGroup.get('clientSecret').value,
         grantTypeEnums: grants,
-        types: types,
+        type: CLIENT_TYPE.frontend_app,
         accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
         refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
         resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
@@ -231,7 +229,7 @@ export class ClientComponent {
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       clientSecret: formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
-      types: types,
+      type: CLIENT_TYPE.frontend_app,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
       refreshTokenValiditySeconds: grants.includes(grantTypeEnums.refresh_token) && formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,

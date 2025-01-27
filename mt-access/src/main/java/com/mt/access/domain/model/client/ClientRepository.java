@@ -37,7 +37,5 @@ public interface ClientRepository {
 
     long countProjectTotal(ProjectId projectId);
 
-    Set<ClientType> getType(Long id);
-
     void update(Client old, Client update);
 }

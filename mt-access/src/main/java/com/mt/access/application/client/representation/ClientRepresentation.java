@@ -12,7 +12,7 @@ import lombok.Data;
 
 @Data
 public class ClientRepresentation {
-    private final Set<ClientType> types;
+    private ClientType type;
     private String id;
 
     private String name;
@@ -58,7 +58,6 @@ public class ClientRepresentation {
         version = client.getVersion();
         clientSecret = client.getSecret();
         projectId = client.getProjectId().getDomainId();
-        types = new HashSet<>();//avoid lazy load
-        types.addAll(client.getTypes());
+        type = client.getType();
     }
 }

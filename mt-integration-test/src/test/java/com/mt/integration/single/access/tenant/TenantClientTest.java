@@ -53,7 +53,7 @@ public class TenantClientTest {
     @Test
     public void tenant_frontend_type_client_can_not_be_resource() {
         Client client = ClientUtility.getClientAsResource();
-        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
+        client.setType(ClientType.FRONTEND_APP.name());
         ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
@@ -147,12 +147,13 @@ public class TenantClientTest {
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
         client.setId(HttpUtility.getId(client1));
         client.setClientSecret(client.getClientSecret());
-        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
+        client.setType(ClientType.FRONTEND_APP.name());
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.OK, client3.getStatusCode());
-        Assertions.assertTrue(client3.getBody().getTypes().contains(ClientType.BACKEND_APP.name()));
+        Assertions.assertTrue(
+            client3.getBody().getType().equalsIgnoreCase(ClientType.BACKEND_APP.name()));
 
     }
 
@@ -352,13 +353,13 @@ public class TenantClientTest {
         Client randomClientObj = ClientUtility.createRandomClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, randomClientObj);
-        randomClientObj.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
+        randomClientObj.setType(ClientType.BACKEND_APP.name());
         randomClientObj.setExternalUrl(null);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tenantClient.getStatusCode());
         //2. backend client requires path
         Client randomClientObj2 = ClientUtility.createRandomClientObj();
         randomClientObj.setPath(null);
-        randomClientObj2.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
+        randomClientObj2.setType(ClientType.BACKEND_APP.name());
         ResponseEntity<Void> tenantClient2 =
             ClientUtility.createTenantClient(tenantContext, randomClientObj2);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tenantClient2.getStatusCode());

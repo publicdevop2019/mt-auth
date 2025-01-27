@@ -23,7 +23,7 @@ public class ClientMgmtCardRepresentation {
 
     private Set<GrantType> grantTypeEnums;
 
-    private Set<ClientType> types;
+    private ClientType type;
 
     private Integer accessTokenValiditySeconds;
 
@@ -54,8 +54,7 @@ public class ClientMgmtCardRepresentation {
         }
         resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
         resourceIndicator = client.getAccessible();
-        types = new HashSet<>();//avoid lazy load
-        types.addAll(client.getTypes());
+        type = client.getType();
     }
 
     @Data

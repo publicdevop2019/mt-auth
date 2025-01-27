@@ -190,9 +190,9 @@ public class TenantClientValidationTest {
 
     @ParameterizedTest
     @ArgumentsSource(ClientTypeArgs.class)
-    public void validation_create_type(Set<String> types, HttpStatus status) {
+    public void validation_create_type(String types, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-        client.setTypes(types);
+        client.setType(types);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
         Assertions.assertEquals(status, response2.getStatusCode());
