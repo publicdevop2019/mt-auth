@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.client;
 
 
-import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
@@ -17,65 +16,10 @@ public class ClientValidator {
     protected void validate() {
         accessAndType();
         encryptedSecret();
-        tokenAndGrantType();
-        redirectAndGrantType();
         pathAndType();
         externalUrlAndType();
-        onlyMainCanHavePasswordGrant();
     }
 
-    private void onlyMainCanHavePasswordGrant() {
-        if (!Utility.isNullOrEmpty(client.getGrantTypes())) {
-            if (client.getGrantTypes().contains(GrantType.PASSWORD)) {
-                if (!AppConstant.MAIN_PROJECT_ID.equalsIgnoreCase(
-                    client.getProjectId().getDomainId())) {
-                    handler
-                        .handleError("only main project can have password grant");
-                }
-            }
-        }
-    }
-
-    private void redirectAndGrantType() {
-        if (
-            client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
-                && client.getRedirectUrls().isEmpty()
-        ) {
-            handler
-                .handleError("redirect details and authorization grant must both exist");
-        }
-        if (
-            !client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
-                && !client.getRedirectUrls().isEmpty()
-        ) {
-            handler
-                .handleError("redirect details and authorization grant must both exist");
-        }
-    }
-
-    private void tokenAndGrantType() {
-        if (client.getGrantTypes() != null && !client.getGrantTypes().isEmpty()) {
-            if (client.getTokenDetail().getAccessTokenValiditySeconds() == null
-                ||
-                client.getTokenDetail().getAccessTokenValiditySeconds() < 60) {
-                handler
-                    .handleError("when grant present access token validity seconds must be valid");
-            }
-            if (client.getGrantTypes().contains(GrantType.REFRESH_TOKEN)) {
-                if (client.getTokenDetail().getRefreshTokenValiditySeconds() == null
-                    ||
-                    client.getTokenDetail().getRefreshTokenValiditySeconds() < 120) {
-                    handler
-                        .handleError("refresh grant must has valid refresh token validity seconds");
-                }
-            } else {
-                if (client.getTokenDetail().getRefreshTokenValiditySeconds() != null) {
-                    handler
-                        .handleError("refresh token validity seconds requires refresh grant");
-                }
-            }
-        }
-    }
 
     private void pathAndType() {
         if (Utility.isBlank(client.getPath())

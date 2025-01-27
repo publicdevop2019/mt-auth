@@ -8,7 +8,6 @@ import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.common.domain.model.validate.Utility;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
@@ -41,16 +40,15 @@ public class ClientRepresentation {
 
     private Boolean hasSecret;
 
-    public ClientRepresentation(Client client, Set<ClientId> resources) {
+    public ClientRepresentation(Client client, Set<ClientId> resources, Set<RedirectUrl> urls,
+                                Set<GrantType> grantTypes) {
         id = client.getClientId().getDomainId();
         name = client.getName();
         path = client.getPath();
         description = client.getDescription();
-        grantTypeEnums = new HashSet<>();//avoid lazy load
-        grantTypeEnums.addAll(client.getGrantTypes());
+        grantTypeEnums = grantTypes;
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        registeredRedirectUri = client.getRedirectUrls().stream()
-            .map(RedirectUrl::getValue).collect(Collectors.toSet());
+        registeredRedirectUri = Utility.mapToSet(urls, RedirectUrl::getValue);
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
         resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
         resourceIndicator = client.getAccessible();
@@ -62,6 +60,5 @@ public class ClientRepresentation {
         projectId = client.getProjectId().getDomainId();
         types = new HashSet<>();//avoid lazy load
         types.addAll(client.getTypes());
-
     }
 }

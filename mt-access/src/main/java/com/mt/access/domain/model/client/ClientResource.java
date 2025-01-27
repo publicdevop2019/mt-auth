@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class ClientResource {
 
-    public static void addResources(Client client, Set<ClientId> newResources) {
+    public static void add(Client client, Set<ClientId> newResources) {
         if (Utility.notNullOrEmpty(newResources)) {
             Validator.lessThanOrEqualTo(newResources, 10);
             validate(client.getClientId(), client.getProjectId(), newResources);

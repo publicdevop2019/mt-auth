@@ -3,6 +3,7 @@ package com.mt.access.domain.model.token;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.model.validate.Utility;
@@ -25,19 +26,20 @@ public class TokenGrantClient {
     private Set<String> resourceIds;
     private Set<String> registeredRedirectUri;
 
-    public TokenGrantClient(Client client, Set<ClientId> resources, Set<ClientId> extResources) {
+    public TokenGrantClient(Client client, Set<ClientId> resources, Set<ClientId> extResources,
+                            Set<RedirectUrl> redirectUrls, Set<GrantType> grantTypes) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());
-        setGrantTypes(client.getGrantTypes());
+        setGrantTypes(grantTypes);
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
-        setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
+        setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds(grantTypes));
         Set<String> collect = Utility.mapToSet(resources, ClientId::getDomainId);
         Set<String> collect2 =
             Utility.mapToSet(extResources, ClientId::getDomainId);
         collect2.addAll(collect);
         setResourceIds(collect2);
-        setRegisteredRedirectUri(client.getRegisteredRedirectUri());
+        setRegisteredRedirectUri(Utility.mapToSet(redirectUrls, RedirectUrl::getValue));
     }
 
     public Set<String> getRegisteredRedirectUri() {

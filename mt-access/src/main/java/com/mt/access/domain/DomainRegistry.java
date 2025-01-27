@@ -19,6 +19,8 @@ import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientExternalResourceRepository;
+import com.mt.access.domain.model.client.ClientGrantTypeRepository;
+import com.mt.access.domain.model.client.ClientRedirectUrlRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientResourceRepository;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
@@ -76,6 +78,10 @@ public class DomainRegistry {
     private static ClientExternalResourceService clientExternalResourceService;
     @Getter
     private static ClientExternalResourceRepository clientExternalResourceRepository;
+    @Getter
+    private static ClientRedirectUrlRepository clientRedirectUrlRepository;
+    @Getter
+    private static ClientGrantTypeRepository clientGrantTypeRepository;
     @Getter
     private static UserRepository userRepository;
     @Getter
@@ -191,8 +197,18 @@ public class DomainRegistry {
 
 
     @Autowired
+    public void setTClientGrantTypeRepository(ClientGrantTypeRepository services) {
+        DomainRegistry.clientGrantTypeRepository = services;
+    }
+
+    @Autowired
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
+    }
+
+    @Autowired
+    public void setClientRedirectUrlRepository(ClientRedirectUrlRepository services) {
+        DomainRegistry.clientRedirectUrlRepository = services;
     }
 
     @Autowired

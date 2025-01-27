@@ -19,6 +19,8 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientResource;
 import com.mt.access.domain.model.client.ExternalUrl;
+import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
@@ -78,7 +80,9 @@ public class ClientApplicationService {
         Client client =
             DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
         Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        return new ClientRepresentation(client, resources);
+        Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
+        Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(client);
+        return new ClientRepresentation(client, resources, urls, grantTypes);
     }
 
     public SumPagedRep<ClientMgmtCardRepresentation> mgmtQuery(String queryParam,
@@ -90,7 +94,9 @@ public class ClientApplicationService {
         SumPagedRep<ClientMgmtCardRepresentation> rep =
             new SumPagedRep<>(clients, (c) -> {
                 Set<ClientId> query = DomainRegistry.getClientResourceRepository().query(c);
-                return new ClientMgmtCardRepresentation(c, query);
+                Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(c);
+                Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(c);
+                return new ClientMgmtCardRepresentation(c, query, urls, grantTypes);
             });
         List<ClientMgmtCardRepresentation> data = rep.getData();
         Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
@@ -141,7 +147,9 @@ public class ClientApplicationService {
     public ClientRepresentation mgmtQueryById(String id) {
         Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
         Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        return new ClientRepresentation(client, resources);
+        Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
+        Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(client);
+        return new ClientRepresentation(client, resources, urls, grantTypes);
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
@@ -172,18 +180,20 @@ public class ClientApplicationService {
                         command.getClientSecret(),
                         command.getDescription(),
                         command.getResourceIndicator(),
-                        command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
-                        command.getRegisteredRedirectUri(),
                         command.getTypes(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
                     );
+                    Set<RedirectUrl> redirectUrls =
+                        Utility.mapToSet(command.getRegisteredRedirectUri(), RedirectUrl::new);
+                    GrantType.add(client, command.getGrantTypeEnums(), redirectUrls);
                     Set<ClientId> resources =
                         Utility.mapToSet(command.getResourceIds(), ClientId::new);
-                    ClientResource.addResources(client, resources);
+                    ClientResource.add(client, resources);
+                    RedirectUrl.add(client, command.getGrantTypeEnums(), redirectUrls);
                     return client.getClientId().getDomainId();
                 }, CLIENT
             );
@@ -210,10 +220,8 @@ public class ClientApplicationService {
                         command.getPath(),
                         command.getDescription(),
                         command.getResourceIndicator(),
-                        command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
-                        command.getRegisteredRedirectUri(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
@@ -223,7 +231,16 @@ public class ClientApplicationService {
                     Set<ClientId> oldResources =
                         DomainRegistry.getClientResourceRepository().query(client);
                     ClientResource.update(updated, oldResources, newResources, context);
-
+                    Set<RedirectUrl> existingUrl =
+                        DomainRegistry.getClientRedirectUrlRepository().query(client);
+                    Set<RedirectUrl> newUrls =
+                        Utility.mapToSet(command.getRegisteredRedirectUri(), RedirectUrl::new);
+                    RedirectUrl.update(updated, command.getGrantTypeEnums(), existingUrl, newUrls
+                    );
+                    Set<GrantType> grantTypes =
+                        DomainRegistry.getClientGrantTypeRepository().query(client);
+                    GrantType.update(client, grantTypes, command.getGrantTypeEnums(), newUrls,
+                        context);
                 }
                 return null;
             }, CLIENT);
@@ -240,7 +257,6 @@ public class ClientApplicationService {
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (optionalClient.isPresent()) {
                     Client client = optionalClient.get();
-                    client.remove(context);
                     DomainRegistry.getAuditService().storeAuditAction(DELETE_TENANT_CLIENT,
                         client);
                     DomainRegistry.getAuditService().logUserAction(log, DELETE_TENANT_CLIENT,
@@ -248,10 +264,16 @@ public class ClientApplicationService {
                     Set<ClientId> resources =
                         DomainRegistry.getClientResourceRepository().query(client);
                     DomainRegistry.getClientResourceRepository().removeAll(client, resources);
-                    Set<ClientId> externalResources =
+                    Set<ClientId> extSrc =
                         DomainRegistry.getClientExternalResourceRepository().query(client);
-                    DomainRegistry.getClientExternalResourceRepository()
-                        .removeAll(client, externalResources);
+                    DomainRegistry.getClientExternalResourceRepository().removeAll(client, extSrc);
+                    Set<RedirectUrl> urls =
+                        DomainRegistry.getClientRedirectUrlRepository().query(client);
+                    DomainRegistry.getClientRedirectUrlRepository().removeAll(client, urls);
+                    Set<GrantType> grantTypes =
+                        DomainRegistry.getClientGrantTypeRepository().query(client);
+                    DomainRegistry.getClientGrantTypeRepository().removeAll(client, grantTypes);
+                    client.remove(context);
                 }
                 return null;
             }, CLIENT);

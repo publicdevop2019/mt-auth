@@ -102,24 +102,24 @@ public class Utility {
     }
 
 
-    public static <T> void updateSet(@Nullable Set<T> old, @Nullable Set<T> updated,
+    public static <T> void updateSet(@Nullable Set<T> oldSet, @Nullable Set<T> newSet,
                                      Consumer<Set<T>> addCallback,
                                      Consumer<Set<T>> removeCallback) {
-        if (!sameAs(old, updated)) {
-            if (updated == null) {
-                removeCallback.accept(old);
+        if (!sameAs(oldSet, newSet)) {
+            if (newSet == null) {
+                removeCallback.accept(oldSet);
                 return;
             }
-            if (old == null) {
-                addCallback.accept(updated);
+            if (oldSet == null) {
+                addCallback.accept(newSet);
                 return;
             }
             Set<T> added =
-                updated.stream().filter(e -> !old.contains(e))
+                newSet.stream().filter(e -> !oldSet.contains(e))
                     .collect(
                         Collectors.toSet());
             Set<T> removed =
-                old.stream().filter(e -> !updated.contains(e))
+                oldSet.stream().filter(e -> !newSet.contains(e))
                     .collect(
                         Collectors.toSet());
             if (!added.isEmpty()) {

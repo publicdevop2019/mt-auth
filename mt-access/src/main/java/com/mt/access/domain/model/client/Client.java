@@ -5,7 +5,6 @@ import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
-import com.mt.access.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.access.domain.model.client.event.ClientPathChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
@@ -19,7 +18,6 @@ import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.HashSet;
@@ -28,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -55,8 +52,6 @@ public class Client extends Auditable {
 
     @Getter
     private boolean isCreate = false;
-
-    private Set<ClientId> externalResources = new LinkedHashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -86,25 +81,16 @@ public class Client extends Auditable {
 
     private Set<ClientType> types = new LinkedHashSet<>();
 
-    private Set<RedirectUrl> redirectUrls = new LinkedHashSet<>();
-
     @Getter
     private Boolean accessible;
 
-    private Set<GrantType> grantTypes = new LinkedHashSet<>();
-
     @Getter
     private TokenDetail tokenDetail;
-    private boolean resourceLoaded = false;
-    private boolean externalResourceLoaded = false;
-    private boolean grantTypeLoaded = false;
     private boolean typeLoaded = false;
-    private boolean urlLoaded = false;
 
     public Client(ClientId clientId, ProjectId projectId, String name, String path,
                   @Nullable String secret, String description, Boolean accessible,
-                  Set<GrantType> grantTypes, TokenDetail tokenDetail,
-                  Set<String> redirectUrls, Set<ClientType> types,
+                  TokenDetail tokenDetail, Set<ClientType> types,
                   ExternalUrl externalUrl, TransactionContext context) {
         super();
         isCreate = true;
@@ -116,9 +102,7 @@ public class Client extends Auditable {
         setPath(path, context);
         initTypes(types);
         initSecret(secret);
-        setGrantTypes(grantTypes, true, context);
         setTokenDetail(tokenDetail, context);
-        setRedirectUrls(redirectUrls);
         setRoleId();
         setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
@@ -247,26 +231,6 @@ public class Client extends Auditable {
         this.path = path;
     }
 
-    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate,
-                               TransactionContext context) {
-        Validator.notNull(grantTypes);
-        Validator.notEmpty(grantTypes);
-        if (!isCreate) {
-
-            if (!Utility.equals(grantTypes, this.grantTypes)) {
-                context
-                    .append(new ClientGrantTypeChanged(clientId));
-            }
-        }
-        if (grantTypes.contains(GrantType.REFRESH_TOKEN) &&
-            !grantTypes.contains(GrantType.PASSWORD)) {
-            throw new DefinedRuntimeException("refresh token grant requires password grant", "1037",
-                HttpResponseCode.BAD_REQUEST);
-        }
-        CommonUtility.updateCollection(this.grantTypes, grantTypes,
-            () -> this.grantTypes = grantTypes);
-    }
-
     private void setName(String name) {
         Validator.validRequiredString(1, 50, name);
         this.name = name.trim();
@@ -302,23 +266,18 @@ public class Client extends Auditable {
 
 
     public Client update(String name, String secret, String path, String description,
-                         Boolean accessible, Set<GrantType> grantTypes,
-                         TokenDetail tokenDetail, Set<String> redirectUrl,
-                         ExternalUrl externalUrl, TransactionContext context) {
+                         Boolean accessible, TokenDetail tokenDetail, ExternalUrl externalUrl,
+                         TransactionContext context) {
         //load everything to avoid error
         //TODO remove after refactor
-        getRedirectUrls();
-        getGrantTypes();
         getTypes();
         Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         updated.setPath(path, context);
         updated.setAccessible(accessible, context);
         updated.updateSecret(secret, context);
-        updated.setGrantTypes(grantTypes, false, context);
         updated.setTokenDetail(tokenDetail, context);
         updated.setName(name);
         updated.setDescription(description);
-        updated.setRedirectUrls(redirectUrl);
         updated.setExternalUrl(externalUrl, context);
         updated.validate(new HttpValidationNotificationHandler());
         updated.setModifiedAt(Instant.now().toEpochMilli());
@@ -385,18 +344,6 @@ public class Client extends Auditable {
         removeAllReferenced(context);
     }
 
-    public Set<GrantType> getGrantTypes() {
-        if (isCreate) {
-            return grantTypes;
-        }
-        if (!grantTypeLoaded) {
-            grantTypes =
-                DomainRegistry.getClientRepository().getGrantType(this.getId());
-            grantTypeLoaded = true;
-        }
-        return grantTypes;
-    }
-
     public Set<ClientType> getTypes() {
         if (isCreate) {
             return types;
@@ -411,7 +358,7 @@ public class Client extends Auditable {
 
     public boolean sameAs(Client o) {
         return
-                Objects.equals(projectId, o.projectId) &&
+            Objects.equals(projectId, o.projectId) &&
                 Objects.equals(roleId, o.roleId) &&
                 Objects.equals(clientId, o.clientId) &&
                 Objects.equals(name, o.name) &&
@@ -421,47 +368,15 @@ public class Client extends Auditable {
                 Objects.equals(description, o.description) &&
                 Objects.equals(getTypes(), o.getTypes()) &&
                 Objects.equals(accessible, o.accessible) &&
-                Objects.equals(redirectUrls, o.redirectUrls) &&
-                Objects.equals(getGrantTypes(), o.getGrantTypes()) &&
                 Objects.equals(tokenDetail, o.tokenDetail);
     }
 
-    public int getRefreshTokenValiditySeconds() {
+    public int getRefreshTokenValiditySeconds(Set<GrantType> grantTypes) {
         if (grantTypes.contains(GrantType.PASSWORD)
             &&
             grantTypes.contains(GrantType.REFRESH_TOKEN)) {
             return getTokenDetail().getRefreshTokenValiditySeconds();
         }
         return 0;
-    }
-
-    public Set<String> getRegisteredRedirectUri() {
-        return getRedirectUrls().stream().map(RedirectUrl::getValue)
-            .collect(Collectors.toSet());
-
-    }
-
-    private void setRedirectUrls(Set<String> redirectUrls) {
-        if (!Utility.isNullOrEmpty(redirectUrls)) {
-            Validator.lessThanOrEqualTo(redirectUrls, 5);
-            Set<RedirectUrl> collect =
-                redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet());
-            CommonUtility.updateCollection(this.redirectUrls, collect,
-                () -> this.redirectUrls = collect);
-        }
-        //set to true so url will not be loaded again
-        urlLoaded = true;
-    }
-
-    public Set<RedirectUrl> getRedirectUrls() {
-        if (isCreate()) {
-            return redirectUrls;
-        }
-        if (!urlLoaded) {
-            redirectUrls =
-                DomainRegistry.getClientRepository().getRedirectUrls(id);
-            urlLoaded = true;
-        }
-        return redirectUrls;
     }
 }

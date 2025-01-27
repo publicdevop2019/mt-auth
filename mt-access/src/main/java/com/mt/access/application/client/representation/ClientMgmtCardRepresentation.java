@@ -8,7 +8,6 @@ import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.common.domain.model.validate.Utility;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -42,15 +41,14 @@ public class ClientMgmtCardRepresentation {
 
     private Integer version;
 
-    public ClientMgmtCardRepresentation(Client client, Set<ClientId> resources) {
+    public ClientMgmtCardRepresentation(Client client, Set<ClientId> resources,
+                                        Set<RedirectUrl> urls, Set<GrantType> grantTypes) {
         id = client.getClientId().getDomainId();
         name = client.getName();
-        grantTypeEnums = new HashSet<>();//avoid lazy load
-        grantTypeEnums.addAll(client.getGrantTypes());
+        grantTypeEnums = grantTypes;
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         description = client.getDescription();
-        registeredRedirectUri = client.getRedirectUrls().stream()
-            .map(RedirectUrl::getValue).collect(Collectors.toSet());
+        registeredRedirectUri = Utility.mapToSet(urls, RedirectUrl::getValue);
         if (client.getTokenDetail() != null) {
             refreshTokenValiditySeconds = client.getTokenDetail().getRefreshTokenValiditySeconds();
         }

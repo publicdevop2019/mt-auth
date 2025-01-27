@@ -37,11 +37,7 @@ public interface ClientRepository {
 
     long countProjectTotal(ProjectId projectId);
 
-    Set<GrantType> getGrantType(Long id);
-
     Set<ClientType> getType(Long id);
-
-    Set<RedirectUrl> getRedirectUrls(Long id);
 
     void update(Client old, Client update);
 }
