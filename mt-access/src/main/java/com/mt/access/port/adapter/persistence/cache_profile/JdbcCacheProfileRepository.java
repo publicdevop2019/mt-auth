@@ -1,13 +1,11 @@
 package com.mt.access.port.adapter.persistence.cache_profile;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -20,7 +18,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -61,38 +58,27 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
         "cp.smax_age = ?, " +
         "cp.vary = ?, " +
         "cp.weak_validation = ? WHERE cp.id = ? AND cp.version = ? ";
-    private static final String INSERT_CACHE_CONTROL_MAP_SQL = "INSERT INTO cache_control_map " +
-        "(" +
-        "id, " +
-        "cache_control" +
-        ") VALUES(?, ?)";
-    private static final String BATCH_DELETE_CACHE_CONTROL_MAP_SQL =
-        "DELETE FROM cache_control_map ccm WHERE ccm.id = ? AND ccm.cache_control IN (%s)";
+
 
     private static final String DELETE_CACHE_PROFILE_BY_ID_SQL =
         "DELETE FROM cache_profile cp WHERE cp.id = ?";
-    private static final String DELETE_CACHE_CONTROL_MAP_BY_ID_SQL =
-        "DELETE FROM cache_control_map ccm WHERE ccm.id = ?";
 
     private static final String FIND_BY_DOMAIN_ID_SQL =
-        "SELECT * FROM cache_profile cp LEFT JOIN cache_control_map ccm ON cp.id = ccm.id WHERE cp.domain_id = ?";
+        "SELECT * FROM cache_profile cp WHERE cp.domain_id = ?";
 
     private static final String FIND_BY_DOMAIN_IDS_SQL =
-        "SELECT * FROM (" +
-            "SELECT * FROM cache_profile cp " +
-            "WHERE cp.domain_id IN (%s) ORDER BY cp.id ASC LIMIT ? OFFSET ?" +
-            ") AS tcp " +
-            "LEFT JOIN cache_control_map ccm ON tcp.id = ccm.id";
+        "SELECT * FROM cache_profile cp " +
+            "WHERE cp.domain_id IN (%s) ORDER BY cp.id ASC LIMIT ? OFFSET ?";
     private static final String COUNT_BY_DOMAIN_IDS_SQL =
         "SELECT COUNT(*) AS count FROM cache_profile cp WHERE cp.domain_id IN (%s)";
 
     private static final String FIND_BY_PROJECT_ID_SQL =
-        "SELECT * FROM (SELECT * FROM cache_profile cp WHERE cp.project_id = ? ORDER BY cp.id ASC LIMIT ? OFFSET ?) AS tcp LEFT JOIN cache_control_map ccm ON tcp.id = ccm.id";
+        "SELECT * FROM cache_profile cp WHERE cp.project_id = ? ORDER BY cp.id ASC LIMIT ? OFFSET ?";
     private static final String COUNT_BY_PROJECT_ID_SQL =
         "SELECT COUNT(*) AS count FROM cache_profile cp WHERE cp.project_id = ?";
 
     private static final String FIND_BY_PROJECT_ID_AND_DOMAIN_ID_SQL =
-        "SELECT * FROM cache_profile cp LEFT JOIN cache_control_map ccm ON cp.id = ccm.id WHERE cp.project_id = ? AND cp.domain_id = ?";
+        "SELECT * FROM cache_profile cp WHERE cp.project_id = ? AND cp.domain_id = ?";
 
     @Override
     public CacheProfile query(CacheProfileId id) {
@@ -128,29 +114,10 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                 cacheProfile.getWeakValidation(),
                 cacheProfile.getProjectId().getDomainId()
             );
-        if (Utility.notNullOrEmpty(cacheProfile.getCacheControl())) {
-            List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
-            cacheProfile.getCacheControl().forEach(e -> {
-                batchArgs.add(new BatchInsertKeyValue(cacheProfile.getId(), e.name()));
-            });
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_CACHE_CONTROL_MAP_SQL, batchArgs, batchArgs.size(),
-                    (ps, row) -> {
-                        ps.setLong(1, row.getId());
-                        ps.setString(2, row.getValue());
-                    });
-        }
     }
 
     @Override
     public void remove(CacheProfile cacheProfile) {
-        if (Utility.notNullOrEmpty(cacheProfile.getCacheControl())) {
-
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_CACHE_CONTROL_MAP_BY_ID_SQL,
-                    cacheProfile.getId()
-                );
-        }
         CommonDomainRegistry.getJdbcTemplate()
             .update(DELETE_CACHE_PROFILE_BY_ID_SQL,
                 cacheProfile.getId()
@@ -196,29 +163,6 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                 updated.getVersion()
             );
         DatabaseUtility.checkUpdate(update);
-        DatabaseUtility.updateMap(old.getCacheControl(), updated.getCacheControl(), (added) -> {
-            List<BatchInsertKeyValue> batchArgs = new ArrayList<>();
-            added.forEach(e -> {
-                batchArgs.add(new BatchInsertKeyValue(updated.getId(), e.name()));
-            });
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_CACHE_CONTROL_MAP_SQL, batchArgs, batchArgs.size(),
-                    (ps, row) -> {
-                        ps.setLong(1, row.getId());
-                        ps.setString(2, row.getValue());
-                    });
-        }, (removed) -> {
-            List<Object> args = new ArrayList<>();
-            Set<String> names = removed.stream().map(Enum::name).collect(Collectors.toSet());
-            String inSql = DatabaseUtility.getInClause(names.size());
-            args.add(updated.getId());
-            args.addAll(names);
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(
-                    String.format(BATCH_DELETE_CACHE_CONTROL_MAP_SQL, inSql),
-                    args.toArray()
-                );
-        });
     }
 
     private SumPagedRep<CacheProfile> queryByProjectIdAndDomainId(
@@ -307,14 +251,6 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
                     );
                     cacheProfiles.add(cacheProfile);
                     currentId = dbId;
-                }
-                Set<CacheControlValue> cacheControl =
-                    cacheProfile.getCacheControl();
-                String controlValue = rs.getString("cache_control");
-                if (Utility.notNull(controlValue)) {
-                    CacheControlValue cacheControlValue =
-                        CacheControlValue.valueOf(controlValue);
-                    cacheControl.add(cacheControlValue);
                 }
             } while (rs.next());
             return cacheProfiles;

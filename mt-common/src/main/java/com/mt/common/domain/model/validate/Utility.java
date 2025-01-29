@@ -2,6 +2,7 @@ package com.mt.common.domain.model.validate;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -92,7 +93,7 @@ public class Utility {
     public static <T, R> Set<R> mapToSet(@Nullable Set<T> resourceIds, Function<T, R> fn) {
         return resourceIds != null
             ? resourceIds.stream().map(fn)
-            .collect(Collectors.toSet()) : Collections.emptySet();
+            .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
     }
 
     public static <T, R> List<R> mapToList(@Nullable Set<T> resourceIds, Function<T, R> fn) {

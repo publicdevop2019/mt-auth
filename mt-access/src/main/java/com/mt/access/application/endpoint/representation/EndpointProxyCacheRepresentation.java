@@ -2,6 +2,7 @@ package com.mt.access.application.endpoint.representation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
@@ -123,7 +124,10 @@ public class EndpointProxyCacheRepresentation
                 if (finalCacheFetched != null) {
                     finalCacheFetched.stream()
                         .filter(e -> e.getCacheProfileId().equals(rep.cacheProfileId)).findFirst()
-                        .ifPresent(e -> rep.cacheConfig = new CacheConfig(e));
+                        .ifPresent(e -> {
+                            rep.cacheConfig = new CacheConfig(e,
+                                DomainRegistry.getCacheControlRepository().query(e));
+                        });
                 }
                 if (finalCorsFetched != null) {
                     finalCorsFetched.stream().filter(e -> e.getCorsId().equals(rep.corsProfileId))
@@ -193,10 +197,9 @@ public class EndpointProxyCacheRepresentation
 
         private Boolean weakValidation;
 
-        public CacheConfig(CacheProfile cacheProfile) {
+        public CacheConfig(CacheProfile cacheProfile, Set<CacheControlValue> values) {
             allowCache = cacheProfile.getAllowCache();
-            cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
-                .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+            cacheControl = Utility.mapToSet(values, e -> e.label);
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();

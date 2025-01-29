@@ -2,9 +2,9 @@ package com.mt.access.application.endpoint.representation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
@@ -13,6 +13,7 @@ import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
@@ -63,11 +64,12 @@ public class EndpointMgmtRepresentation {
             DomainRegistry.getClientRepository().query(new ClientQuery(clientId))
                 .findFirst();
         if (cacheProfileId != null) {
-            Optional<CacheProfile> cacheFetched =
+            CacheProfile cacheFetched =
                 DomainRegistry.getCacheProfileRepository()
-                    .query(CacheProfileQuery.internalQuery(cacheProfileId))
-                    .findFirst();
-            this.cacheConfig = new CacheConfig(cacheFetched.get());
+                    .get(cacheProfileId);
+            Set<CacheControlValue> query =
+                DomainRegistry.getCacheControlRepository().query(cacheFetched);
+            this.cacheConfig = new CacheConfig(cacheFetched, query);
         }
         if (corsProfileId != null) {
             Optional<CorsProfile> corsFetched =
@@ -118,10 +120,9 @@ public class EndpointMgmtRepresentation {
 
         private Boolean weakValidation;
 
-        public CacheConfig(CacheProfile cacheProfile) {
+        public CacheConfig(CacheProfile cacheProfile, Set<CacheControlValue> values) {
             allowCache = cacheProfile.getAllowCache();
-            cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
-                .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+            cacheControl = Utility.mapToSet(values, e -> e.label);
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();

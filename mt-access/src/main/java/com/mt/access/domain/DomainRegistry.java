@@ -17,6 +17,7 @@ import com.mt.access.domain.model.TokenGrantService;
 import com.mt.access.domain.model.VerificationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
+import com.mt.access.domain.model.cache_profile.CacheControlRepository;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientExternalResourceRepository;
 import com.mt.access.domain.model.client.ClientGrantTypeRepository;
@@ -194,10 +195,17 @@ public class DomainRegistry {
     private static PwdResetService pwdResetService;
     @Getter
     private static TokenGrantService tokenGrantService;
+    @Getter
+    private static CacheControlRepository cacheControlRepository;
 
 
     @Autowired
-    public void setTClientGrantTypeRepository(ClientGrantTypeRepository services) {
+    public void setCacheControlRepository(CacheControlRepository services) {
+        DomainRegistry.cacheControlRepository = services;
+    }
+
+    @Autowired
+    public void setClientGrantTypeRepository(ClientGrantTypeRepository services) {
         DomainRegistry.clientGrantTypeRepository = services;
     }
 

@@ -12,13 +12,15 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
+import com.mt.access.domain.model.cache_profile.CacheProfileDomainValidator;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.infrastructure.CommonUtility;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,10 @@ public class CacheProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, API_MGMT);
         SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
             .query(CacheProfileQuery.tenantQuery(queryParam, pageParam, config));
-        return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
+        return new SumPagedRep<>(users, e -> {
+            Set<CacheControlValue> query = DomainRegistry.getCacheControlRepository().query(e);
+            return new CacheProfileCardRepresentation(e, query);
+        });
     }
 
     @AuditLog(actionName = CREATE_TENANT_CACHE_PROFILE)
@@ -50,7 +55,6 @@ public class CacheProfileApplicationService {
                 command.getName(),
                 command.getDescription(),
                 cacheProfileId,
-                command.getCacheControl(),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
@@ -61,6 +65,10 @@ public class CacheProfileApplicationService {
                 projectId
             );
             DomainRegistry.getCacheProfileRepository().add(cacheProfile);
+            Set<CacheControlValue> configs =
+                Utility.mapToSet(command.getCacheControl(), CacheControlValue::valueOfLabel);
+            CacheControlValue.add(cacheProfile, configs);
+            CacheProfileDomainValidator.validate(cacheProfile, configs);
             return null;
         }, CACHE_PROFILE);
         return cacheProfileId.getDomainId();
@@ -74,13 +82,12 @@ public class CacheProfileApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfileQuery cacheProfileQuery =
                 CacheProfileQuery.tenantQuery(projectId, cacheProfileId);
-            Optional<CacheProfile> cacheProfile1 =
+            Optional<CacheProfile> optionalCacheProfile =
                 DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
-            cacheProfile1.ifPresent(old -> {
-                CacheProfile updated = old.update(
+            optionalCacheProfile.ifPresent(cacheProfile -> {
+                CacheProfile updated = cacheProfile.update(
                     command.getName(),
                     command.getDescription(),
-                    CommonUtility.map(command.getCacheControl(), CacheControlValue::valueOfLabel),
                     command.getExpires(),
                     command.getMaxAge(),
                     command.getSmaxAge(),
@@ -89,7 +96,13 @@ public class CacheProfileApplicationService {
                     command.getEtag(),
                     command.getWeakValidation(), context
                 );
-                DomainRegistry.getCacheProfileRepository().update(old, updated);
+                Set<CacheControlValue> values =
+                    DomainRegistry.getCacheControlRepository().query(cacheProfile);
+                Set<CacheControlValue> configs =
+                    Utility.mapToSet(command.getCacheControl(), CacheControlValue::valueOfLabel);
+                CacheControlValue.update(updated, values, configs, context);
+                CacheProfileDomainValidator.validate(updated, configs);
+                DomainRegistry.getCacheProfileRepository().update(cacheProfile, updated);
             });
             return null;
         }, CACHE_PROFILE);
@@ -108,6 +121,10 @@ public class CacheProfileApplicationService {
             cacheProfile.ifPresent(tobeRemoved -> {
                 tobeRemoved.removeAllReference(context);
                 DomainRegistry.getCacheProfileRepository().remove(tobeRemoved);
+
+                Set<CacheControlValue> controlValues =
+                    DomainRegistry.getCacheControlRepository().query(tobeRemoved);
+                DomainRegistry.getCacheControlRepository().removeAll(tobeRemoved, controlValues);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_CACHE_PROFILE,
                         tobeRemoved);

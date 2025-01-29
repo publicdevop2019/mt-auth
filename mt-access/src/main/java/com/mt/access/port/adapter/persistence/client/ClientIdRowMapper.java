@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
-class ClientIdRowMapper implements ResultSetExtractor<List<ClientId>> {
+public class ClientIdRowMapper implements ResultSetExtractor<List<ClientId>> {
 
     @Override
     public List<ClientId> extractData(ResultSet rs)
