@@ -24,6 +24,9 @@ import com.mt.access.domain.model.client.ClientGrantTypeRepository;
 import com.mt.access.domain.model.client.ClientRedirectUrlRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientResourceRepository;
+import com.mt.access.domain.model.cors_profile.CorsAllowedHeaderRepository;
+import com.mt.access.domain.model.cors_profile.CorsExposedHeaderRepository;
+import com.mt.access.domain.model.cors_profile.CorsOriginRepository;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
@@ -197,7 +200,27 @@ public class DomainRegistry {
     private static TokenGrantService tokenGrantService;
     @Getter
     private static CacheControlRepository cacheControlRepository;
+    @Getter
+    private static CorsAllowedHeaderRepository corsAllowedHeaderRepository;
+    @Getter
+    private static CorsExposedHeaderRepository corsExposedHeaderRepository;
+    @Getter
+    private static CorsOriginRepository corsOriginRepository;
 
+    @Autowired
+    public void setCorsAllowedHeaderRepository(CorsAllowedHeaderRepository services) {
+        DomainRegistry.corsAllowedHeaderRepository = services;
+    }
+
+    @Autowired
+    public void setCorsExposedHeaderRepository(CorsExposedHeaderRepository services) {
+        DomainRegistry.corsExposedHeaderRepository = services;
+    }
+
+    @Autowired
+    public void setCorsOriginRepository(CorsOriginRepository services) {
+        DomainRegistry.corsOriginRepository = services;
+    }
 
     @Autowired
     public void setCacheControlRepository(CacheControlRepository services) {

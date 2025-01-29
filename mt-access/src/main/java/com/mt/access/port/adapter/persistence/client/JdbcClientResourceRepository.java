@@ -82,8 +82,8 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
     }
 
     @Override
-    public void removeAll(Client client, Set<ClientId> existingResources) {
-        if (Utility.notNullOrEmpty(existingResources)) {
+    public void removeAll(Client client, Set<ClientId> resource) {
+        if (Utility.notNullOrEmpty(resource)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_RESOURCE_BY_ID_SQL,
                     client.getId()

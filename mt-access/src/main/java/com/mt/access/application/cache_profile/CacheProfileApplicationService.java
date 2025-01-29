@@ -96,12 +96,12 @@ public class CacheProfileApplicationService {
                     command.getEtag(),
                     command.getWeakValidation(), context
                 );
-                Set<CacheControlValue> values =
+                Set<CacheControlValue> old =
                     DomainRegistry.getCacheControlRepository().query(cacheProfile);
-                Set<CacheControlValue> configs =
+                Set<CacheControlValue> next =
                     Utility.mapToSet(command.getCacheControl(), CacheControlValue::valueOfLabel);
-                CacheControlValue.update(updated, values, configs, context);
-                CacheProfileDomainValidator.validate(updated, configs);
+                CacheControlValue.update(updated, old, next, context);
+                CacheProfileDomainValidator.validate(updated, next);
                 DomainRegistry.getCacheProfileRepository().update(cacheProfile, updated);
             });
             return null;

@@ -10,15 +10,11 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
-import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.validate.Utility;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -72,11 +68,13 @@ public class EndpointMgmtRepresentation {
             this.cacheConfig = new CacheConfig(cacheFetched, query);
         }
         if (corsProfileId != null) {
-            Optional<CorsProfile> corsFetched =
-                DomainRegistry.getCorsProfileRepository().query(CorsProfileQuery.internalQuery(
-                        Collections.singleton(corsProfileId)))
-                    .findFirst();
-            this.corsConfig = new CorsConfig(corsFetched.get());
+            CorsProfile corsProfile = DomainRegistry.getCorsProfileRepository().get(corsProfileId);
+            Set<String> allowed =
+                DomainRegistry.getCorsAllowedHeaderRepository().query(corsProfile);
+            Set<String> exposed =
+                DomainRegistry.getCorsExposedHeaderRepository().query(corsProfile);
+            Set<Origin> origins = DomainRegistry.getCorsOriginRepository().query(corsProfile);
+            this.corsConfig = new CorsConfig(corsProfile, origins, allowed, exposed);
         }
         this.resourceName = clientFetched.get().getName();
         this.path = "/" + clientFetched.get().getPath() + "/" + this.path;
@@ -90,15 +88,12 @@ public class EndpointMgmtRepresentation {
         private Set<String> exposedHeaders;
         private Long maxAge;
 
-        public CorsConfig(CorsProfile e) {
-            this.origin =
-                e.getAllowOrigin().stream().map(Origin::getValue).sorted().collect(
-                    Collectors.toCollection(LinkedHashSet::new));
+        public CorsConfig(CorsProfile e, Set<Origin> origins, Set<String> allowed,
+                          Set<String> exposed) {
+            this.origin = Utility.mapToSet(origins, Origin::getValue);
             this.credentials = e.getAllowCredentials();
-            this.allowedHeaders = e.getAllowedHeaders().stream().sorted().collect(
-                Collectors.toCollection(LinkedHashSet::new));
-            this.exposedHeaders = e.getExposedHeaders().stream().sorted().collect(
-                Collectors.toCollection(LinkedHashSet::new));
+            this.allowedHeaders = allowed;
+            this.exposedHeaders = exposed;
             this.maxAge = e.getMaxAge();
         }
     }

@@ -36,7 +36,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
     public Set<CacheControlValue> query(CacheProfile cacheProfile) {
         List<CacheControlValue> data = CommonDomainRegistry.getJdbcTemplate()
             .query(FIND_CACHE_CONTROL_BY_ID_SQL,
-                new CacheControlRowMapper(),
+                new RowMapper(),
                 cacheProfile.getId()
             );
         return new LinkedHashSet<>(data);
@@ -44,16 +44,18 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
 
     @Override
     public void remove(CacheProfile cacheProfile, Set<CacheControlValue> values) {
-        List<Object> args = new ArrayList<>();
-        Set<String> names = Utility.mapToSet(values, Enum::name);
-        String inSql = DatabaseUtility.getInClause(names.size());
-        args.add(cacheProfile.getId());
-        args.addAll(names);
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_CACHE_CONTROL_MAP_SQL, inSql),
-                args.toArray()
-            );
+        if (Utility.notNullOrEmpty(values)) {
+            List<Object> args = new ArrayList<>();
+            Set<String> names = Utility.mapToSet(values, Enum::name);
+            String inSql = DatabaseUtility.getInClause(names.size());
+            args.add(cacheProfile.getId());
+            args.addAll(names);
+            CommonDomainRegistry.getJdbcTemplate()
+                .update(
+                    String.format(BATCH_DELETE_CACHE_CONTROL_MAP_SQL, inSql),
+                    args.toArray()
+                );
+        }
     }
 
     @Override
@@ -80,7 +82,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
         }
     }
 
-    private static class CacheControlRowMapper
+    private static class RowMapper
         implements ResultSetExtractor<List<CacheControlValue>> {
 
         @Override
