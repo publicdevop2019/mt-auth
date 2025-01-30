@@ -38,6 +38,6 @@ public class PermissionService {
         Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
         permission.secureEndpointRemoveCleanUp(context);
         //clean linked api permission
-        DomainRegistry.getPermissionRepository().removeLinkedApiPermission(permissionId);
+        DomainRegistry.getLinkedApiPermissionIdRepository().remove(permissionId);
     }
 }

@@ -33,13 +33,13 @@ public class PermissionCardRepresentation {
     @JsonIgnore
     private Set<PermissionId> linkedApiPermissionIds;
 
-    public PermissionCardRepresentation(Permission permission) {
+    public PermissionCardRepresentation(Permission permission, Set<PermissionId> permissionIds) {
         this.name = permission.getName();
         this.description = permission.getDescription();
         this.systemCreate = permission.getSystemCreate();
         this.type = permission.getType();
         this.id = permission.getPermissionId().getDomainId();
-        this.linkedApiPermissionIds = permission.getLinkedApiPermissionIds();
+        this.linkedApiPermissionIds = permissionIds;
         if (permission.getTenantId() != null) {
             this.tenantId = permission.getTenantId().getDomainId();
         }

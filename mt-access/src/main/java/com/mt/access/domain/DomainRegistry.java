@@ -37,6 +37,7 @@ import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
+import com.mt.access.domain.model.permission.LinkedApiPermissionIdRepository;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.project.ProjectRepository;
@@ -206,6 +207,13 @@ public class DomainRegistry {
     private static CorsExposedHeaderRepository corsExposedHeaderRepository;
     @Getter
     private static CorsOriginRepository corsOriginRepository;
+    @Getter
+    private static LinkedApiPermissionIdRepository linkedApiPermissionIdRepository;
+
+    @Autowired
+    public void setLinkedApiPermissionIdRepository(LinkedApiPermissionIdRepository services) {
+        DomainRegistry.linkedApiPermissionIdRepository = services;
+    }
 
     @Autowired
     public void setCorsAllowedHeaderRepository(CorsAllowedHeaderRepository services) {

@@ -171,7 +171,8 @@ public class Role extends Auditable {
                     PermissionQuery.internalQuery(commonPermissionIds));
             //add linked api permission
             linkedApiPermission =
-                permissions.stream().flatMap(e -> e.getLinkedApiPermissionIds().stream())
+                permissions.stream().flatMap(
+                        e -> DomainRegistry.getLinkedApiPermissionIdRepository().query(e).stream())
                     .filter(Objects::nonNull).collect(Collectors.toSet());
             AtomicReference<ProjectId> tenantId = new AtomicReference<>();
             permissions.stream().findFirst().ifPresent(e -> {

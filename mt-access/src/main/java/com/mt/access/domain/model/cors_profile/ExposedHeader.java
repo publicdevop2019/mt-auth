@@ -21,6 +21,9 @@ public class ExposedHeader {
         if (!Utility.sameAs(old, next)) {
             context.append(new CorsProfileUpdated(updated));
             Validator.validOptionalCollection(10, next);
+            if (Utility.notNull(next)) {
+                HeaderNameValidator.validateHeaderName(next);
+            }
             Utility.updateSet(old, next,
                 (added) -> DomainRegistry.getCorsExposedHeaderRepository().add(updated, added),
                 (removed) -> DomainRegistry.getCorsExposedHeaderRepository()
