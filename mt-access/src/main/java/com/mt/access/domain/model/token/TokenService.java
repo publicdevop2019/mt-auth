@@ -90,7 +90,7 @@ public class TokenService {
         //for user & client
         ProjectId projectId = null;
         ProjectId viewTenantId = null;
-        Set<PermissionId> permissionIds = Collections.emptySet();
+        Set<PermissionId> totalPerm = new HashSet<>();
         Set<ProjectId> tenantIds = Collections.emptySet();
         if (isClient) {
             log.debug("grant client token");
@@ -99,7 +99,14 @@ public class TokenService {
             Role byId =
                 DomainRegistry.getRoleRepository().query(roleId);
             projectId = clientDetails.getProjectId();
-            permissionIds = byId.getTotalPermissionIds();
+            Set<PermissionId> comPerm =
+                DomainRegistry.getCommonPermissionIdRepository().query(byId);
+            Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(byId);
+            Set<PermissionId> extPerm =
+                DomainRegistry.getExternalPermissionIdRepository().query(byId);
+            totalPerm.addAll(comPerm);
+            totalPerm.addAll(apiPerm);
+            totalPerm.addAll(extPerm);
             log.debug("creating client token");
             return createJwtToken(
                 projectId,
@@ -110,7 +117,7 @@ public class TokenService {
                 clientId,
                 null,
                 hasRefresh,
-                permissionIds,
+                totalPerm,
                 Collections.emptySet(),
                 null
             );
@@ -124,7 +131,7 @@ public class TokenService {
                 Optional<String> first = scope.stream().findFirst();
                 projectId = new ProjectId(first.get());
                 UserRelation userRelation = createUserRelationIfNotExist(userId, projectId);
-                permissionIds =
+                totalPerm =
                     DomainRegistry.getComputePermissionService().compute(userRelation, null);
                 projectId = userRelation.getProjectId();
             } else {
@@ -141,7 +148,7 @@ public class TokenService {
                             .getDefaultProject(userRelation.getTenantIds());
                     }
                     //get default project instead of all projects' permission to reduce header size
-                    permissionIds =
+                    totalPerm =
                         DomainRegistry.getComputePermissionService()
                             .compute(userRelation, viewTenantId);
                     projectId = userRelation.getProjectId();
@@ -160,7 +167,7 @@ public class TokenService {
                 clientId,
                 userId,
                 hasRefresh,
-                permissionIds,
+                totalPerm,
                 tenantIds,
                 viewTenantId
             );

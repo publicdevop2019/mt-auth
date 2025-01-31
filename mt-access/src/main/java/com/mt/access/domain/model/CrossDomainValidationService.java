@@ -24,13 +24,13 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -147,7 +147,18 @@ public class CrossDomainValidationService {
         Set<Role> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e), RoleQuery.all());
         Set<PermissionId> collect =
-            allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream())
+            allByQuery.stream().flatMap(e -> {
+                    Set<PermissionId> totalPerm = new HashSet<>();
+                    Set<PermissionId> comPerm =
+                        DomainRegistry.getCommonPermissionIdRepository().query(e);
+                    Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(e);
+                    Set<PermissionId> extPerm =
+                        DomainRegistry.getExternalPermissionIdRepository().query(e);
+                    totalPerm.addAll(comPerm);
+                    totalPerm.addAll(apiPerm);
+                    totalPerm.addAll(extPerm);
+                    return totalPerm.stream();
+                })
                 .collect(Collectors.toSet());
         Set<PermissionId> permissionIds =
             DomainRegistry.getPermissionRepository().allPermissionId();

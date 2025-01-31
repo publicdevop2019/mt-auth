@@ -7,6 +7,7 @@ import static com.mt.access.domain.model.permission.Permission.ROLE_MGMT;
 
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
+import com.mt.access.application.role.command.UpdateType;
 import com.mt.access.application.role.representation.RoleCardRepresentation;
 import com.mt.access.application.role.representation.RoleRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -22,6 +23,9 @@ import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
+import com.mt.access.domain.model.role.ApiPermissionId;
+import com.mt.access.domain.model.role.CommonPermissionId;
+import com.mt.access.domain.model.role.ExternalPermissionId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
@@ -34,6 +38,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +121,10 @@ public class RoleApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, ROLE_MGMT);
         Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
-        return new RoleRepresentation(role);
+        Set<PermissionId> comPerm = DomainRegistry.getCommonPermissionIdRepository().query(role);
+        Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(role);
+        Set<PermissionId> extPerm = DomainRegistry.getExternalPermissionIdRepository().query(role);
+        return new RoleRepresentation(role, comPerm, apiPerm, extPerm);
     }
 
     @AuditLog(actionName = UPDATE_TENANT_ROLE)
@@ -127,8 +135,32 @@ public class RoleApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 Role role = DomainRegistry.getRoleRepository().get(projectId, roleId);
-                Role replace = role.replace(command, context);
-                DomainRegistry.getRoleRepository().update(role, replace);
+                Validator.equals(role.getSystemCreate(), Boolean.FALSE);
+                if (command.getType().equals(UpdateType.BASIC)) {
+                    Role replace = role.replace(command);
+                    DomainRegistry.getRoleRepository().update(role, replace);
+                    DomainRegistry.getRoleValidationService().validate(role);
+                } else if (command.getType().equals(UpdateType.API_PERMISSION)) {
+                    Set<PermissionId> apiPerm =
+                        DomainRegistry.getApiPermissionIdRepository().query(role);
+                    Set<PermissionId> nextApiPerm =
+                        CommonUtility.map(command.getApiPermissionIds(), PermissionId::new);
+                    ApiPermissionId.update(role, apiPerm, nextApiPerm);
+                    Set<PermissionId> extPerm =
+                        DomainRegistry.getExternalPermissionIdRepository().query(role);
+                    Set<PermissionId> nextExtPerm =
+                        CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new);
+                    ExternalPermissionId.update(role, extPerm, nextExtPerm, context);
+                    DomainRegistry.getRoleValidationService()
+                        .validate(role, nextApiPerm, nextExtPerm);
+                } else if (command.getType().equals(UpdateType.COMMON_PERMISSION)) {
+                    Set<PermissionId> comPerm =
+                        DomainRegistry.getCommonPermissionIdRepository().query(role);
+                    Set<PermissionId> nextComPerm =
+                        CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new);
+                    CommonPermissionId.update(role, comPerm, nextComPerm);
+                    DomainRegistry.getRoleValidationService().validate(role, nextComPerm);
+                }
                 return null;
             }, ROLE);
     }
@@ -140,13 +172,18 @@ public class RoleApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId, ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Role role = DomainRegistry.getRoleRepository().get(projectId, roleId);
+            Set<PermissionId> comPerm =
+                DomainRegistry.getCommonPermissionIdRepository().query(role);
+            DomainRegistry.getCommonPermissionIdRepository().removeAll(role, comPerm);
+            Set<PermissionId> apiPerm =
+                DomainRegistry.getApiPermissionIdRepository().query(role);
+            DomainRegistry.getApiPermissionIdRepository().removeAll(role, apiPerm);
+            Set<PermissionId> extPerm =
+                DomainRegistry.getExternalPermissionIdRepository().query(role);
+            DomainRegistry.getExternalPermissionIdRepository().removeAll(role, extPerm);
             role.remove();
-            DomainRegistry.getAuditService()
-                .storeAuditAction(DELETE_TENANT_ROLE,
-                    role);
-            DomainRegistry.getAuditService()
-                .logUserAction(log, DELETE_TENANT_ROLE,
-                    role);
+            DomainRegistry.getAuditService().storeAuditAction(DELETE_TENANT_ROLE, role);
+            DomainRegistry.getAuditService().logUserAction(log, DELETE_TENANT_ROLE, role);
             return null;
         }, ROLE);
     }
@@ -171,13 +208,19 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new),
-                    CommonUtility.map(command.getApiPermissionIds(), PermissionId::new),
-                    command.getParentId() == null ? null : new RoleId(command.getParentId()),
-                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new),
-                    context
+                    command.getParentId() == null ? null : new RoleId(command.getParentId())
                 );
+                Set<PermissionId> comPerm =
+                    CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new);
+                Set<PermissionId> apiPerm =
+                    CommonUtility.map(command.getApiPermissionIds(), PermissionId::new);
+                Set<PermissionId> extPerm =
+                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new);
+                Set<PermissionId> linkPerm = CommonPermissionId.add(role, comPerm);
+                ApiPermissionId.add(role, apiPerm, linkPerm);
+                ExternalPermissionId.add(role, extPerm, context);
                 DomainRegistry.getRoleRepository().add(role);
+                DomainRegistry.getRoleValidationService().validate(role, comPerm, apiPerm, extPerm);
                 return roleId.getDomainId();
             }, ROLE);
     }
@@ -211,7 +254,9 @@ public class RoleApplicationService {
             .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle permission removed event");
                 PermissionId permissionId = new PermissionId(event.getDomainId().getDomainId());
-                DomainRegistry.getRoleRepository().removeReferredPermissionId(permissionId);
+                DomainRegistry.getCommonPermissionIdRepository().remove(permissionId);
+                DomainRegistry.getApiPermissionIdRepository().remove(permissionId);
+                DomainRegistry.getExternalPermissionIdRepository().remove(permissionId);
                 return null;
             }, ROLE);
     }

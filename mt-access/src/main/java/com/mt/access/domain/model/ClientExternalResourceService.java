@@ -28,8 +28,8 @@ public class ClientExternalResourceService {
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                 new RoleQuery(projectId));
         Set<PermissionId> externalPermissions =
-            allRoles.stream().filter(e -> e.getExternalPermissionIds() != null)
-                .flatMap(e -> e.getExternalPermissionIds().stream())
+            allRoles.stream()
+                .flatMap(e -> DomainRegistry.getExternalPermissionIdRepository().query(e).stream())
                 .collect(Collectors.toSet());
         if (!externalPermissions.isEmpty()) {
             Set<Endpoint> allEps = QueryUtility.getAllByQuery(e ->

@@ -12,6 +12,7 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -53,13 +54,26 @@ public class ComputePermissionService {
 
             optionalRole.ifPresent(nextRoles::add);
         }
+
         Set<PermissionId> commonPermissionIds =
-            nextRoles.stream().flatMap(e -> e.getCommonPermissionIds().stream())
+            nextRoles.stream()
+                .flatMap(e -> DomainRegistry.getCommonPermissionIdRepository().query(e).stream())
                 .collect(Collectors.toSet());
         log.debug("common permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(commonPermissionIds));
         Set<PermissionId> totalPermissions =
-            nextRoles.stream().flatMap(e -> e.getTotalPermissionIds().stream()
+            nextRoles.stream().flatMap(e -> {
+                    Set<PermissionId> totalPerm = new HashSet<>();
+                    Set<PermissionId> comPerm =
+                        DomainRegistry.getCommonPermissionIdRepository().query(e);
+                    Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(e);
+                    Set<PermissionId> extPerm =
+                        DomainRegistry.getExternalPermissionIdRepository().query(e);
+                    totalPerm.addAll(comPerm);
+                    totalPerm.addAll(apiPerm);
+                    totalPerm.addAll(extPerm);
+                    return totalPerm.stream();
+                }
             ).collect(Collectors.toSet());
         log.debug("total permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(totalPermissions));

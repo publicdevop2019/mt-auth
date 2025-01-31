@@ -50,6 +50,9 @@ import com.mt.access.domain.model.report.RawAccessRecordRepository;
 import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
+import com.mt.access.domain.model.role.ApiPermissionIdRepository;
+import com.mt.access.domain.model.role.CommonPermissionIdRepository;
+import com.mt.access.domain.model.role.ExternalPermissionIdRepository;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
@@ -209,6 +212,27 @@ public class DomainRegistry {
     private static CorsOriginRepository corsOriginRepository;
     @Getter
     private static LinkedApiPermissionIdRepository linkedApiPermissionIdRepository;
+    @Getter
+    private static ApiPermissionIdRepository apiPermissionIdRepository;
+    @Getter
+    private static CommonPermissionIdRepository commonPermissionIdRepository;
+    @Getter
+    private static ExternalPermissionIdRepository externalPermissionIdRepository;
+
+    @Autowired
+    public void setApiPermissionIdRepository(ApiPermissionIdRepository services) {
+        DomainRegistry.apiPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setCommonPermissionIdRepository(CommonPermissionIdRepository services) {
+        DomainRegistry.commonPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setExternalPermissionIdRepository(ExternalPermissionIdRepository services) {
+        DomainRegistry.externalPermissionIdRepository = services;
+    }
 
     @Autowired
     public void setLinkedApiPermissionIdRepository(LinkedApiPermissionIdRepository services) {
