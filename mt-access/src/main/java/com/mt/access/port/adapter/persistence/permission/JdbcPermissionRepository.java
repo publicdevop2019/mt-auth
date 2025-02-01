@@ -7,7 +7,6 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -48,8 +47,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String FIND_BY_DOMAIN_ID_SQL =
-        "SELECT p.*, lpm.domain_id AS lp_id FROM permission AS p LEFT JOIN linked_permission_ids_map lpm ON p.id = lpm.id " +
-            "WHERE p.domain_id = ?";
+        "SELECT * FROM permission p WHERE p.domain_id = ?";
     private static final String FIND_DOMAIN_ID_BY_NAME_AND_TENANT_ID =
         "SELECT p.domain_id FROM permission p " +
             "WHERE p.tenant_id IN (%s) AND p.name IN (%s) ORDER BY p.id ASC LIMIT ? OFFSET ?";
@@ -62,11 +60,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM permission p WHERE %s";
     private static final String DYNAMIC_DATA_QUERY_SQL =
-        "SELECT temp.*, lpm.domain_id AS lp_id FROM " +
-            "(SELECT * FROM permission p WHERE %s ORDER BY p.id ASC LIMIT ? OFFSET ?) " +
-            "AS temp " +
-            "LEFT JOIN linked_permission_ids_map lpm ON temp.id = lpm.id ";
-    ;
+        "SELECT * FROM permission p WHERE %s ORDER BY p.id ASC LIMIT ? OFFSET ?";
     private static final String FIND_ALL_PERMISSION_ID_USED =
         "SELECT DISTINCT p.domain_id FROM permission p";
     private static final String COUNT_PROJECT_CREATED_TOTAL =
@@ -328,7 +322,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
             );
         return count;
     }
-
 
 
     private static class RowMapper implements ResultSetExtractor<List<Permission>> {
