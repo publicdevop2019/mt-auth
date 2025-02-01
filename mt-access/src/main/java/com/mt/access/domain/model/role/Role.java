@@ -153,8 +153,6 @@ public class Role extends Auditable {
                 RoleType.PROJECT, null, tenantProjectId);
         Role adminRole =
             Role.newProjectRoleAdmin(authPId, new RoleId(), roleId, tenantProjectId);
-        DomainRegistry.getCommonPermissionIdRepository().add(adminRole, commonPermissionIds);
-        DomainRegistry.getApiPermissionIdRepository().add(adminRole, linkedPermissionIds);
         Role userRole = Role.newProjectRole(tenantProjectId, new RoleId(), PROJECT_USER,
             RoleType.USER, projectRoleRoot, null);
         Role tenantClientRoot = Role.newProjectRole(tenantProjectId, new RoleId(), CLIENT_ROOT,
@@ -171,6 +169,8 @@ public class Role extends Auditable {
         tobeStored.add(tenantClientRoot);
         tobeStored.add(tenantProjectRoot);
         DomainRegistry.getRoleRepository().addAll(tobeStored);
+        DomainRegistry.getCommonPermissionIdRepository().add(adminRole, commonPermissionIds);
+        DomainRegistry.getApiPermissionIdRepository().add(adminRole, linkedPermissionIds);
         context
             .append(new NewProjectRoleCreated(adminRole.getRoleId(),
                 userRole.getRoleId(), tenantProjectId, creator));

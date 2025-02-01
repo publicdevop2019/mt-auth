@@ -21,15 +21,13 @@ public class ExternalPermissionId {
     public static void update(Role role, Set<PermissionId> old, Set<PermissionId> next,
                               TransactionContext context) {
         if (!Utility.sameAs(old, next)) {
-
             Utility.updateSet(old, next,
                 (added) -> {
                     Validator.noNullMember(added);
                     Validator.lessThanOrEqualTo(next, 10);
-                    DomainRegistry.getApiPermissionIdRepository().add(role, added);
+                    DomainRegistry.getExternalPermissionIdRepository().add(role, added);
                 },
-                (removed) -> DomainRegistry.getApiPermissionIdRepository().remove(role, removed));
-        } else {
+                (removed) -> DomainRegistry.getExternalPermissionIdRepository().remove(role, removed));
             context.append(new ExternalPermissionUpdated(role.getProjectId()));
         }
     }

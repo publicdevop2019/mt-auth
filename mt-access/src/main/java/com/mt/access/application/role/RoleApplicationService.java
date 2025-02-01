@@ -38,6 +38,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.List;
@@ -134,32 +135,33 @@ public class RoleApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId, ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                Role role = DomainRegistry.getRoleRepository().get(projectId, roleId);
-                Validator.equals(role.getSystemCreate(), Boolean.FALSE);
-                if (command.getType().equals(UpdateType.BASIC)) {
-                    Role replace = role.replace(command);
-                    DomainRegistry.getRoleRepository().update(role, replace);
-                    DomainRegistry.getRoleValidationService().validate(role);
-                } else if (command.getType().equals(UpdateType.API_PERMISSION)) {
+                Role old = DomainRegistry.getRoleRepository().get(projectId, roleId);
+                Validator.equals(old.getSystemCreate(), Boolean.FALSE);
+                Validator.notNull(command.getType());
+                if (Utility.equals(command.getType(), UpdateType.BASIC)) {
+                    Role replace = old.replace(command);
+                    DomainRegistry.getRoleRepository().update(old, replace);
+                    DomainRegistry.getRoleValidationService().validate(replace);
+                } else if (Utility.equals(command.getType(), UpdateType.API_PERMISSION)) {
                     Set<PermissionId> apiPerm =
-                        DomainRegistry.getApiPermissionIdRepository().query(role);
+                        DomainRegistry.getApiPermissionIdRepository().query(old);
                     Set<PermissionId> nextApiPerm =
                         CommonUtility.map(command.getApiPermissionIds(), PermissionId::new);
-                    ApiPermissionId.update(role, apiPerm, nextApiPerm);
+                    ApiPermissionId.update(old, apiPerm, nextApiPerm);
                     Set<PermissionId> extPerm =
-                        DomainRegistry.getExternalPermissionIdRepository().query(role);
+                        DomainRegistry.getExternalPermissionIdRepository().query(old);
                     Set<PermissionId> nextExtPerm =
                         CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new);
-                    ExternalPermissionId.update(role, extPerm, nextExtPerm, context);
+                    ExternalPermissionId.update(old, extPerm, nextExtPerm, context);
                     DomainRegistry.getRoleValidationService()
-                        .validate(role, nextApiPerm, nextExtPerm);
-                } else if (command.getType().equals(UpdateType.COMMON_PERMISSION)) {
+                        .validate(old, nextApiPerm, nextExtPerm);
+                } else if (Utility.equals(command.getType(), UpdateType.COMMON_PERMISSION)) {
                     Set<PermissionId> comPerm =
-                        DomainRegistry.getCommonPermissionIdRepository().query(role);
+                        DomainRegistry.getCommonPermissionIdRepository().query(old);
                     Set<PermissionId> nextComPerm =
                         CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new);
-                    CommonPermissionId.update(role, comPerm, nextComPerm);
-                    DomainRegistry.getRoleValidationService().validate(role, nextComPerm);
+                    CommonPermissionId.update(old, comPerm, nextComPerm);
+                    DomainRegistry.getRoleValidationService().validate(old, nextComPerm);
                 }
                 return null;
             }, ROLE);
