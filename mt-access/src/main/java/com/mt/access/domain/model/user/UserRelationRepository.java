@@ -12,10 +12,6 @@ public interface UserRelationRepository {
 
     SumPagedRep<UserRelation> query(UserRelationQuery query);
 
-    void remove(UserRelation e);
-
-    SumPagedRep<UserRelation> get(UserId id);
-
     default UserRelation get(UserId id, ProjectId projectId) {
         UserRelation userRelation = query(id, projectId).orElse(null);
         Validator.notNull(userRelation);
@@ -31,6 +27,4 @@ public interface UserRelationRepository {
     long countProjectAdmin(RoleId adminRoleId);
 
     Set<UserId> getUserIds();
-
-    void update(UserRelation relation, UserRelation userRelation);
 }

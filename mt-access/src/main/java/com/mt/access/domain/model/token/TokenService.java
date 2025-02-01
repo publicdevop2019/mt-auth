@@ -141,20 +141,20 @@ public class TokenService {
                         .query(userId, new ProjectId(AppConstant.MAIN_PROJECT_ID));
                 if (optional.isPresent()) {
                     UserRelation userRelation = optional.get();
+                    Set<ProjectId> tenantIdSet =
+                        DomainRegistry.getUserRelationTenantIdRepository().query(userRelation);
                     log.debug("auth user relation for token is {}", userRelation);
-                    if (!userRelation.getTenantIds().isEmpty()) {
+                    if (!tenantIdSet.isEmpty()) {
                         //for user with no projects
                         viewTenantId = DomainRegistry.getProjectService()
-                            .getDefaultProject(userRelation.getTenantIds());
+                            .getDefaultProject(tenantIdSet);
                     }
                     //get default project instead of all projects' permission to reduce header size
                     totalPerm =
                         DomainRegistry.getComputePermissionService()
                             .compute(userRelation, viewTenantId);
                     projectId = userRelation.getProjectId();
-                    if (userRelation.getTenantIds() != null) {
-                        tenantIds = userRelation.getTenantIds();
-                    }
+                    tenantIds = tenantIdSet;
                 }
             }
             log.debug("creating token");

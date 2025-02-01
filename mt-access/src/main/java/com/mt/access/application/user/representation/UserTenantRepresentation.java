@@ -7,6 +7,7 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Utility;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -20,16 +21,14 @@ public class UserTenantRepresentation {
     private final Integer version;
     private Set<RoleDetail> roleDetails;
 
-    public UserTenantRepresentation(UserRelation userRelation, User user) {
+    public UserTenantRepresentation(UserRelation userRelation, User user, Set<RoleId> roleIds) {
         this.id = user.getUserId().getDomainId();
         this.displayName = user.getDisplayName();
         this.version = userRelation.getVersion();
-        if (userRelation.getStandaloneRoles() != null
-            && userRelation.getStandaloneRoles().size() > 0) {
-            Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
+        if (Utility.notNullOrEmpty(roleIds)) {
             Set<Role> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                    new RoleQuery(standaloneRoles));
+                    new RoleQuery(roleIds));
             roleDetails =
                 allByQuery.stream().map(RoleDetail::new).collect(Collectors.toCollection(
                     LinkedHashSet::new));

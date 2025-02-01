@@ -36,7 +36,8 @@ public class ComputePermissionService {
         if (userRelation == null) {
             return Collections.emptySet();
         }
-        Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
+        Set<RoleId> standaloneRoles =
+            DomainRegistry.getUserRelationRoleIdRepository().query(userRelation);
         log.debug("role id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(standaloneRoles));
         Set<Role> nextRoles = QueryUtility.getAllByQuery(

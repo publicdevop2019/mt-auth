@@ -22,12 +22,17 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.UserRelationQuery;
+import com.mt.access.domain.model.user.UserRelationRoleId;
+import com.mt.access.domain.model.user.UserRelationTenantId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Utility;
 import com.mt.common.domain.model.validate.Validator;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,7 +57,8 @@ public class UserRelationApplicationService {
         UserRelation relation =
             DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
         User user = DomainRegistry.getUserRepository().get(relation.getUserId());
-        return new UserTenantRepresentation(relation, user);
+        Set<RoleId> roleIds = DomainRegistry.getUserRelationRoleIdRepository().query(relation);
+        return new UserTenantRepresentation(relation, user, roleIds);
     }
 
 
@@ -143,8 +149,8 @@ public class UserRelationApplicationService {
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
                         .get(new UserId(userId), projectId);
-                UserRelation userRelation = relation.assignRole(command.getRoleIds());
-                DomainRegistry.getUserRelationRepository().update(relation, userRelation);
+                UserRelationRoleId.add(relation,
+                    Utility.mapToSet(command.getRoleIds(), RoleId::new));
                 return null;
             }, USER_RELATION);
     }
@@ -158,10 +164,23 @@ public class UserRelationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 UserRelation relation =
-                    DomainRegistry.getUserRelationRepository()
-                        .get(userId, projectId);
-                UserRelation userRelation = relation.removeRole(roleId);
-                DomainRegistry.getUserRelationRepository().update(relation, userRelation);
+                    DomainRegistry.getUserRelationRepository().get(userId, projectId);
+                Set<RoleId> oldRoleIds =
+                    DomainRegistry.getUserRelationRoleIdRepository().query(relation);
+                UserRelationRoleId.remove(relation, oldRoleIds, roleId);
+                oldRoleIds.remove(roleId);
+                //update tenant list based on role selected
+                Set<Role> newRoles = QueryUtility
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                        new RoleQuery(oldRoleIds));
+                Set<ProjectId> nextTenantIds =
+                    newRoles.stream().map(Role::getTenantId).filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+                if (nextTenantIds.isEmpty()) {
+                    Set<ProjectId> oldTenantIds =
+                        DomainRegistry.getUserRelationTenantIdRepository().query(relation);
+                    UserRelationTenantId.removeAll(relation, oldTenantIds);
+                }
                 return null;
             }, USER_RELATION);
     }
@@ -177,9 +196,9 @@ public class UserRelationApplicationService {
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
                 UserRelation current =
                     checkCondition(userId, tenantProjectId, projectId2, true);
-                UserRelation updated =
-                    current.addTenantAdmin(tenantProjectId, tenantAdminRoleId);
-                DomainRegistry.getUserRelationRepository().update(current, updated);
+                DomainRegistry.getUserRelationRoleIdRepository().add(current,
+                    Collections.singleton(tenantAdminRoleId));
+                DomainRegistry.getUserRelationTenantIdRepository().add(current, tenantProjectId);
                 return null;
             }, USER_RELATION);
     }
@@ -195,9 +214,10 @@ public class UserRelationApplicationService {
                 UserRelation userRelation =
                     checkCondition(userId, tenantProjectId, projectId2, false);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-                UserRelation update =
-                    userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
-                DomainRegistry.getUserRelationRepository().update(userRelation, update);
+                DomainRegistry.getUserRelationTenantIdRepository()
+                    .remove(userRelation, tenantProjectId);
+                DomainRegistry.getUserRelationRoleIdRepository()
+                    .remove(userRelation, tenantAdminRoleId);
                 return null;
             }, USER_RELATION);
     }
@@ -244,13 +264,14 @@ public class UserRelationApplicationService {
         UserRelation relation = DomainRegistry.getUserRelationRepository()
             .get(userId,
                 new ProjectId(MAIN_PROJECT_ID));
+        Set<RoleId> roleIds = DomainRegistry.getUserRelationRoleIdRepository().query(relation);
         if (isAdd) {
-            if (relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+            if (roleIds.contains(tenantAdminRoleId)) {
                 throw new DefinedRuntimeException("already admin", "1080",
                     HttpResponseCode.BAD_REQUEST);
             }
         } else {
-            if (!relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+            if (!roleIds.contains(tenantAdminRoleId)) {
                 throw new DefinedRuntimeException("not admin", "1081",
                     HttpResponseCode.BAD_REQUEST);
             }

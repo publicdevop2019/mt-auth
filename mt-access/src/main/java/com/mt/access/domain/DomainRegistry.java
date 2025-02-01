@@ -66,6 +66,8 @@ import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeGenerator;
 import com.mt.access.domain.model.user.PwdResetTokenGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
+import com.mt.access.domain.model.user.UserRelationRoleIdRepository;
+import com.mt.access.domain.model.user.UserRelationTenantIdRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
 import com.mt.access.domain.model.verification_code.VerificationCodeGenerator;
@@ -218,6 +220,20 @@ public class DomainRegistry {
     private static CommonPermissionIdRepository commonPermissionIdRepository;
     @Getter
     private static ExternalPermissionIdRepository externalPermissionIdRepository;
+    @Getter
+    private static UserRelationRoleIdRepository userRelationRoleIdRepository;
+    @Getter
+    private static UserRelationTenantIdRepository userRelationTenantIdRepository;
+
+    @Autowired
+    public void setUserRelationRoleIdRepository(UserRelationRoleIdRepository services) {
+        DomainRegistry.userRelationRoleIdRepository = services;
+    }
+
+    @Autowired
+    public void setUserRelationTenantIdRepository(UserRelationTenantIdRepository services) {
+        DomainRegistry.userRelationTenantIdRepository = services;
+    }
 
     @Autowired
     public void setApiPermissionIdRepository(ApiPermissionIdRepository services) {
