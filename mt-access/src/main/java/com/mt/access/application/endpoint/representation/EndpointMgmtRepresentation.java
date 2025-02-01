@@ -12,7 +12,7 @@ import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.infrastructure.Utility;
 import java.util.Optional;
 import java.util.Set;
 import lombok.Data;

@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.cache_profile;
 
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -14,8 +14,8 @@ public class CacheProfileDomainValidator {
     private static void validateCacheableFlag(CacheProfile cacheProfile,
                                               Set<CacheControlValue> cacheControlValues) {
         ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
-        if (Utility.isFalse(cacheProfile.getAllowCache())) {
-            if (Utility.notNull(cacheControlValues)) {
+        if (Checker.isFalse(cacheProfile.getAllowCache())) {
+            if (Checker.notNull(cacheControlValues)) {
                 Validator.isEmpty(cacheControlValues);
             }
             Validator.isNull(cacheProfile.getExpires());
@@ -27,13 +27,13 @@ public class CacheProfileDomainValidator {
         } else {
             //at lease some cache configuration should present
             if (
-                (Utility.isNull(cacheControlValues) ||
-                    Utility.isEmpty(cacheControlValues)) &&
-                    Utility.isNull(cacheProfile.getVary()) &&
-                    Utility.isNull(cacheProfile.getMaxAge()) &&
-                    Utility.isNull(cacheProfile.getSmaxAge()) &&
-                    Utility.isNull(cacheProfile.getExpires()) &&
-                    Utility.isNull(cacheProfile.getEtag())
+                (Checker.isNull(cacheControlValues) ||
+                    Checker.isEmpty(cacheControlValues)) &&
+                    Checker.isNull(cacheProfile.getVary()) &&
+                    Checker.isNull(cacheProfile.getMaxAge()) &&
+                    Checker.isNull(cacheProfile.getSmaxAge()) &&
+                    Checker.isNull(cacheProfile.getExpires()) &&
+                    Checker.isNull(cacheProfile.getEtag())
             ) {
                 handler.handleError("should have cache config");
             }

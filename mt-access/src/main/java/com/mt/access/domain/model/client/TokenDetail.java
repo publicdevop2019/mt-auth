@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.client;
 
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import lombok.EqualsAndHashCode;
@@ -32,7 +32,7 @@ public class TokenDetail implements Serializable {
     }
 
     private void setRefreshTokenValiditySeconds(Integer token) {
-        if (Utility.notNull(token)) {
+        if (Checker.notNull(token)) {
             Validator.lessThanOrEqualTo(token, MAX_REFRESH_TOKEN_SEC);
             Validator.greaterThanOrEqualTo(token, MIN_REFRESH_TOKEN_SEC);
         }

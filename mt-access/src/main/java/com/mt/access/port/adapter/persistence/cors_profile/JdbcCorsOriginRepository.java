@@ -6,7 +6,8 @@ import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public class JdbcCorsOriginRepository implements CorsOriginRepository {
 
     @Override
     public void remove(CorsProfile corsProfile, Set<Origin> origins) {
-        if (Utility.notNullOrEmpty(origins)) {
+        if (Checker.notNullOrEmpty(origins)) {
             List<Object> args = new ArrayList<>();
             String inSql = DatabaseUtility.getInClause(origins.size());
             args.add(corsProfile.getId());
@@ -60,7 +61,7 @@ public class JdbcCorsOriginRepository implements CorsOriginRepository {
 
     @Override
     public void add(CorsProfile corsProfile, Set<Origin> origins) {
-        if (Utility.notNullOrEmpty(origins)) {
+        if (Checker.notNullOrEmpty(origins)) {
             List<BatchInsertKeyValue> batchArgs = Utility.mapToList(origins,
                 e -> new BatchInsertKeyValue(corsProfile.getId(), e.getValue()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -74,7 +75,7 @@ public class JdbcCorsOriginRepository implements CorsOriginRepository {
 
     @Override
     public void removeAll(CorsProfile corsProfile, Set<Origin> origins) {
-        if (Utility.notNullOrEmpty(origins)) {
+        if (Checker.notNullOrEmpty(origins)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CORS_ORIGIN_BY_ID_SQL,
                     corsProfile.getId()
@@ -93,7 +94,7 @@ public class JdbcCorsOriginRepository implements CorsOriginRepository {
             List<Origin> list = new ArrayList<>();
             do {
                 String raw = rs.getString("allowed_origin");
-                if (Utility.notNull(raw)) {
+                if (Checker.notNull(raw)) {
                     list.add(new Origin(raw));
                 }
             } while (rs.next());

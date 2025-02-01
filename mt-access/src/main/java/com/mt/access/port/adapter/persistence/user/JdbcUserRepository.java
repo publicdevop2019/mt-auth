@@ -17,7 +17,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -138,27 +138,27 @@ public class JdbcUserRepository implements UserRepository {
                 user.getModifiedAt(),
                 user.getModifiedBy(),
                 0,
-                Utility.isNull(user.getEmail()) ? null : user.getEmail().getEmail(),
+                Checker.isNull(user.getEmail()) ? null : user.getEmail().getEmail(),
                 user.getLocked(),
-                Utility.isNull(user.getPassword()) ? null : user.getPassword().getPassword(),
+                Checker.isNull(user.getPassword()) ? null : user.getPassword().getPassword(),
                 user.getUserId().getDomainId(),
-                Utility.isNull(user.getUserName()) ? null : user.getUserName().getValue(),
-                Utility.isNull(user.getMobile()) ? null : user.getMobile().getCountryCode(),
-                Utility.isNull(user.getMobile()) ? null : user.getMobile().getMobileNumber(),
-                Utility.isNull(user.getUserAvatar()) ? null : user.getUserAvatar().getValue(),
-                Utility.isNull(user.getLanguage()) ? null : user.getLanguage().name()
+                Checker.isNull(user.getUserName()) ? null : user.getUserName().getValue(),
+                Checker.isNull(user.getMobile()) ? null : user.getMobile().getCountryCode(),
+                Checker.isNull(user.getMobile()) ? null : user.getMobile().getMobileNumber(),
+                Checker.isNull(user.getUserAvatar()) ? null : user.getUserAvatar().getValue(),
+                Checker.isNull(user.getLanguage()) ? null : user.getLanguage().name()
             );
     }
 
     @Override
     public SumPagedRep<User> query(UserQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getUserIds())) {
+        if (Checker.notNullOrEmpty(query.getUserIds())) {
             String inClause = DatabaseUtility.getInClause(query.getUserIds().size());
             String byDomainIds = String.format("u.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNullOrEmpty(query.getUserEmailKeys())) {
+        if (Checker.notNullOrEmpty(query.getUserEmailKeys())) {
             List<String> orClause = new ArrayList<>();
             query.getUserEmailKeys().forEach(e -> {
                 String email = "u.email LIKE ?";
@@ -167,7 +167,7 @@ public class JdbcUserRepository implements UserRepository {
             String join = String.join(" OR ", orClause);
             whereClause.add(join);
         }
-        if (Utility.notNullOrEmpty(query.getUserMobileKeys())) {
+        if (Checker.notNullOrEmpty(query.getUserMobileKeys())) {
             List<String> orClause = new ArrayList<>();
             query.getUserMobileKeys().forEach(e -> {
                 String mobile = "u.mobile_number LIKE ?";
@@ -176,7 +176,7 @@ public class JdbcUserRepository implements UserRepository {
             String join = String.join(" OR ", orClause);
             whereClause.add(join);
         }
-        if (Utility.notNullOrEmpty(query.getUsernameKeys())) {
+        if (Checker.notNullOrEmpty(query.getUsernameKeys())) {
             List<String> orClause = new ArrayList<>();
             query.getUsernameKeys().forEach(e -> {
                 String username = "u.username LIKE ?";
@@ -196,19 +196,19 @@ public class JdbcUserRepository implements UserRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getUserIds())) {
+        if (Checker.notNullOrEmpty(query.getUserIds())) {
             args.addAll(
                 query.getUserIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getUserEmailKeys())) {
+        if (Checker.notNull(query.getUserEmailKeys())) {
             args.addAll(
                 query.getUserEmailKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getUserMobileKeys())) {
+        if (Checker.notNull(query.getUserMobileKeys())) {
             args.addAll(
                 query.getUserMobileKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getUsernameKeys())) {
+        if (Checker.notNull(query.getUsernameKeys())) {
             args.addAll(
                 query.getUsernameKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
         }
@@ -312,13 +312,13 @@ public class JdbcUserRepository implements UserRepository {
                 updated.getModifiedAt(),
                 updated.getModifiedBy(),
                 updated.getLocked(),
-                Utility.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
-                Utility.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
-                Utility.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
-                Utility.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
-                Utility.isNull(updated.getEmail()) ? null : updated.getEmail().getEmail(),
-                Utility.isNull(updated.getUserAvatar()) ? null : updated.getUserAvatar().getValue(),
-                Utility.isNull(updated.getLanguage()) ? null : updated.getLanguage().name(),
+                Checker.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
+                Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
+                Checker.isNull(updated.getEmail()) ? null : updated.getEmail().getEmail(),
+                Checker.isNull(updated.getUserAvatar()) ? null : updated.getUserAvatar().getValue(),
+                Checker.isNull(updated.getLanguage()) ? null : updated.getLanguage().name(),
                 updated.getVersion() + 1,
                 updated.getId(),
                 updated.getVersion()
@@ -369,7 +369,7 @@ public class JdbcUserRepository implements UserRepository {
             long currentId = -1L;
             User user;
             UserPassword userPassword = null;
-            if (Utility.notNull(rs.getString("password"))) {
+            if (Checker.notNull(rs.getString("password"))) {
                 userPassword = new UserPassword();
                 userPassword.setPassword(rs.getString("password"));
             }
@@ -383,21 +383,21 @@ public class JdbcUserRepository implements UserRepository {
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        Utility.isNull(rs.getString("email")) ? null :
+                        Checker.isNull(rs.getString("email")) ? null :
                             new UserEmail(rs.getString("email")),
                         DatabaseUtility.getNullableBoolean(rs, "locked"),
                         userPassword,
                         new UserId(rs.getString("domain_id")),
-                        Utility.isNull(rs.getString("username")) ? null :
+                        Checker.isNull(rs.getString("username")) ? null :
                             new UserName(rs.getString("username")),
-                        Utility.notNull(rs.getString("country_code")) &&
-                            Utility.notNull(rs.getString("mobile_number"))
+                        Checker.notNull(rs.getString("country_code")) &&
+                            Checker.notNull(rs.getString("mobile_number"))
                             ?
                             new UserMobile(rs.getString("country_code"),
                                 rs.getString("mobile_number")) : null,
-                        Utility.isNull(rs.getString("avatar_link")) ? null :
+                        Checker.isNull(rs.getString("avatar_link")) ? null :
                             new UserAvatar(new ImageId(rs.getString("avatar_link"))),
-                        Utility.notNull(rs.getString("language")) ?
+                        Checker.notNull(rs.getString("language")) ?
                             Language.valueOf(rs.getString("language")) : null
                     );
                     list.add(user);

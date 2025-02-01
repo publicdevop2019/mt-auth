@@ -6,13 +6,13 @@ import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -65,7 +65,7 @@ public class JdbcClientRedirectUrlRepository implements ClientRedirectUrlReposit
 
     @Override
     public void add(Client client, Set<RedirectUrl> redirectUrls) {
-        if (Utility.notNullOrEmpty(redirectUrls)) {
+        if (Checker.notNullOrEmpty(redirectUrls)) {
             List<BatchInsertKeyValue> keyValues = Utility.mapToList(redirectUrls,
                 ee -> new BatchInsertKeyValue(client.getId(), ee.getValue()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -80,7 +80,7 @@ public class JdbcClientRedirectUrlRepository implements ClientRedirectUrlReposit
 
     @Override
     public void removeAll(Client client, Set<RedirectUrl> redirectUrls) {
-        if (Utility.notNullOrEmpty(redirectUrls)) {
+        if (Checker.notNullOrEmpty(redirectUrls)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_REDIRECT_URL_BY_ID_SQL,
                     client.getId()

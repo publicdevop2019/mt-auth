@@ -6,7 +6,8 @@ import com.mt.access.domain.model.user.UserRelationRoleIdRepository;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class JdbcUserRelationRoleIdRepository implements UserRelationRoleIdRepos
 
     @Override
     public void add(UserRelation userRelation, Set<RoleId> roleIds) {
-        if (Utility.notNullOrEmpty(roleIds)) {
+        if (Checker.notNullOrEmpty(roleIds)) {
             Set<BatchInsertKeyValue> args = Utility.mapToSet(roleIds,
                 e -> new BatchInsertKeyValue(userRelation.getId(), e.getDomainId()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -58,7 +59,7 @@ public class JdbcUserRelationRoleIdRepository implements UserRelationRoleIdRepos
 
     @Override
     public void remove(UserRelation userRelation, RoleId roleId) {
-        if (Utility.notNull(roleId)) {
+        if (Checker.notNull(roleId)) {
             List<Object> args = new ArrayList<>();
             String inSql = DatabaseUtility.getInClause(1);
             args.add(userRelation.getId());
@@ -82,7 +83,7 @@ public class JdbcUserRelationRoleIdRepository implements UserRelationRoleIdRepos
             List<RoleId> list = new ArrayList<>();
             do {
                 String idRaw = rs.getString("role");
-                if (Utility.notNull(idRaw)) {
+                if (Checker.notNull(idRaw)) {
                     list.add(new RoleId(idRaw));
                 }
             } while (rs.next());

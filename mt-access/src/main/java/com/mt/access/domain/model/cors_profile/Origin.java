@@ -5,8 +5,9 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import java.io.Serializable;
 import java.util.Set;
 import lombok.AccessLevel;
@@ -42,7 +43,7 @@ public class Origin implements Serializable {
 
     public static void update(CorsProfile updated, Set<Origin> old, Set<Origin> next,
                               TransactionContext context) {
-        if (!Utility.sameAs(old, next)) {
+        if (!Checker.sameAs(old, next)) {
             context.append(new CorsProfileUpdated(updated));
             Validator.validRequiredCollection(1, 5, next);
             Utility.updateSet(old, next,

@@ -20,7 +20,7 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
@@ -83,7 +83,7 @@ public class TokenService {
     private JwtToken grantToken(TokenGrantClient clientDetails,
                                 @Nullable UserId userId,
                                 Set<String> scope) {
-        final boolean isClient = Utility.isNull(userId);
+        final boolean isClient = Checker.isNull(userId);
         final boolean hasRefresh =
             clientDetails.getAuthorizedGrantTypes().contains("refresh_token");
         ClientId clientId = new ClientId(clientDetails.getClientId());
@@ -198,7 +198,7 @@ public class TokenService {
         Validator.notNull(redirectUrl);
         AuthorizeInfo authorizeInfo = DomainRegistry.getAuthorizationCodeRepository()
             .remove(code);
-        if (Utility.isNull(authorizeInfo)) {
+        if (Checker.isNull(authorizeInfo)) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }

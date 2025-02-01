@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -121,12 +121,12 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         }
 
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getUserIds())) {
+        if (Checker.notNullOrEmpty(query.getUserIds())) {
             String inClause = DatabaseUtility.getInClause(query.getUserIds().size());
             String byDomainIds = String.format("ur.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("ur.project_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
@@ -135,11 +135,11 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         String finalDataQuery = String.format(DYNAMIC_DATA_QUERY_SQL, join);
         String finalCountQuery = String.format(DYNAMIC_COUNT_QUERY_SQL, join);
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getUserIds())) {
+        if (Checker.notNullOrEmpty(query.getUserIds())) {
             args.addAll(
                 query.getUserIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getProjectIds())) {
+        if (Checker.notNull(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));

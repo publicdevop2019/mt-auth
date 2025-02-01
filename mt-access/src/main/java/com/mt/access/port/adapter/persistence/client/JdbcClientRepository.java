@@ -14,7 +14,7 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -116,7 +116,7 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getSecret(),
                 client.getTokenDetail().getAccessTokenValiditySeconds(),
                 client.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Utility.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
+                Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
     }
 
@@ -135,21 +135,21 @@ public class JdbcClientRepository implements ClientRepository {
             return resourceSearch(query);
         }
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getClientIds())) {
+        if (Checker.notNullOrEmpty(query.getClientIds())) {
             String inClause = DatabaseUtility.getInClause(query.getClientIds().size());
             String byDomainIds = String.format("c.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNull(query.getResourceFlag())) {
+        if (Checker.notNull(query.getResourceFlag())) {
             String accessible =
                 query.getResourceFlag() ? "c.accessible_ = 1" : "c.accessible_ = 0";
             whereClause.add(accessible);
         }
-        if (Utility.notNull(query.getName())) {
+        if (Checker.notNull(query.getName())) {
             String name = "c.name LIKE ?";
             whereClause.add(name);
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("c.project_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
@@ -165,15 +165,15 @@ public class JdbcClientRepository implements ClientRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getClientIds())) {
+        if (Checker.notNullOrEmpty(query.getClientIds())) {
             args.addAll(
                 query.getClientIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getName())) {
+        if (Checker.notNull(query.getName())) {
             args.add("%" + query.getName() + "%");
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
@@ -277,7 +277,7 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getSecret(),
                 updated.getTokenDetail().getAccessTokenValiditySeconds(),
                 updated.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Utility.isNull(updated.getExternalUrl()) ? null :
+                Checker.isNull(updated.getExternalUrl()) ? null :
                     updated.getExternalUrl().getValue(),
                 updated.getId(),
                 updated.getVersion()
@@ -373,7 +373,7 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString("secret"),
                         DatabaseUtility.getNullableInteger(rs, "access_token_validity_seconds"),
                         DatabaseUtility.getNullableInteger(rs, "refresh_token_validity_seconds"),
-                        Utility.notNull(rs.getString("external_url")) ?
+                        Checker.notNull(rs.getString("external_url")) ?
                             new ExternalUrl(rs.getString("external_url")) : null
                     );
                     list.add(client);

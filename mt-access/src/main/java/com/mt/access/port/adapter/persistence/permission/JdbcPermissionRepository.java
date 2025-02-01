@@ -12,7 +12,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -120,31 +120,31 @@ public class JdbcPermissionRepository implements PermissionRepository {
     @Override
     public SumPagedRep<Permission> query(PermissionQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byDomainIds = String.format("p.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byProjectIds = String.format("p.project_id IN (%s)", inClause);
             whereClause.add(byProjectIds);
         }
-        if (Utility.notNullOrEmpty(query.getTenantIds())) {
+        if (Checker.notNullOrEmpty(query.getTenantIds())) {
             String inClause = DatabaseUtility.getInClause(query.getTenantIds().size());
             String byTenantIds = String.format("p.tenant_id IN (%s)", inClause);
             whereClause.add(byTenantIds);
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             String inClause = DatabaseUtility.getInClause(query.getNames().size());
             String byNames = String.format("p.name IN (%s)", inClause);
             whereClause.add(byNames);
         }
-        if (Utility.notNull(query.getShared())) {
+        if (Checker.notNull(query.getShared())) {
             String shared = "p.shared = ?";
             whereClause.add(shared);
         }
-        if (Utility.notNullOrEmpty(query.getTypes())) {
+        if (Checker.notNullOrEmpty(query.getTypes())) {
             String inClause = DatabaseUtility.getInClause(query.getTypes().size());
             String byTypes = String.format("p.type IN (%s)", inClause);
             whereClause.add(byTypes);
@@ -153,29 +153,29 @@ public class JdbcPermissionRepository implements PermissionRepository {
         String finalDataQuery = String.format(DYNAMIC_DATA_QUERY_SQL, join);
         String finalCountQuery = String.format(DYNAMIC_COUNT_QUERY_SQL, join);
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getTenantIds())) {
+        if (Checker.notNullOrEmpty(query.getTenantIds())) {
             args.addAll(
                 query.getTenantIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             args.addAll(
                 query.getNames());
         }
-        if (Utility.notNull(query.getShared())) {
+        if (Checker.notNull(query.getShared())) {
             args.add(
                 query.getShared());
         }
-        if (Utility.notNullOrEmpty(query.getTypes())) {
+        if (Checker.notNullOrEmpty(query.getTypes())) {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
@@ -351,7 +351,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "shared"),
                         DatabaseUtility.getNullableBoolean(rs, "system_create"),
-                        Utility.notNull(rs.getString("tenant_id")) ?
+                        Checker.notNull(rs.getString("tenant_id")) ?
                             new ProjectId(rs.getString("tenant_id")) : null,
                         PermissionType.valueOf(rs.getString("type"))
                     );

@@ -15,7 +15,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -168,7 +168,7 @@ public class Client extends Auditable {
 
     private void initType(ClientType type) {
         Validator.notNull(type);
-        if (Utility.notNull(this.type)) {
+        if (Checker.notNull(this.type)) {
             throw new DefinedRuntimeException("client type can not be updated once created", "1035",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -186,7 +186,7 @@ public class Client extends Auditable {
                     .append(new ClientPathChanged(clientId));
             }
         }
-        if (Utility.notNull(path)) {
+        if (Checker.notNull(path)) {
             Validator.lessThanOrEqualTo(path, 50);
             Validator.greaterThanOrEqualTo(path, 5);
             Matcher matcher = PATH_REGEX.matcher(path);//alpha - / only
@@ -230,7 +230,7 @@ public class Client extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(50, description);
-        if (Utility.notNull(description)) {
+        if (Checker.notNull(description)) {
             description = description.trim();
         }
         this.description = description;
@@ -247,8 +247,8 @@ public class Client extends Auditable {
     }
 
     private void setAccessible(Boolean accessible, TransactionContext context) {
-        if (Utility.notNull(id)) {
-            if (Utility.isTrue(getAccessible()) && Utility.isFalse(accessible)) {
+        if (Checker.notNull(id)) {
+            if (Checker.isTrue(getAccessible()) && Checker.isFalse(accessible)) {
                 context
                     .append(new ClientAccessibilityRemoved(clientId));
             }
@@ -291,7 +291,7 @@ public class Client extends Auditable {
     private void updateSecret(String secret, TransactionContext context) {
         Validator.notNull(secret);
         Validator.notBlank(secret);
-        if (!Utility.equals(secret, this.secret)) {
+        if (!Checker.equals(secret, this.secret)) {
             context
                 .append(new ClientSecretChanged(clientId));
             this.secret = secret;
@@ -313,12 +313,12 @@ public class Client extends Auditable {
     }
 
     private boolean tokenDetailChanged(TokenDetail tokenDetail) {
-        return !Utility.equals(this.tokenDetail, tokenDetail);
+        return !Checker.equals(this.tokenDetail, tokenDetail);
     }
 
     private void removeAllReferenced(TransactionContext context) {
         context.append(new ClientDeleted(clientId));
-        if (Utility.isTrue(getAccessible())) {
+        if (Checker.isTrue(getAccessible())) {
             context
                 .append(new ClientAsResourceDeleted(clientId));
         }

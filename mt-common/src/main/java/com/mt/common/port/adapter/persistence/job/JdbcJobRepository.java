@@ -11,7 +11,7 @@ import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -80,10 +80,10 @@ public class JdbcJobRepository implements JobRepository {
 
     private SumPagedRep<JobDetail> getPaged(JobQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNull(query.getId())) {
+        if (Checker.notNull(query.getId())) {
             whereClause.add("jd.domain_id = ?");
         }
-        if (Utility.notNull(query.getName())) {
+        if (Checker.notNull(query.getName())) {
             whereClause.add("jd.name = ?");
         }
         String join = String.join(" AND ", whereClause);
@@ -97,10 +97,10 @@ public class JdbcJobRepository implements JobRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Utility.notNull(query.getId())) {
+        if (Checker.notNull(query.getId())) {
             args.add(query.getId());
         }
-        if (Utility.notNull(query.getName())) {
+        if (Checker.notNull(query.getName())) {
             args.add(query.getName());
         }
         Long count;
@@ -223,9 +223,9 @@ public class JdbcJobRepository implements JobRepository {
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         rs.getString("name"),
-                        Utility.notNull(rs.getString("last_status")) ?
+                        Checker.notNull(rs.getString("last_status")) ?
                             JobStatus.valueOf(rs.getString("last_status")) : null,
-                        Utility.notNull(rs.getString("type")) ?
+                        Checker.notNull(rs.getString("type")) ?
                             JobType.valueOf(rs.getString("type")) : null,
                         DatabaseUtility.getNullableInteger(rs, "failure_count"),
                         rs.getString("failure_reason"),

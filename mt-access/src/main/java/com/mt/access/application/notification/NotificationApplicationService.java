@@ -29,7 +29,7 @@ import com.mt.common.domain.model.job.event.JobPaused;
 import com.mt.common.domain.model.job.event.JobStarving;
 import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -193,7 +193,7 @@ public class NotificationApplicationService {
 
     public void handle(UserPwdResetCodeUpdated event) {
         Notification notification = new Notification(event);
-        if (Utility.notNull(event.getEmail())) {
+        if (Checker.notNull(event.getEmail())) {
             SendEmailNotification sendEmailNotification =
                 new SendEmailNotification(event, notification);
             storeEmailNotification(event.getId(), notification, sendEmailNotification);

@@ -6,13 +6,12 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleType;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -126,35 +125,35 @@ public class JdbcRoleRepository implements RoleRepository {
     @Override
     public SumPagedRep<Role> query(RoleQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byDomainIds = String.format("r.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNull(query.getParentId())) {
+        if (Checker.notNull(query.getParentId())) {
             String byParentId = "r.parent_id = ?";
             whereClause.add(byParentId);
         }
-        if (Utility.notNull(query.getParentIdNull())) {
+        if (Checker.notNull(query.getParentIdNull())) {
             String byParentId = "r.parent_id IS NULL";
             whereClause.add(byParentId);
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byProjectIds = String.format("r.project_id IN (%s)", inClause);
             whereClause.add(byProjectIds);
         }
-        if (Utility.notNullOrEmpty(query.getTenantIds())) {
+        if (Checker.notNullOrEmpty(query.getTenantIds())) {
             String inClause = DatabaseUtility.getInClause(query.getTenantIds().size());
             String byTenantIds = String.format("r.tenant_id IN (%s)", inClause);
             whereClause.add(byTenantIds);
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             String inClause = DatabaseUtility.getInClause(query.getNames().size());
             String byNames = String.format("r.name IN (%s)", inClause);
             whereClause.add(byNames);
         }
-        if (Utility.notNullOrEmpty(query.getTypes())) {
+        if (Checker.notNullOrEmpty(query.getTypes())) {
             String inClause = DatabaseUtility.getInClause(query.getTypes().size());
             String byTypes = String.format("r.type IN (%s)", inClause);
             whereClause.add(byTypes);
@@ -170,29 +169,29 @@ public class JdbcRoleRepository implements RoleRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getParentId())) {
+        if (Checker.notNull(query.getParentId())) {
             args.add(
                 query.getParentId().getDomainId());
         }
-        if (Utility.notNullOrEmpty(query.getProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getTenantIds())) {
+        if (Checker.notNullOrEmpty(query.getTenantIds())) {
             args.addAll(
                 query.getTenantIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             args.addAll(
                 query.getNames());
         }
-        if (Utility.notNullOrEmpty(query.getTypes())) {
+        if (Checker.notNullOrEmpty(query.getTypes())) {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
@@ -319,11 +318,11 @@ public class JdbcRoleRepository implements RoleRepository {
                         rs.getString("name"),
                         rs.getString("description"),
                         new RoleId(rs.getString("domain_id")),
-                        Utility.notNull(rs.getString("parent_id")) ?
+                        Checker.notNull(rs.getString("parent_id")) ?
                             new RoleId(rs.getString("parent_id")) : null,
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "system_create"),
-                        Utility.notNull(rs.getString("tenant_id")) ?
+                        Checker.notNull(rs.getString("tenant_id")) ?
                             new ProjectId(rs.getString("tenant_id")) : null,
                         RoleType.valueOf(rs.getString("type"))
                     );

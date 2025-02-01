@@ -6,7 +6,7 @@ import com.mt.access.domain.model.user.UserRelationTenantIdRepository;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -49,7 +49,7 @@ public class JdbcUserRelationTenantIdRepository implements UserRelationTenantIdR
 
     @Override
     public void add(UserRelation userRelation, ProjectId projectId) {
-        if (Utility.notNull(projectId)) {
+        if (Checker.notNull(projectId)) {
             Set<BatchInsertKeyValue> args = new LinkedHashSet<>();
             args.add(new BatchInsertKeyValue(userRelation.getId(), projectId.getDomainId()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -64,7 +64,7 @@ public class JdbcUserRelationTenantIdRepository implements UserRelationTenantIdR
 
     @Override
     public void removeAll(UserRelation userRelation, Set<ProjectId> projectIds) {
-        if (Utility.notNullOrEmpty(projectIds)) {
+        if (Checker.notNullOrEmpty(projectIds)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_TENANT_BY_ID_SQL,
                     userRelation.getId()
@@ -74,7 +74,7 @@ public class JdbcUserRelationTenantIdRepository implements UserRelationTenantIdR
 
     @Override
     public void remove(UserRelation userRelation, ProjectId projectId) {
-        if (Utility.notNull(projectId)) {
+        if (Checker.notNull(projectId)) {
             List<Object> args = new ArrayList<>();
             String inSql = DatabaseUtility.getInClause(1);
             args.add(userRelation.getId());
@@ -98,7 +98,7 @@ public class JdbcUserRelationTenantIdRepository implements UserRelationTenantIdR
             List<ProjectId> list = new ArrayList<>();
             do {
                 String idRaw = rs.getString("tenant");
-                if (Utility.notNull(idRaw)) {
+                if (Checker.notNull(idRaw)) {
                     list.add(new ProjectId(idRaw));
                 }
             } while (rs.next());

@@ -18,7 +18,7 @@ import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.infrastructure.Utility;
 import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;

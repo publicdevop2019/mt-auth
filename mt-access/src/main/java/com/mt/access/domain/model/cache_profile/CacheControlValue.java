@@ -5,8 +5,9 @@ import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 
 /**
@@ -52,7 +53,7 @@ public enum CacheControlValue {
 
     public static void update(CacheProfile cacheProfile, Set<CacheControlValue> old,
                               Set<CacheControlValue> cacheControl, TransactionContext context) {
-        if (!Utility.sameAs(old, cacheControl)) {
+        if (!Checker.sameAs(old, cacheControl)) {
             context.append(new CacheProfileUpdated(cacheProfile));
             Validator.validOptionalCollection(9, cacheControl);
             Utility.updateSet(old, cacheControl,

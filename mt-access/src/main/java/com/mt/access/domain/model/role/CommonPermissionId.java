@@ -7,8 +7,9 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 public class CommonPermissionId {
     public static Set<PermissionId> add(Role role, Set<PermissionId> commonPermissionIds) {
         Set<PermissionId> linkedApiPermission = Collections.emptySet();
-        if (Utility.notNullOrEmpty(commonPermissionIds)) {
+        if (Checker.notNullOrEmpty(commonPermissionIds)) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                     PermissionQuery.internalQuery(commonPermissionIds));
@@ -35,7 +36,7 @@ public class CommonPermissionId {
                     "permissions added to role must belong to same tenant project", "1053",
                     HttpResponseCode.BAD_REQUEST);
             }
-            if (Utility.notNullOrEmpty(commonPermissionIds)) {
+            if (Checker.notNullOrEmpty(commonPermissionIds)) {
                 Validator.noNullMember(commonPermissionIds);
                 Validator.lessThanOrEqualTo(commonPermissionIds, 10);
             }

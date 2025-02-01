@@ -11,7 +11,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -127,9 +127,9 @@ public class JdbcCorsProfileRepository implements CorsProfileRepository {
 
     @Override
     public SumPagedRep<CorsProfile> query(CorsProfileQuery query) {
-        if (Utility.notNull(query.getProjectId())) {
+        if (Checker.notNull(query.getProjectId())) {
             //tenant query
-            if (Utility.notNullOrEmpty(query.getIds())) {
+            if (Checker.notNullOrEmpty(query.getIds())) {
                 return queryByProjectIdAndDomainId(query);
             }
             return queryByProjectId(query);

@@ -11,7 +11,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
         CommonDomainRegistry.getJdbcTemplate()
             .update(INSERT_SQL,
                 notification.getId(),
-                Utility.notNullOrEmpty(notification.getDescriptions()) ?
+                Checker.notNullOrEmpty(notification.getDescriptions()) ?
                     String.join(",", notification.getDescriptions()) :
                     null
                 ,
@@ -99,14 +99,14 @@ public class JdbcNotificationRepository implements NotificationRepository {
 
     @Override
     public SumPagedRep<Notification> notificationsOfQuery(NotificationQuery query) {
-        if (Utility.notNull(query.getUserId())) {
-            if (Utility.isTrue(query.getIsUnAck())) {
+        if (Checker.notNull(query.getUserId())) {
+            if (Checker.isTrue(query.getIsUnAck())) {
                 return findUnAckUserBellNotification(query);
             }
             return findAllUserBellNotification(query);
         }
-        if (Utility.isTrue(query.isBell())) {
-            if (Utility.isTrue(query.getIsUnAck())) {
+        if (Checker.isTrue(query.isBell())) {
+            if (Checker.isTrue(query.getIsUnAck())) {
                 return findUnAckMgmtBellNotification(query);
             } else {
                 return findAllMgmtBellNotification(query);
@@ -228,7 +228,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
                 if (currentId != dbId) {
                     String descriptions = rs.getString("descriptions");
                     LinkedHashSet<String> strings = null;
-                    if (Utility.notNull(descriptions)) {
+                    if (Checker.notNull(descriptions)) {
                         strings =
                             Arrays.stream(descriptions.split(",")).collect(
                                 Collectors.toCollection(LinkedHashSet::new));
@@ -242,7 +242,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
                         DatabaseUtility.getNullableBoolean(rs, "ack"),
                         NotificationType.valueOf(rs.getString("type")),
                         NotificationStatus.valueOf(rs.getString("status")),
-                        Utility.notNull(rs.getString("user_id")) ?
+                        Checker.notNull(rs.getString("user_id")) ?
                             new UserId(rs.getString("user_id")) : null
                     );
                     results.add(result);

@@ -1,18 +1,11 @@
 package com.mt.common.domain.model.validate;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
 
-public class Utility {
+public class Checker {
     public static boolean isNull(Object obj) {
         return obj == null;
     }
@@ -34,11 +27,11 @@ public class Utility {
     }
 
     public static boolean isNullOrEmpty(Collection<?> objects) {
-        return Utility.isNull(objects) || Utility.isEmpty(objects);
+        return Checker.isNull(objects) || Checker.isEmpty(objects);
     }
 
     public static boolean notNullOrEmpty(Collection<?> objects) {
-        return Utility.notNull(objects) && Utility.notEmpty(objects);
+        return Checker.notNull(objects) && Checker.notEmpty(objects);
     }
 
     public static boolean notEmpty(Collection<?> objects) {
@@ -62,7 +55,7 @@ public class Utility {
     }
 
     public static boolean isBlank(@Nullable String str) {
-        return Utility.isNull(str) || "".equalsIgnoreCase(str.trim());
+        return Checker.isNull(str) || "".equalsIgnoreCase(str.trim());
     }
 
     public static boolean notBlank(@Nullable String str) {
@@ -90,45 +83,5 @@ public class Utility {
         }
     }
 
-    public static <T, R> Set<R> mapToSet(@Nullable Set<T> resourceIds, Function<T, R> fn) {
-        return resourceIds != null
-            ? resourceIds.stream().map(fn)
-            .collect(Collectors.toCollection(LinkedHashSet::new)) : Collections.emptySet();
-    }
 
-    public static <T, R> List<R> mapToList(@Nullable Set<T> resourceIds, Function<T, R> fn) {
-        return resourceIds != null
-            ? resourceIds.stream().map(fn)
-            .collect(Collectors.toList()) : Collections.emptyList();
-    }
-
-
-    public static <T> void updateSet(@Nullable Set<T> oldSet, @Nullable Set<T> newSet,
-                                     Consumer<Set<T>> addCallback,
-                                     Consumer<Set<T>> removeCallback) {
-        if (!sameAs(oldSet, newSet)) {
-            if (newSet == null) {
-                removeCallback.accept(oldSet);
-                return;
-            }
-            if (oldSet == null) {
-                addCallback.accept(newSet);
-                return;
-            }
-            Set<T> added =
-                newSet.stream().filter(e -> !oldSet.contains(e))
-                    .collect(
-                        Collectors.toSet());
-            Set<T> removed =
-                oldSet.stream().filter(e -> !newSet.contains(e))
-                    .collect(
-                        Collectors.toSet());
-            if (!added.isEmpty()) {
-                addCallback.accept(added);
-            }
-            if (!removed.isEmpty()) {
-                removeCallback.accept(removed);
-            }
-        }
-    }
 }

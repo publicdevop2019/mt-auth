@@ -1,7 +1,7 @@
 package com.mt.access.port.adapter.persistence.client;
 
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class ClientIdRowMapper implements ResultSetExtractor<List<ClientId>> {
         List<ClientId> list = new ArrayList<>();
         do {
             String idRaw = rs.getString("domain_id");
-            if (Utility.notNull(idRaw)) {
+            if (Checker.notNull(idRaw)) {
                 list.add(new ClientId(idRaw));
             }
         } while (rs.next());

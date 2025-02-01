@@ -5,7 +5,8 @@ import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class JdbcCorsAllowedHeaderRepository implements CorsAllowedHeaderReposit
 
     @Override
     public void remove(CorsProfile corsProfile, Set<String> headers) {
-        if (Utility.notNullOrEmpty(headers)) {
+        if (Checker.notNullOrEmpty(headers)) {
             List<Object> args = new ArrayList<>();
             String inSql = DatabaseUtility.getInClause(headers.size());
             args.add(corsProfile.getId());
@@ -58,7 +59,7 @@ public class JdbcCorsAllowedHeaderRepository implements CorsAllowedHeaderReposit
 
     @Override
     public void add(CorsProfile corsProfile, Set<String> headers) {
-        if (Utility.notNullOrEmpty(headers)) {
+        if (Checker.notNullOrEmpty(headers)) {
             List<BatchInsertKeyValue> batchArgs = Utility.mapToList(headers,
                 e -> new BatchInsertKeyValue(corsProfile.getId(), e));
             CommonDomainRegistry.getJdbcTemplate()
@@ -72,7 +73,7 @@ public class JdbcCorsAllowedHeaderRepository implements CorsAllowedHeaderReposit
 
     @Override
     public void removeAll(CorsProfile corsProfile, Set<String> headers) {
-        if (Utility.notNullOrEmpty(headers)) {
+        if (Checker.notNullOrEmpty(headers)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_ALLOWED_HEADER_BY_ID_SQL, corsProfile.getId());
         }
@@ -89,7 +90,7 @@ public class JdbcCorsAllowedHeaderRepository implements CorsAllowedHeaderReposit
             List<String> list = new ArrayList<>();
             do {
                 String raw = rs.getString("allowed_header");
-                if (Utility.notNull(raw)) {
+                if (Checker.notNull(raw)) {
                     list.add(raw);
                 }
             } while (rs.next());

@@ -40,28 +40,28 @@ public class Validator {
 
 
     public static void notNull(Object obj) {
-        if (Utility.isNull(obj)) {
+        if (Checker.isNull(obj)) {
             throw new DefinedRuntimeException(NOT_NULL_MSG, "0037",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
 
     public static void isNull(Object obj) {
-        if (!Utility.isNull(obj)) {
+        if (!Checker.isNull(obj)) {
             throw new DefinedRuntimeException(IS_NULL_MSG, "0059",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
 
     public static void isEmpty(Collection<?> obj) {
-        if (!Utility.isEmpty(obj)) {
+        if (!Checker.isEmpty(obj)) {
             throw new DefinedRuntimeException(IS_EMPTY_MSG, "0062",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
 
     public static void isTrue(Boolean obj) {
-        if (!Utility.isTrue(obj)) {
+        if (!Checker.isTrue(obj)) {
             throw new DefinedRuntimeException(VALUE_MISMATCH_MSG, "0061",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -75,7 +75,7 @@ public class Validator {
     }
 
     public static void notEmpty(Collection<?> objects) {
-        if (Utility.isEmpty(objects)) {
+        if (Checker.isEmpty(objects)) {
             throw new DefinedRuntimeException(NOT_EMPTY_MSG, "0041",
                 HttpResponseCode.BAD_REQUEST);
         }

@@ -2,14 +2,15 @@ package com.mt.access.domain.model.role;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.PermissionId;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 
 public class ApiPermissionId {
     public static void add(Role role, Set<PermissionId> apiPermissionIds,
                            Set<PermissionId> linkedApiPermission) {
-        if (Utility.notNullOrEmpty(apiPermissionIds)) {
+        if (Checker.notNullOrEmpty(apiPermissionIds)) {
             Validator.noNullMember(apiPermissionIds);
             Validator.lessThanOrEqualTo(apiPermissionIds, 10);
             apiPermissionIds.addAll(linkedApiPermission);

@@ -2,7 +2,7 @@ package com.mt.access.application.cache_profile.representation;
 
 import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 import lombok.Data;
 

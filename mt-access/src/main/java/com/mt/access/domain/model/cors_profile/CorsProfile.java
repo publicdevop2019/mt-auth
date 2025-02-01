@@ -5,17 +5,10 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.CommonUtility;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -121,7 +114,7 @@ public class CorsProfile extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(100, description);
-        if (Utility.notNull(description)) {
+        if (Checker.notNull(description)) {
             description = description.trim();
         }
         this.description = description;
@@ -141,7 +134,7 @@ public class CorsProfile extends Auditable {
      * @param maxAge max age
      */
     private void setMaxAge(Long maxAge) {
-        if (Utility.notNull(maxAge)) {
+        if (Checker.notNull(maxAge)) {
             Validator.lessThanOrEqualTo(maxAge, 60 * 60 * 2);
             Validator.greaterThanOrEqualTo(maxAge, 5);
         }

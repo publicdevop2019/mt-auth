@@ -6,7 +6,8 @@ import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,7 +78,7 @@ public class JdbcClientGrantTypeRepository implements ClientGrantTypeRepository 
 
     @Override
     public void removeAll(Client client, Set<GrantType> grantTypes) {
-        if (Utility.notNullOrEmpty(grantTypes)) {
+        if (Checker.notNullOrEmpty(grantTypes)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL,
                     client.getId()

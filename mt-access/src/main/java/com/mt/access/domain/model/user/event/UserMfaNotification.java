@@ -3,7 +3,7 @@ package com.mt.access.domain.model.user.event;
 import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,7 +27,7 @@ public class UserMfaNotification extends DomainEvent {
     public UserMfaNotification(User user, MfaCode mfaCode) {
         super(user.getUserId());
         code = mfaCode;
-        if (Utility.notNull(user.getEmail())) {
+        if (Checker.notNull(user.getEmail())) {
             email = user.getEmail().getEmail();
             deliverMethod = MfaDeliverMethod.EMAIL;
         } else {

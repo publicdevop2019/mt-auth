@@ -1,7 +1,7 @@
 package com.mt.access.port.adapter.persistence.role;
 
 import com.mt.access.domain.model.permission.PermissionId;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ class PermissionIdRowMapper implements ResultSetExtractor<List<PermissionId>> {
         List<PermissionId> list = new ArrayList<>();
         do {
             String idRaw = rs.getString("permission");
-            if (Utility.notNull(idRaw)) {
+            if (Checker.notNull(idRaw)) {
                 list.add(new PermissionId(idRaw));
             }
         } while (rs.next());

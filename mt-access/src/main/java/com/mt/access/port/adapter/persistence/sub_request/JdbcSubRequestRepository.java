@@ -13,7 +13,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -108,9 +108,9 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
                 subRequest.getEndpointProjectId().getDomainId(),
                 subRequest.getReplenishRate(),
                 subRequest.getBurstCapacity(),
-                Utility.isNull(subRequest.getRejectionBy()) ? null :
+                Checker.isNull(subRequest.getRejectionBy()) ? null :
                     subRequest.getRejectionBy().getDomainId(),
-                Utility.isNull(subRequest.getApprovedBy()) ? null :
+                Checker.isNull(subRequest.getApprovedBy()) ? null :
                     subRequest.getApprovedBy().getDomainId(),
                 subRequest.getRejectionReason(),
                 subRequest.getSubRequestStatus().name()
@@ -120,21 +120,21 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
     @Override
     public SumPagedRep<SubRequest> query(SubRequestQuery query) {
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byDomainIds = String.format("sr.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Utility.notNull(query.getCreatedBy())) {
+        if (Checker.notNull(query.getCreatedBy())) {
             String byCreatedBy = "sr.created_by = ?";
             whereClause.add(byCreatedBy);
         }
-        if (Utility.notNullOrEmpty(query.getEpProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getEpProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getEpProjectIds().size());
             String byProjectIds = String.format("sr.endpoint_project_id IN (%s)", inClause);
             whereClause.add(byProjectIds);
         }
-        if (Utility.notNullOrEmpty(query.getSubRequestStatuses())) {
+        if (Checker.notNullOrEmpty(query.getSubRequestStatuses())) {
             String inClause = DatabaseUtility.getInClause(query.getSubRequestStatuses().size());
             String byStatus = String.format("sr.sub_request_status IN (%s)", inClause);
             whereClause.add(byStatus);
@@ -143,20 +143,20 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
         String dataQuery = String.format(DYNAMIC_DATA_QUERY_SQL, join);
         String countQuery = String.format(DYNAMIC_COUNT_QUERY_SQL, join);
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Utility.notNull(query.getCreatedBy())) {
+        if (Checker.notNull(query.getCreatedBy())) {
             args.add(
                 query.getCreatedBy().getDomainId());
         }
-        if (Utility.notNullOrEmpty(query.getEpProjectIds())) {
+        if (Checker.notNullOrEmpty(query.getEpProjectIds())) {
             args.addAll(
                 query.getEpProjectIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Utility.notNullOrEmpty(query.getSubRequestStatuses())) {
+        if (Checker.notNullOrEmpty(query.getSubRequestStatuses())) {
             args.addAll(
                 query.getSubRequestStatuses().stream().map(Enum::name).collect(Collectors.toSet()));
         }
@@ -289,9 +289,9 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
                 updated.getVersion() + 1,
                 updated.getReplenishRate(),
                 updated.getBurstCapacity(),
-                Utility.isNull(updated.getRejectionBy()) ? null :
+                Checker.isNull(updated.getRejectionBy()) ? null :
                     updated.getRejectionBy().getDomainId(),
-                Utility.isNull(updated.getApprovedBy()) ? null :
+                Checker.isNull(updated.getApprovedBy()) ? null :
                     updated.getApprovedBy().getDomainId(),
                 updated.getRejectionReason(),
                 updated.getSubRequestStatus().name(),
@@ -325,9 +325,9 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
                         new SubRequestId(rs.getString("domain_id")),
                         DatabaseUtility.getNullableInteger(rs, "replenish_rate"),
                         DatabaseUtility.getNullableInteger(rs, "burst_capacity"),
-                        Utility.notNull(rs.getString("approved_by")) ?
+                        Checker.notNull(rs.getString("approved_by")) ?
                             new UserId(rs.getString("approved_by")) : null,
-                        Utility.notNull(rs.getString("rejected_by")) ?
+                        Checker.notNull(rs.getString("rejected_by")) ?
                             new UserId(rs.getString("rejected_by")) : null,
                         new ProjectId(rs.getString("endpoint_project_id")),
                         rs.getString("rejection_reason"),

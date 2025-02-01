@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.client;
 
 
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
 public class ClientValidator {
@@ -22,12 +22,12 @@ public class ClientValidator {
 
 
     private void pathAndType() {
-        if (Utility.isBlank(client.getPath())
+        if (Checker.isBlank(client.getPath())
             &&
             ClientType.BACKEND_APP.equals(client.getType())) {
             handler.handleError("backend client require path");
         }
-        if (!Utility.isBlank(client.getPath())
+        if (!Checker.isBlank(client.getPath())
             &&
             ClientType.FRONTEND_APP.equals(client.getType())) {
             handler.handleError("frontend client should not have path");

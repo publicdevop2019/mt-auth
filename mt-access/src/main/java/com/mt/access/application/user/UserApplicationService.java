@@ -40,7 +40,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
@@ -108,7 +108,7 @@ public class UserApplicationService {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 User user = DomainRegistry.getUserRepository().get(userId);
                 DomainRegistry.getUserService()
-                    .updatePassword(user, Utility.notNull(command.getCurrentPwd()) ?
+                    .updatePassword(user, Checker.notNull(command.getCurrentPwd()) ?
                             new CurrentPassword(command.getCurrentPwd()) : null,
                         new UserPassword(command.getPassword()), context);
                 return null;
@@ -116,7 +116,7 @@ public class UserApplicationService {
     }
 
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
-        if (Utility.notNull(command.getEmail())) {
+        if (Checker.notNull(command.getEmail())) {
             UserEmail email = new UserEmail(command.getEmail());
             forgetPasswordEmail(command.getClientId(), email, changeId);
         } else {
@@ -147,7 +147,7 @@ public class UserApplicationService {
     }
 
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
-        if (Utility.notNull(command.getEmail())) {
+        if (Checker.notNull(command.getEmail())) {
             UserEmail email = new UserEmail(command.getEmail());
             resetPasswordEmail(email, new UserPassword(command.getNewPassword()),
                 new PwdResetCode(command.getToken()), changeId);

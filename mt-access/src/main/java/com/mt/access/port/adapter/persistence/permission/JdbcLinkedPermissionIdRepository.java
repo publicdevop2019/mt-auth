@@ -5,7 +5,8 @@ import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
 
     @Override
     public void add(Permission permission, Set<PermissionId> permissionIds) {
-        if (Utility.notNullOrEmpty(permissionIds)) {
+        if (Checker.notNullOrEmpty(permissionIds)) {
             Set<BatchInsertKeyValue> args = Utility.mapToSet(permissionIds,
                 ee -> new BatchInsertKeyValue(permission.getId(), ee.getDomainId()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -61,7 +62,7 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
 
     @Override
     public void removeAll(Permission permission, Set<PermissionId> permissionIds) {
-        if (Utility.notNullOrEmpty(permissionIds)) {
+        if (Checker.notNullOrEmpty(permissionIds)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_LINKED_API_PERMISSION_BY_ID_SQL,
                     permission.getId()
@@ -73,7 +74,7 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
     public void addAll(Map<Permission, Set<PermissionId>> permissionLinkMap) {
         List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
         permissionLinkMap.forEach((k, v) -> {
-            if (Utility.notNullOrEmpty(v)) {
+            if (Checker.notNullOrEmpty(v)) {
                 Set<BatchInsertKeyValue> args =
                     Utility.mapToSet(v, (e) -> new BatchInsertKeyValue(k.getId(), e.getDomainId()));
                 linkedPermList.addAll(args);
@@ -98,7 +99,7 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
             List<PermissionId> list = new ArrayList<>();
             do {
                 String idRaw = rs.getString("domain_id");
-                if (Utility.notNull(idRaw)) {
+                if (Checker.notNull(idRaw)) {
                     list.add(new PermissionId(idRaw));
                 }
             } while (rs.next());

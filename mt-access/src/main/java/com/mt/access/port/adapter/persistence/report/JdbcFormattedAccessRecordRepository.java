@@ -8,7 +8,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -103,9 +103,9 @@ public class JdbcFormattedAccessRecordRepository implements FormattedAccessRecor
                     DatabaseUtility.getNullableLong(rs, "request_at"),
                     rs.getString("path"),
                     rs.getString("client_ip"),
-                    Utility.notNull(rs.getString("user_id")) ?
+                    Checker.notNull(rs.getString("user_id")) ?
                         new UserId(rs.getString("user_id")) : null,
-                    Utility.notNull(rs.getString("project_id")) ?
+                    Checker.notNull(rs.getString("project_id")) ?
                         new ProjectId(rs.getString("project_id")) : null,
                     rs.getString("method"),
                     DatabaseUtility.getNullableLong(rs, "response_at"),

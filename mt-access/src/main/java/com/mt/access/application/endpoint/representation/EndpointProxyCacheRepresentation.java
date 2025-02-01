@@ -18,7 +18,8 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
@@ -69,7 +70,7 @@ public class EndpointProxyCacheRepresentation
         this.clientId = endpoint.getClientId();
         //add owner project
         this.subscriptions = new HashSet<>();
-        if (Utility.isFalse(endpoint.getWebsocket())) {
+        if (Checker.isFalse(endpoint.getWebsocket())) {
             this.subscriptions.add(
                 new ProjectSubscription(this.projectId, endpoint.getReplenishRate(),
                     endpoint.getBurstCapacity()));

@@ -10,7 +10,7 @@ import com.mt.access.domain.model.token.TokenGrantContext;
 import com.mt.access.domain.model.token.TokenGrantType;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.access.infrastructure.HttpUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,8 +99,8 @@ public class TokenResource {
                     redirectUri
                 );
         LoginResult result = context.getLoginResult();
-        if (Utility.notNull(result) && Utility.isFalse(result.getAllowed())) {
-            if (Utility.isTrue(result.getInvalidMfa())) {
+        if (Checker.notNull(result) && Checker.isFalse(result.getAllowed())) {
+            if (Checker.isTrue(result.getInvalidMfa())) {
                 return ResponseEntity.badRequest().build();
             } else {
                 HashMap<String, Object> map = new HashMap<>();

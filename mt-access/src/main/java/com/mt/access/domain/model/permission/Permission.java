@@ -12,8 +12,9 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.Collection;
@@ -373,7 +374,7 @@ public class Permission extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(50, description);
-        if (Utility.notNull(description)) {
+        if (Checker.notNull(description)) {
             description = description.trim();
         }
         this.description = description;

@@ -7,7 +7,8 @@ import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +44,7 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
 
     @Override
     public void add(Client client, Set<ClientId> resources) {
-        if (Utility.notNullOrEmpty(resources)) {
+        if (Checker.notNullOrEmpty(resources)) {
             List<BatchInsertKeyValue> keyValues = Utility.mapToList(resources,
                 ee -> new BatchInsertKeyValue(client.getId(), ee.getDomainId()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -58,7 +59,7 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
 
     @Override
     public void remove(Client client, Set<ClientId> resources) {
-        if (Utility.notNullOrEmpty(resources)) {
+        if (Checker.notNullOrEmpty(resources)) {
             String inClause = DatabaseUtility.getInClause(resources.size());
             List<Object> args = new ArrayList<>();
             args.add(client.getId());
@@ -83,7 +84,7 @@ public class JdbcClientResourceRepository implements ClientResourceRepository {
 
     @Override
     public void removeAll(Client client, Set<ClientId> resource) {
-        if (Utility.notNullOrEmpty(resource)) {
+        if (Checker.notNullOrEmpty(resource)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_RESOURCE_BY_ID_SQL,
                     client.getId()

@@ -7,7 +7,7 @@ import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -76,28 +76,28 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
     public SumPagedRep<StoredEvent> query(StoredEventQuery query) {
 
         List<String> whereClause = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             String inClause = DatabaseUtility.getInClause(query.getIds().size());
             String byIds = String.format("se.id IN (%s)", inClause);
             whereClause.add(byIds);
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             String inClause = DatabaseUtility.getInClause(query.getNames().size());
             String byNames = String.format("se.name IN (%s)", inClause);
             whereClause.add(byNames);
         }
-        if (Utility.notNullOrEmpty(query.getDomainIds())) {
+        if (Checker.notNullOrEmpty(query.getDomainIds())) {
             String inClause = DatabaseUtility.getInClause(query.getDomainIds().size());
             String byIds = String.format("se.domain_id IN (%s)", inClause);
             whereClause.add(byIds);
         }
-        if (Utility.notNull(query.getSend())) {
+        if (Checker.notNull(query.getSend())) {
             whereClause.add(query.getSend() ? "se.send = 1" : "se.send = 0");
         }
-        if (Utility.notNull(query.getRoutable())) {
+        if (Checker.notNull(query.getRoutable())) {
             whereClause.add(query.getRoutable() ? "se.routable = 1" : "se.routable = 0");
         }
-        if (Utility.notNull(query.getRejected())) {
+        if (Checker.notNull(query.getRejected())) {
             whereClause.add(query.getRejected() ? "se.rejected = 1" : "se.rejected = 0");
         }
         String join = String.join(" AND ", whereClause);
@@ -111,15 +111,15 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
             finalCountQuery = DYNAMIC_COUNT_QUERY_SQL.replace(" WHERE %s", "");
         }
         List<Object> args = new ArrayList<>();
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds());
         }
-        if (Utility.notNullOrEmpty(query.getNames())) {
+        if (Checker.notNullOrEmpty(query.getNames())) {
             args.addAll(
                 query.getNames());
         }
-        if (Utility.notNullOrEmpty(query.getDomainIds())) {
+        if (Checker.notNullOrEmpty(query.getDomainIds())) {
             args.addAll(
                 query.getDomainIds());
         }

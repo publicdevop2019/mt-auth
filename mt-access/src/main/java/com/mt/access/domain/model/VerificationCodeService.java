@@ -10,7 +10,7 @@ import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdate
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -47,21 +47,21 @@ public class VerificationCodeService {
     }
 
     public void validateCreate(String countryCode, String mobileNumber, String email) {
-        if (Utility.isNull(email) && Utility.isNull(countryCode) && Utility.isNull(mobileNumber)) {
+        if (Checker.isNull(email) && Checker.isNull(countryCode) && Checker.isNull(mobileNumber)) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }
 
-        if (Utility.notNull(email) &&
-            (Utility.notNull(countryCode) || Utility.notNull(mobileNumber))) {
+        if (Checker.notNull(email) &&
+            (Checker.notNull(countryCode) || Checker.notNull(mobileNumber))) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (Utility.notNull(countryCode) && Utility.isNull(mobileNumber)) {
+        if (Checker.notNull(countryCode) && Checker.isNull(mobileNumber)) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (Utility.isNull(countryCode) && Utility.notNull(mobileNumber)) {
+        if (Checker.isNull(countryCode) && Checker.notNull(mobileNumber)) {
             throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }

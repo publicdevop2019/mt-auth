@@ -11,7 +11,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserLoginRequest;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class TokenApplicationService {
             username, password, mfaMethod, mfaCode, redirectUri
         );
         DomainRegistry.getTokenGrantService().checkParam(context);
-        if (Utility.isTrue(context.getNewUserRequired())) {
+        if (Checker.isTrue(context.getNewUserRequired())) {
             String userId = CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId,
                     (txContext) -> DomainRegistry.getTokenGrantService().newUser(txContext, context)
@@ -53,21 +53,21 @@ public class TokenApplicationService {
         } else {
             if (DomainRegistry.getTokenGrantService().mfaRequired(context)) {
                 DomainRegistry.getTokenGrantService().userLoginCheck(context);
-                if (Utility.isTrue(context.getTriggerMfaRequired())) {
+                if (Checker.isTrue(context.getTriggerMfaRequired())) {
                     CommonDomainRegistry.getTransactionService()
                         .transactionalEvent(
                             (txContext) -> DomainRegistry.getMfaService()
                                 .triggerSelectedMfa(context.getClientId(), context.getMfaUser(),
                                     txContext, context.getDeliveryMethod()));
                 }
-                if (Utility.isTrue(context.getTriggerDefaultMfaRequired())) {
+                if (Checker.isTrue(context.getTriggerDefaultMfaRequired())) {
                     CommonDomainRegistry.getTransactionService()
                         .transactionalEvent(
                             (txContext) -> DomainRegistry.getMfaService()
                                 .triggerDefaultMfa(context.getClientId(), context.getMfaUser(),
                                     txContext));
                 }
-                if (Utility.isTrue(context.getRecordLoginRequired())) {
+                if (Checker.isTrue(context.getRecordLoginRequired())) {
                     UserLoginRequest userLoginRequest =
                         new UserLoginRequest(ipAddress, context.getLoginUser().getUserId(),
                             agentInfo);
@@ -76,7 +76,7 @@ public class TokenApplicationService {
                             (txContext) -> DomainRegistry.getUserService()
                                 .updateLastLogin(userLoginRequest, context.getParsedScope()));
                 }
-                if (Utility.isFalse(context.getLoginResult().getAllowed())) {
+                if (Checker.isFalse(context.getLoginResult().getAllowed())) {
                     return context;
                 }
             }

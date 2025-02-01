@@ -12,7 +12,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
@@ -215,7 +215,7 @@ public class Role extends Auditable {
         Role update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, Role.class);
         update.updateName(command.getName());
         update.setDescription(command.getDescription());
-        if (Utility.isFalse(update.getSystemCreate()) &&
+        if (Checker.isFalse(update.getSystemCreate()) &&
             command.getParentId() != null) {
             update.parentId = new RoleId(command.getParentId());
         }
@@ -241,7 +241,7 @@ public class Role extends Auditable {
                 "client project client root type's name cannot be changed", "1054",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (Utility.isTrue(getSystemCreate())) {
+        if (Checker.isTrue(getSystemCreate())) {
             throw new DefinedRuntimeException("system created role cannot be changed", "1055",
                 HttpResponseCode.BAD_REQUEST);
         }

@@ -11,7 +11,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
@@ -126,15 +126,15 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
 
     @Override
     public SumPagedRep<CacheProfile> query(CacheProfileQuery query) {
-        if (Utility.notNull(query.getProjectId()) && Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNull(query.getProjectId()) && Checker.notNullOrEmpty(query.getIds())) {
             //tenant query
             return queryByProjectIdAndDomainId(query);
         }
-        if (Utility.notNull(query.getProjectId())) {
+        if (Checker.notNull(query.getProjectId())) {
             //tenant query
             return queryByProjectId(query);
         }
-        if (Utility.notNullOrEmpty(query.getIds())) {
+        if (Checker.notNullOrEmpty(query.getIds())) {
             return queryByDomainIds(query);
         }
         return SumPagedRep.empty();

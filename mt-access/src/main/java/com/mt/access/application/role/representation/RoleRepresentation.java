@@ -15,7 +15,8 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -64,7 +65,7 @@ public class RoleRepresentation {
             this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();
-        if (Utility.notNullOrEmpty(comPerm)) {
+        if (Checker.notNullOrEmpty(comPerm)) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
                     .query(e), PermissionQuery.internalQuery(comPerm));
@@ -76,7 +77,7 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Utility.notNullOrEmpty(apiPerm)) {
+        if (Checker.notNullOrEmpty(apiPerm)) {
             Set<Permission> permissions =
                 new HashSet<>(
                     QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
@@ -96,7 +97,7 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Utility.notNullOrEmpty(extPerm)) {
+        if (Checker.notNullOrEmpty(extPerm)) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
                     .query(e), PermissionQuery.internalQuery(extPerm));

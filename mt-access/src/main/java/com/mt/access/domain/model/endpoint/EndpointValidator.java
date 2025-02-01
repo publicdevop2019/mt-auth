@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.endpoint;
 
 
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 
@@ -26,25 +26,25 @@ public class EndpointValidator {
     }
 
     private void publicEndpointCannotHaveCsrf() {
-        if (Utility.isFalse(this.endpoint.getSecured()) &&
-            Utility.isTrue(this.endpoint.getExternal()) &&
-            Utility.isTrue(this.endpoint.getCsrfEnabled())
+        if (Checker.isFalse(this.endpoint.getSecured()) &&
+            Checker.isTrue(this.endpoint.getExternal()) &&
+            Checker.isTrue(this.endpoint.getCsrfEnabled())
         ) {
             handler.handleError("public endpoint can not have csrf enabled");
         }
     }
 
     private void checkEndpointConfig() {
-        if (Utility.isTrue(this.endpoint.getShared())
+        if (Checker.isTrue(this.endpoint.getShared())
         ) {
             //shared endpoint
-            if (Utility.isTrue(this.endpoint.getExternal()) &&
-                Utility.isTrue(this.endpoint.getSecured())) {
+            if (Checker.isTrue(this.endpoint.getExternal()) &&
+                Checker.isTrue(this.endpoint.getSecured())) {
                 return;
             }
         } else {
-            if (Utility.isTrue(this.endpoint.getExternal())) {
-                if (Utility.isTrue(this.endpoint.getSecured())) {
+            if (Checker.isTrue(this.endpoint.getExternal())) {
+                if (Checker.isTrue(this.endpoint.getSecured())) {
                     //protected endpoint
                     return;
                 } else {
@@ -52,7 +52,7 @@ public class EndpointValidator {
                     return;
                 }
             } else {
-                if (Utility.isFalse(this.endpoint.getSecured())) {
+                if (Checker.isFalse(this.endpoint.getSecured())) {
                     //private endpoint
                     return;
                 }
@@ -72,17 +72,17 @@ public class EndpointValidator {
     }
 
     private void replenishRateAndBurstCapacity() {
-        if (Utility.isTrue(endpoint.getWebsocket()) &&
-            (Utility.notNull(endpoint.getBurstCapacity()) ||
-                Utility.notNull(endpoint.getReplenishRate()))) {
+        if (Checker.isTrue(endpoint.getWebsocket()) &&
+            (Checker.notNull(endpoint.getBurstCapacity()) ||
+                Checker.notNull(endpoint.getReplenishRate()))) {
             handler.handleError("websocket endpoints can not have rate limit config");
         }
-        if (Utility.isFalse(endpoint.getWebsocket()) &&
-            (Utility.isNull(endpoint.getReplenishRate()) ||
-                Utility.isNull(endpoint.getBurstCapacity()))) {
+        if (Checker.isFalse(endpoint.getWebsocket()) &&
+            (Checker.isNull(endpoint.getReplenishRate()) ||
+                Checker.isNull(endpoint.getBurstCapacity()))) {
             handler.handleError("none-websocket endpoints must have rate limit config");
         }
-        if (Utility.isFalse(endpoint.getWebsocket())) {
+        if (Checker.isFalse(endpoint.getWebsocket())) {
             if (endpoint.getBurstCapacity() < endpoint.getReplenishRate()) {
                 handler.handleError("replenish rate must less than or equal to burst capacity");
             }
@@ -99,10 +99,10 @@ public class EndpointValidator {
     }
 
     private void websocketAndCsrf() {
-        if (Utility.isTrue(endpoint.getWebsocket()) && Utility.notNull(endpoint.getCsrfEnabled())) {
+        if (Checker.isTrue(endpoint.getWebsocket()) && Checker.notNull(endpoint.getCsrfEnabled())) {
             handler.handleError("websocket endpoints can not have csrf config");
         }
-        if (Utility.isFalse(endpoint.getWebsocket()) && Utility.isNull(endpoint.getCsrfEnabled())) {
+        if (Checker.isFalse(endpoint.getWebsocket()) && Checker.isNull(endpoint.getCsrfEnabled())) {
             handler.handleError("none-websocket endpoints must have csrf config");
         }
     }
@@ -114,7 +114,7 @@ public class EndpointValidator {
     }
 
     private void websocketAndHttpMethod() {
-        if (Utility.isTrue(endpoint.getWebsocket())) {
+        if (Checker.isTrue(endpoint.getWebsocket())) {
             if (endpoint.getMethod() == null || !endpoint.getMethod().equals("GET")) {
                 handler.handleError("websocket endpoints must have GET method");
             }

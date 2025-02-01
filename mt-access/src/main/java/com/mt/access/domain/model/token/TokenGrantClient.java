@@ -6,7 +6,7 @@ import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;

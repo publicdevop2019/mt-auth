@@ -6,7 +6,8 @@ import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,7 +45,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
 
     @Override
     public void remove(CacheProfile cacheProfile, Set<CacheControlValue> values) {
-        if (Utility.notNullOrEmpty(values)) {
+        if (Checker.notNullOrEmpty(values)) {
             List<Object> args = new ArrayList<>();
             Set<String> names = Utility.mapToSet(values, Enum::name);
             String inSql = DatabaseUtility.getInClause(names.size());
@@ -60,7 +61,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
 
     @Override
     public void add(CacheProfile cacheProfile, Set<CacheControlValue> values) {
-        if (Utility.notNullOrEmpty(values)) {
+        if (Checker.notNullOrEmpty(values)) {
             List<BatchInsertKeyValue> batchArgs = Utility.mapToList(values,
                 e -> new BatchInsertKeyValue(cacheProfile.getId(), e.name()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -74,7 +75,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
 
     @Override
     public void removeAll(CacheProfile cacheProfile, Set<CacheControlValue> values) {
-        if (Utility.notNullOrEmpty(values)) {
+        if (Checker.notNullOrEmpty(values)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_CACHE_CONTROL_MAP_BY_ID_SQL,
                     cacheProfile.getId()
@@ -94,7 +95,7 @@ public class JdbcCacheControlRepository implements CacheControlRepository {
             List<CacheControlValue> list = new ArrayList<>();
             do {
                 String raw = rs.getString("cache_control");
-                if (Utility.notNull(raw)) {
+                if (Checker.notNull(raw)) {
                     CacheControlValue cacheControlValue = CacheControlValue.valueOf(raw);
                     list.add(cacheControlValue);
                 }

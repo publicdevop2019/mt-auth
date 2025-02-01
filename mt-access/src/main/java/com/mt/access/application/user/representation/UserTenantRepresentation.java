@@ -7,7 +7,7 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +25,7 @@ public class UserTenantRepresentation {
         this.id = user.getUserId().getDomainId();
         this.displayName = user.getDisplayName();
         this.version = userRelation.getVersion();
-        if (Utility.notNullOrEmpty(roleIds)) {
+        if (Checker.notNullOrEmpty(roleIds)) {
             Set<Role> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                     new RoleQuery(roleIds));

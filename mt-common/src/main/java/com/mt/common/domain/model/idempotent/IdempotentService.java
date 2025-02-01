@@ -5,7 +5,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -44,7 +44,7 @@ public class IdempotentService {
                 CommonDomainRegistry.getChangeRecordRepository().internalQuery(changeId, aggregate);
             idempotentAnalytics.stop();
             if (forwardChange.isPresent()) {
-                if (Utility.isTrue(forwardChange.get().getEmptyOpt())) {
+                if (Checker.isTrue(forwardChange.get().getEmptyOpt())) {
                     log.debug("change already empty cancelled");
                 } else {
                     log.debug("change already exist");

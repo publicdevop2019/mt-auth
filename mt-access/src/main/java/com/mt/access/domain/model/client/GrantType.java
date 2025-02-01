@@ -6,8 +6,9 @@ import com.mt.access.domain.model.client.event.ClientGrantTypeChanged;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 
 public enum GrantType {
@@ -26,7 +27,7 @@ public enum GrantType {
     public static void update(Client client, Set<GrantType> oldTypes,
                               Set<GrantType> newTypes, Set<RedirectUrl> redirectUrls,
                               TransactionContext context) {
-        if (!Utility.sameAs(oldTypes, newTypes)) {
+        if (!Checker.sameAs(oldTypes, newTypes)) {
             validate(newTypes);
             ClientDomainValidator.grantTypeChange(client, newTypes, redirectUrls);
             context.append(new ClientGrantTypeChanged(client.getClientId()));

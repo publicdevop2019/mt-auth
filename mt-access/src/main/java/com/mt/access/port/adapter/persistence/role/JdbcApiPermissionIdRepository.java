@@ -7,7 +7,8 @@ import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.sql.DatabaseUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -47,7 +48,7 @@ public class JdbcApiPermissionIdRepository implements ApiPermissionIdRepository 
 
     @Override
     public void add(Role role, Set<PermissionId> permissionIds) {
-        if (Utility.notNullOrEmpty(permissionIds)) {
+        if (Checker.notNullOrEmpty(permissionIds)) {
             Set<BatchInsertKeyValue> args = Utility.mapToSet(permissionIds,
                 ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId()));
             CommonDomainRegistry.getJdbcTemplate()
@@ -62,7 +63,7 @@ public class JdbcApiPermissionIdRepository implements ApiPermissionIdRepository 
 
     @Override
     public void removeAll(Role role, Set<PermissionId> permissionIds) {
-        if (Utility.notNullOrEmpty(permissionIds)) {
+        if (Checker.notNullOrEmpty(permissionIds)) {
             CommonDomainRegistry.getJdbcTemplate()
                 .update(DELETE_API_SQL,
                     role.getId()
@@ -72,7 +73,7 @@ public class JdbcApiPermissionIdRepository implements ApiPermissionIdRepository 
 
     @Override
     public void remove(Role role, Set<PermissionId> permissionIds) {
-        if (Utility.notNullOrEmpty(permissionIds)) {
+        if (Checker.notNullOrEmpty(permissionIds)) {
             String inClause = DatabaseUtility.getInClause(permissionIds.size());
             List<Object> args = new ArrayList<>();
             args.add(role.getId());

@@ -38,9 +38,9 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.CommonUtility;
+import com.mt.common.infrastructure.Utility;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -138,28 +138,28 @@ public class RoleApplicationService {
                 Role old = DomainRegistry.getRoleRepository().get(projectId, roleId);
                 Validator.equals(old.getSystemCreate(), Boolean.FALSE);
                 Validator.notNull(command.getType());
-                if (Utility.equals(command.getType(), UpdateType.BASIC)) {
+                if (Checker.equals(command.getType(), UpdateType.BASIC)) {
                     Role replace = old.replace(command);
                     DomainRegistry.getRoleRepository().update(old, replace);
                     DomainRegistry.getRoleValidationService().validate(replace);
-                } else if (Utility.equals(command.getType(), UpdateType.API_PERMISSION)) {
+                } else if (Checker.equals(command.getType(), UpdateType.API_PERMISSION)) {
                     Set<PermissionId> apiPerm =
                         DomainRegistry.getApiPermissionIdRepository().query(old);
                     Set<PermissionId> nextApiPerm =
-                        CommonUtility.map(command.getApiPermissionIds(), PermissionId::new);
+                        Utility.map(command.getApiPermissionIds(), PermissionId::new);
                     ApiPermissionId.update(old, apiPerm, nextApiPerm);
                     Set<PermissionId> extPerm =
                         DomainRegistry.getExternalPermissionIdRepository().query(old);
                     Set<PermissionId> nextExtPerm =
-                        CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new);
+                        Utility.map(command.getExternalPermissionIds(), PermissionId::new);
                     ExternalPermissionId.update(old, extPerm, nextExtPerm, context);
                     DomainRegistry.getRoleValidationService()
                         .validate(old, nextApiPerm, nextExtPerm);
-                } else if (Utility.equals(command.getType(), UpdateType.COMMON_PERMISSION)) {
+                } else if (Checker.equals(command.getType(), UpdateType.COMMON_PERMISSION)) {
                     Set<PermissionId> comPerm =
                         DomainRegistry.getCommonPermissionIdRepository().query(old);
                     Set<PermissionId> nextComPerm =
-                        CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new);
+                        Utility.map(command.getCommonPermissionIds(), PermissionId::new);
                     CommonPermissionId.update(old, comPerm, nextComPerm);
                     DomainRegistry.getRoleValidationService().validate(old, nextComPerm);
                 }
@@ -213,11 +213,11 @@ public class RoleApplicationService {
                     command.getParentId() == null ? null : new RoleId(command.getParentId())
                 );
                 Set<PermissionId> comPerm =
-                    CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new);
+                    Utility.map(command.getCommonPermissionIds(), PermissionId::new);
                 Set<PermissionId> apiPerm =
-                    CommonUtility.map(command.getApiPermissionIds(), PermissionId::new);
+                    Utility.map(command.getApiPermissionIds(), PermissionId::new);
                 Set<PermissionId> extPerm =
-                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new);
+                    Utility.map(command.getExternalPermissionIds(), PermissionId::new);
                 Set<PermissionId> linkPerm = CommonPermissionId.add(role, comPerm);
                 ApiPermissionId.add(role, apiPerm, linkPerm);
                 ExternalPermissionId.add(role, extPerm, context);

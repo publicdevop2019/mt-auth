@@ -8,14 +8,14 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class UserRelationValidator {
     public static void validateAllAssignedRoles(Set<RoleId> roleIds, UserRelation userRelation) {
-        if (Utility.notNull(roleIds)) {
+        if (Checker.notNull(roleIds)) {
             Set<Role> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                     new RoleQuery(roleIds));

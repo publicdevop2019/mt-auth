@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.cache_profile;
 
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 
@@ -19,16 +19,16 @@ public class CacheProfileValidator {
     }
 
     private void validateMaxAgeAndSMaxAge() {
-        if (Utility.notNull(cacheProfile.getMaxAge())) {
+        if (Checker.notNull(cacheProfile.getMaxAge())) {
             Validator.isNull(cacheProfile.getSmaxAge());
         }
-        if (Utility.notNull(cacheProfile.getSmaxAge())) {
+        if (Checker.notNull(cacheProfile.getSmaxAge())) {
             Validator.isNull(cacheProfile.getMaxAge());
         }
     }
 
     private void validateETag() {
-        if (Utility.notNull(cacheProfile.getWeakValidation())) {
+        if (Checker.notNull(cacheProfile.getWeakValidation())) {
             Validator.isTrue(cacheProfile.getEtag());
         }
     }

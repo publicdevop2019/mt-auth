@@ -5,16 +5,17 @@ import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.Utility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Set;
 
 public class ClientResource {
 
     public static void add(Client client, Set<ClientId> newResources) {
-        if (Utility.notNullOrEmpty(newResources)) {
+        if (Checker.notNullOrEmpty(newResources)) {
             Validator.lessThanOrEqualTo(newResources, 10);
             validate(client.getClientId(), client.getProjectId(), newResources);
             DomainRegistry.getClientResourceRepository().add(client, newResources);
@@ -25,7 +26,7 @@ public class ClientResource {
                               Set<ClientId> oldResources,
                               Set<ClientId> newResources,
                               TransactionContext context) {
-        if (!Utility.sameAs(oldResources, newResources)) {
+        if (!Checker.sameAs(oldResources, newResources)) {
             Validator.lessThanOrEqualTo(newResources, 10);
             context.append(new ClientResourcesChanged(client.getClientId()));
             Utility.updateSet(oldResources, newResources,

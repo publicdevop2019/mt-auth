@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.client;
 
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.validate.Utility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Set;
@@ -40,7 +40,7 @@ public class ClientDomainValidator {
 
     private static void onlyMainCanHavePasswordGrant(Client client, Set<GrantType> grantTypes) {
         ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
-        if (Utility.notNullOrEmpty(grantTypes)) {
+        if (Checker.notNullOrEmpty(grantTypes)) {
             if (grantTypes.contains(GrantType.PASSWORD)) {
                 if (!AppConstant.MAIN_PROJECT_ID.equalsIgnoreCase(
                     client.getProjectId().getDomainId())) {
