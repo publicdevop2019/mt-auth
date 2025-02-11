@@ -97,7 +97,7 @@ public class CustomThreadPoolConfiguration {
         );
     }
 
-    @Bean(name = "mark-event")
+    @Bean(name = "event-mark")
     public CleanUpThreadPoolExecutor pool5() {
         //no queueing, max pool size = 60
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(64);
@@ -107,7 +107,7 @@ public class CustomThreadPoolConfiguration {
             60,
             TimeUnit.SECONDS,
             queue,
-            new NamedThreadPoolFactory("mark-event"),
+            new NamedThreadPoolFactory("event-mark"),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {

@@ -24,6 +24,8 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -66,11 +68,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Qualifier("event-sub")
     private ThreadPoolExecutor eventSubExecutor;
     @Autowired
-    @Qualifier("mark-event")
+    @Qualifier("event-mark")
     private ThreadPoolExecutor markEventExecutor;
     @Autowired
     @Qualifier("event-pub")
     private ThreadPoolExecutor eventPubExecutor;
+    private MeterRegistry meterRegistry;
     private Map<Thread, ConcurrentNavigableMap<Long, StoredEvent>> pendingConfirms =
         new HashMap<>();
     private Map<Thread, ConcurrentNavigableMap<Long, Long>> pendingConfirmsStartAt =
@@ -235,6 +238,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             storedEvent.getId());
                     }
                     Analytics.stopEvent(consumerTag, storedEvent);
+                    Timer.Sample sample = Timer.start(meterRegistry);
                     boolean consumeSuccess = true;
                     try {
                         if (clazz == null) {
@@ -249,6 +253,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             "error during consume, catch error to maintain connection, reject message",
                             ex);
                         consumeSuccess = false;
+                    }finally {
+                        sample.stop(meterRegistry.timer("event_handling", "name", storedEvent.getName()));
                     }
                     log.debug("replying delivery tag {}, result {}, channel number {}", deliveryTag,
                         consumeSuccess, finalChannel.getChannelNumber());
