@@ -73,6 +73,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Autowired
     @Qualifier("event-pub")
     private ThreadPoolExecutor eventPubExecutor;
+    @Autowired
     private MeterRegistry meterRegistry;
     private Map<Thread, ConcurrentNavigableMap<Long, StoredEvent>> pendingConfirms =
         new HashMap<>();
