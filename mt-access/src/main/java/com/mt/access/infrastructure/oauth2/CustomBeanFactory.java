@@ -26,7 +26,7 @@ public class CustomBeanFactory {
     private static final Integer STRENGTH = 12;
 
     @Bean
-    private KeyPair keyPair(@Autowired Environment env) {
+    private KeyPair keyPair(Environment env) {
         KeyStoreKeyFactory keyStoreKeyFactory =
             new KeyStoreKeyFactory(
                 new ClassPathResource(
@@ -38,7 +38,7 @@ public class CustomBeanFactory {
     }
 
     @Bean
-    private JWKSet jwkSet(@Autowired KeyPair keyPair) {
+    private JWKSet jwkSet(KeyPair keyPair) {
         RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.RS256)

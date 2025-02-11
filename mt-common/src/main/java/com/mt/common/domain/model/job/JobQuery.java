@@ -18,12 +18,6 @@ public class JobQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public JobQuery(JobId id) {
-        this.id = id;
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.countRequired());
-    }
-
     public static JobQuery byName(String name) {
         JobQuery query = new JobQuery();
         query.name = name;

@@ -3,6 +3,7 @@ package com.mt.access.port.adapter.http;
 import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.proxy.CheckSumValue;
 import com.mt.access.domain.model.proxy.ProxyInfo;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,13 +25,16 @@ public class HttpRemoteProxyService implements RemoteProxyService {
     private static final String URL_DELIMITER = ",";
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${mt.misc.url.proxy}")
+    @Value("${mt.misc.url.proxy:#{null}}")
     private String url;
 
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {
         HashMap<ProxyInfo, CheckSumValue> valueHashMap = new HashMap<>();
-        Validator.notBlank(url);
+        if (Checker.isBlank(url)) {
+            log.warn("proxy check skipped due to no url configured");
+            return valueHashMap;
+        }
         String[] urls = url.split(URL_DELIMITER);
         Set<String> trimmedUrls = Arrays.stream(urls).map(String::trim).collect(Collectors.toSet());
         trimmedUrls.forEach((url) -> {
