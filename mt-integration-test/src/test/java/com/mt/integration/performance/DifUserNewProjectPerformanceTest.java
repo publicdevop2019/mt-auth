@@ -8,7 +8,6 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.ProjectUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;

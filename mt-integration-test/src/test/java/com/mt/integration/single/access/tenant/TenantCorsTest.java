@@ -10,9 +10,8 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.CorsUtility;
 import com.mt.helper.utility.EndpointUtility;
-import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.HttpUtility;
-import java.util.Objects;
+import com.mt.helper.utility.RandomUtility;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -24,10 +23,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantCorsTest{
+public class TenantCorsTest {
     private static TenantContext tenantContext;
+
     @BeforeAll
     public static void beforeAll() {
         tenantContext = TestHelper.beforeAllTenant(log);
@@ -37,6 +38,7 @@ public class TenantCorsTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void tenant_can_create_cors() {
         Cors randomCorsObj = CorsUtility.createValidCors();
@@ -111,7 +113,7 @@ public class TenantCorsTest{
         //delete cors
         ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, corsObj);
         Assertions.assertEquals(HttpStatus.OK, cors2.getStatusCode());
-        Thread.sleep(5*1000);
+        Thread.sleep(5 * 1000);
         //read endpoint to verify cache id remove
         randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =

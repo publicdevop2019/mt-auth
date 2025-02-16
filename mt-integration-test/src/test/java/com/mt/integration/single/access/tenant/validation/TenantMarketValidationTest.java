@@ -14,9 +14,9 @@ import com.mt.helper.pojo.RejectSubRequestCommand;
 import com.mt.helper.pojo.SubscriptionReq;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,6 +29,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
@@ -38,10 +39,6 @@ public class TenantMarketValidationTest {
     protected static TenantContext tenantContextB;
     protected static Client clientA;
 
-    @BeforeEach
-    public void beforeEach(TestInfo testInfo) {
-        TestHelper.beforeEach(log, testInfo);
-    }
     @BeforeAll
     public static void initTenant() {
         TestHelper.beforeAll(log);
@@ -56,6 +53,11 @@ public class TenantMarketValidationTest {
         clientA.setId(HttpUtility.getId(tenantClient));
 
         log.info("init tenant complete");
+    }
+
+    @BeforeEach
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
 
     @ParameterizedTest

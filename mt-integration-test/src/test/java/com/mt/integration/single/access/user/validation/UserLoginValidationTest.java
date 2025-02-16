@@ -429,6 +429,7 @@ public class UserLoginValidationTest {
             UserUtility.emailCodeLogin(user, "123456");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
+
     @Test
     public void validation_email_code_login_no_wait() {
         User user = UserUtility.randomEmailOnlyUser();

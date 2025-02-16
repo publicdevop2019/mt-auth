@@ -8,7 +8,6 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.ProjectUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Disabled // for perf, enable if required
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j

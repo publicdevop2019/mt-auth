@@ -1,11 +1,5 @@
 package com.mt.integration;
 
-import com.mt.integration.concurrent.ClientIdempotentTest;
-import com.mt.integration.concurrent.GatewayFilterConcurrentTest;
-import com.mt.integration.single.access.oauth2.AuthorizationCodeTest;
-import com.mt.integration.single.access.oauth2.ClientCredentialsTest;
-import com.mt.integration.single.access.oauth2.PasswordFlowTest;
-import com.mt.integration.single.access.oauth2.RefreshTokenTest;
 import com.mt.integration.single.proxy.CorsTest;
 import com.mt.integration.single.proxy.CsrfTest;
 import com.mt.integration.single.proxy.EndpointSecurityTest;

@@ -7,8 +7,8 @@ import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
-import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.RandomUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,10 +26,6 @@ public class TenantEndpointTest {
     private static TenantContext tenantContext;
     private static Client client;
 
-    @BeforeEach
-    public void beforeEach(TestInfo testInfo) {
-        TestHelper.beforeEach(log, testInfo);
-    }
     @BeforeAll
     public static void beforeAll() {
         tenantContext = TestHelper.beforeAllTenant(log);
@@ -38,6 +34,11 @@ public class TenantEndpointTest {
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(HttpUtility.getId(tenantClient));
+    }
+
+    @BeforeEach
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
 
     @Test

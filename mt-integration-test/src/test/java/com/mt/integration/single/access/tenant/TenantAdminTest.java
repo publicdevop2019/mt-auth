@@ -8,9 +8,9 @@ import com.mt.helper.pojo.ProjectAdmin;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.AdminUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +32,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantAdminTest{
+public class TenantAdminTest {
     private static TenantContext tenantContext;
 
     @BeforeAll
@@ -130,7 +130,8 @@ public class TenantAdminTest{
         //2. try to remove admin when total admin equal to 2
         //check admin count
         SumTotal<ProjectAdmin> allAdmins =
-            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject()).getBody();
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject())
+                .getBody();
         Integer adminCount = allAdmins.getTotalItemCount();
         int numOfAdminToRemove = adminCount - 2;
         List<ProjectAdmin> otherAdmins = allAdmins.getData().stream()

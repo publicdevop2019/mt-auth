@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+
 @Slf4j
 public class ConcurrentUtility {
     /**
@@ -37,7 +38,7 @@ public class ConcurrentUtility {
                             afterInitBlocker.await();
                             submittedTestRunnable.run();
                         } catch (final Throwable e) {
-                            log.error("exception during concurrent",e);
+                            log.error("exception during concurrent", e);
                             exceptions.add(e);
                         } finally {
                             allDone.countDown();

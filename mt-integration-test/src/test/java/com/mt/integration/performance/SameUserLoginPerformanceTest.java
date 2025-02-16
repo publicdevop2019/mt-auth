@@ -23,6 +23,7 @@ import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Disabled // for perf, enable if required
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
@@ -49,7 +50,7 @@ public class SameUserLoginPerformanceTest {
             if (oAuth2PasswordToken.getStatusCode().is4xxClientError()) {
                 log.info("response body is {}", oAuth2PasswordToken.getBody());
                 failCount.getAndIncrement();
-            }else{
+            } else {
                 successCount.getAndIncrement();
             }
             log.info("end of user login");

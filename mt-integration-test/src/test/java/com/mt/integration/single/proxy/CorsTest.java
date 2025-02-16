@@ -2,8 +2,8 @@ package com.mt.integration.single.proxy;
 
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
-import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TestContext;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

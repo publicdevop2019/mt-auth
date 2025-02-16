@@ -10,17 +10,16 @@ import com.mt.helper.args.RoleParentIdArgs;
 import com.mt.helper.args.RolePermissionIdsArgs;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Permission;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.Role;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.Collections;
 import java.util.Set;
@@ -37,6 +36,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})

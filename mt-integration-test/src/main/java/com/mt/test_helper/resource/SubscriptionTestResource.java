@@ -10,22 +10,27 @@ public class SubscriptionTestResource {
     public ResponseEntity<?> internalNotShared() {
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("internal/shared")
     public ResponseEntity<?> internalShared() {
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("external/shared/no/auth")
     public ResponseEntity<?> externalSharedNoAuth() {
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("external/shared/auth")
     public ResponseEntity<?> externalSharedAuth() {
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("external/not/shared/auth")
     public ResponseEntity<?> externalNotSharedAuth() {
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("external/not/shared/no/auth")
     public ResponseEntity<?> externalNotSharedNoAuth() {
         return ResponseEntity.ok().build();
@@ -33,6 +38,7 @@ public class SubscriptionTestResource {
 
     /**
      * used in SubscriptionTest.java
+     *
      * @return
      */
     @GetMapping("test/expire/*/random")

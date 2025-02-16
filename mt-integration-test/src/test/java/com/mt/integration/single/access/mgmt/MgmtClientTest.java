@@ -10,9 +10,9 @@ import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ClientUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Collections;
 import java.util.HashSet;
@@ -32,10 +32,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 
 @Slf4j
-public class MgmtClientTest{
+public class MgmtClientTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
@@ -45,6 +46,7 @@ public class MgmtClientTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void admin_can_read_client() {
         String token =
@@ -93,7 +95,8 @@ public class MgmtClientTest{
         log.info("picked client id {}", clientId);
         ResponseEntity<Client> exchange2 = TestContext.getRestTemplate()
             .exchange(
-                HttpUtility.getAccessUrl(HttpUtility.combinePath(AppConstant.MGMT_CLIENTS, clientId)),
+                HttpUtility.getAccessUrl(
+                    HttpUtility.combinePath(AppConstant.MGMT_CLIENTS, clientId)),
                 HttpMethod.GET, request,
                 Client.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
