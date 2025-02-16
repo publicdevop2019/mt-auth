@@ -12,12 +12,12 @@ public class ClientId extends GeneratedDomainId implements Serializable {
         super(domainId);
     }
 
-    @Override
-    protected String getPrefix() {
+    public static String getClientPrefix() {
         return "0C";
     }
 
-    public static String getClientPrefix() {
+    @Override
+    protected String getPrefix() {
         return "0C";
     }
 

@@ -6,7 +6,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.ArrayList;

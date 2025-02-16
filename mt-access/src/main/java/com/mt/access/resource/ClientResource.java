@@ -187,7 +187,8 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         ClientAutoApproveRepresentation rep =
-            ApplicationServiceRegistry.getClientApplicationService().getAuthorizeInfo(projectId, id);
+            ApplicationServiceRegistry.getClientApplicationService()
+                .getAuthorizeInfo(projectId, id);
         return ResponseEntity.ok(rep);
     }
 

@@ -8,8 +8,8 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.Utility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
 
 public class ClientResource {

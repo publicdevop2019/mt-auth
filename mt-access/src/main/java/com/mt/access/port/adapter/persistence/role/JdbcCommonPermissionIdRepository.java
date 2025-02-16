@@ -31,6 +31,7 @@ public class JdbcCommonPermissionIdRepository implements CommonPermissionIdRepos
         "FROM role_common_permission_map m WHERE m.id = ?";
     private static final String BATCH_DELETE_COMMON_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL =
         "DELETE FROM role_common_permission_map rcpm WHERE rcpm.id = ? AND rcpm.permission IN (%s)";
+
     @Override
     public Set<PermissionId> query(Role role) {
         List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()

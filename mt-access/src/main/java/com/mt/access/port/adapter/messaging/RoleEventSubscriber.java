@@ -8,7 +8,6 @@ import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.infrastructure.RabbitMqEventStreamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

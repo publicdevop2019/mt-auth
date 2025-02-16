@@ -69,7 +69,6 @@ public class CorsProfile extends Auditable {
     }
 
 
-
     public CorsProfile update(
         String name,
         String description,

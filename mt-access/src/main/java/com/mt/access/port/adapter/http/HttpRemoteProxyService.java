@@ -4,7 +4,6 @@ import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.proxy.CheckSumValue;
 import com.mt.access.domain.model.proxy.ProxyInfo;
 import com.mt.common.domain.model.validate.Checker;
-import com.mt.common.domain.model.validate.Validator;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

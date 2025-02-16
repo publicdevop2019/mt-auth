@@ -11,5 +11,6 @@ public interface ExternalPermissionIdRepository {
     void removeAll(Role role, Set<PermissionId> permissionIds);
 
     void remove(Role role, Set<PermissionId> permissionIds);
+
     void remove(PermissionId permissionId);
 }

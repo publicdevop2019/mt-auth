@@ -14,7 +14,6 @@ import com.mt.access.domain.model.user.event.UserAuthorityChanged;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.infrastructure.RabbitMqEventStreamService;
 import lombok.extern.slf4j.Slf4j;

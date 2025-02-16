@@ -134,7 +134,7 @@ public class PermissionApplicationService {
                         command.getName(), command.getDescription(), PermissionType.COMMON,
                         null);
                 DomainRegistry.getPermissionRepository().add(permission);
-                LinkedApiPermissionId.add(permission,linkedPermId);
+                LinkedApiPermissionId.add(permission, linkedPermId);
                 return permissionId.getDomainId();
             }, PERMISSION);
     }

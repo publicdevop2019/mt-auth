@@ -28,7 +28,8 @@ public class ExternalPermissionId {
                     Validator.lessThanOrEqualTo(next, 10);
                     DomainRegistry.getExternalPermissionIdRepository().add(role, added);
                 },
-                (removed) -> DomainRegistry.getExternalPermissionIdRepository().remove(role, removed));
+                (removed) -> DomainRegistry.getExternalPermissionIdRepository()
+                    .remove(role, removed));
             context.append(new ExternalPermissionUpdated(role.getProjectId()));
         }
     }
