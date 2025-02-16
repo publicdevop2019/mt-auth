@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.redisson.api.RBucket;
+import org.redisson.api.RKeys;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Primary
@@ -19,13 +21,14 @@ import org.springframework.stereotype.Repository;
 public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     private static final String REVOKE_TOKEN_PREFIX = "RT:";
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private RedissonClient redissonClient;
 
     public SumPagedRep<RevokeToken> query(RevokeTokenQuery query) {
         List<RevokeToken> revokeTokens = new ArrayList<>();
         SumPagedRep<RevokeToken> revokeTokenSumPagedRep = new SumPagedRep<>();
         if (query.getRevokeTokenId() == null || query.getRevokeTokenId().isEmpty()) {
-            Set<String> keys = redisTemplate.keys(REVOKE_TOKEN_PREFIX + "*");
+            RKeys keyRef = redissonClient.getKeys();
+            Iterable<String> keys = keyRef.getKeysByPattern(REVOKE_TOKEN_PREFIX + "*");
             if (keys != null) {
                 long offset =
                     query.getPageConfig().getPageSize() * query.getPageConfig().getPageNumber();
@@ -35,24 +38,23 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
                     if (count >= offset) {
                         outputKey.add(str);
                     }
-                    if (outputKey.size() == query.getPageConfig().getPageSize()) {
-                        break;
-                    }
                     count++;
                 }
                 for (String str : outputKey) {
-                    String s = redisTemplate.opsForValue().get(str);
+                    RBucket<Object> bucket = redissonClient.getBucket(str);
+                    String s = (String) bucket.get();
                     RevokeToken deserialize = CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(s, RevokeToken.class);
                     revokeTokens.add(deserialize);
                 }
-                revokeTokenSumPagedRep.setTotalItemCount((long) keys.size());
+                revokeTokenSumPagedRep.setTotalItemCount((long) count);
                 revokeTokenSumPagedRep.setData(revokeTokens);
             }
         } else {
             query.getRevokeTokenId().forEach(tokenId -> {
-                String s = redisTemplate.opsForValue()
-                    .get(REVOKE_TOKEN_PREFIX + tokenId.getDomainId());
+                RBucket<Object> bucket =
+                    redissonClient.getBucket(REVOKE_TOKEN_PREFIX + tokenId.getDomainId());
+                String s = (String) bucket.get();
                 if (s != null) {
                     RevokeToken deserialize = CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(s, RevokeToken.class);
@@ -66,8 +68,8 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     }
 
     public void add(RevokeToken revokeToken) {
-        redisTemplate.opsForValue()
-            .set(REVOKE_TOKEN_PREFIX + revokeToken.getRevokeTokenId().getDomainId(),
-                CommonDomainRegistry.getCustomObjectSerializer().serialize(revokeToken));
+        String key = REVOKE_TOKEN_PREFIX + revokeToken.getRevokeTokenId().getDomainId();
+        RBucket<String> bucket = redissonClient.getBucket(key);
+        bucket.set(CommonDomainRegistry.getCustomObjectSerializer().serialize(revokeToken));
     }
 }

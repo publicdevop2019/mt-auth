@@ -11,9 +11,11 @@ public class ClientDropdownRepresentation {
     private String id;
 
     private String name;
+    private String path;
 
     public ClientDropdownRepresentation(Client client) {
         id = client.getClientId().getDomainId();
         name = client.getName();
+        path = client.getPath();
     }
 }

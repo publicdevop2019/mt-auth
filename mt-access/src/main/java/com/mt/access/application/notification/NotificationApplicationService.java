@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificationApplicationService {
     private static final String NOTIFICATION = "Notification";
-    @Value("${mt.common.instance-id}")
+    @Value("${mt.misc.instance-id}")
     private Long instanceId;
 
     public SumPagedRep<Notification> mgmtQueryBell(String queryParam, String pageParam,

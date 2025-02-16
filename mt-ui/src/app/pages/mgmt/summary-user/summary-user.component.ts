@@ -7,6 +7,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { DeviceService } from 'src/app/services/device.service';
+import { IEditBooleanEvent } from 'src/app/components/editable-boolean/editable-boolean.component';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
@@ -67,6 +68,12 @@ export class SummaryUserComponent {
   revokeUserToken(id: string) {
     this.httpSvc.revokeUserToken(id).subscribe(result => {
       this.deviceSvc.notify(result)
+    })
+  }
+  lockUser(id: string, event :IEditBooleanEvent) {
+    this.httpSvc.lockUser(id, event.next).subscribe(result => {
+      this.deviceSvc.notify(result);
+      this.tableSource.refresh()
     })
   }
   viewUser(id: string) {

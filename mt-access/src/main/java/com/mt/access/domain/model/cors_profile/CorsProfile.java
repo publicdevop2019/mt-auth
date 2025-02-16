@@ -5,17 +5,10 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.CommonUtility;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,16 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CorsProfile extends Auditable {
-    private static final Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-zA-Z-]+$");
+
     private String name;
     private String description;
     private CorsProfileId corsId;
     private Boolean allowCredentials;
-    private Set<String> allowedHeaders = new LinkedHashSet<>();
-
-    private Set<Origin> allowOrigin = new LinkedHashSet<>();
-
-    private Set<String> exposedHeaders = new LinkedHashSet<>();
     private Long maxAge;
 
     private ProjectId projectId;
@@ -44,10 +32,7 @@ public class CorsProfile extends Auditable {
     public CorsProfile(
         String name,
         String description,
-        Set<String> allowedHeaders,
         Boolean allowCredentials,
-        Set<Origin> allowOrigin,
-        Set<String> exposedHeaders,
         Long maxAge,
         CorsProfileId corsId,
         ProjectId projectId
@@ -55,10 +40,7 @@ public class CorsProfile extends Auditable {
         super();
         setName(name);
         setDescription(description);
-        setAllowedHeaders(allowedHeaders);
         setAllowCredentials(allowCredentials);
-        setAllowOrigin(allowOrigin);
-        setExposedHeaders(exposedHeaders);
         setMaxAge(maxAge);
         setCorsId(corsId);
         setProjectId(projectId);
@@ -86,30 +68,12 @@ public class CorsProfile extends Auditable {
         return corsProfile;
     }
 
-    private static void validateHeaderName(Set<String> headerNames) {
-        headerNames.forEach(header -> {
-            boolean pass = false;
-            Matcher matcher = HEADER_NAME_REGEX.matcher(header);
-            if (matcher.find()) {
-                if (!header.startsWith("-") && !header.endsWith("-") &&
-                    !header.equalsIgnoreCase("-")) {
-                    pass = true;
-                }
-            }
-            if (!pass) {
-                throw new DefinedRuntimeException("invalid header format", "1085",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-        });
-    }
+
 
     public CorsProfile update(
         String name,
         String description,
-        Set<String> allowedHeaders,
         Boolean allowCredentials,
-        Set<Origin> allowOrigin,
-        Set<String> exposedHeaders,
         Long maxAge,
         TransactionContext context
     ) {
@@ -117,10 +81,7 @@ public class CorsProfile extends Auditable {
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
         updated.setName(name);
         updated.setDescription(description);
-        updated.setAllowedHeaders(allowedHeaders);
         updated.setAllowCredentials(allowCredentials);
-        updated.setAllowOrigin(allowOrigin);
-        updated.setExposedHeaders(exposedHeaders);
         updated.setMaxAge(maxAge);
         if (this.keyFieldChanged(updated)) {
             context.append(new CorsProfileUpdated(this));
@@ -131,10 +92,7 @@ public class CorsProfile extends Auditable {
     private boolean keyFieldChanged(CorsProfile o) {
         return
             !Objects.equals(allowCredentials, o.allowCredentials) ||
-                !Objects.equals(exposedHeaders, o.exposedHeaders) ||
-                !Objects.equals(allowedHeaders, o.allowedHeaders) ||
-                !Objects.equals(maxAge, o.maxAge) ||
-                !Objects.equals(allowOrigin, o.allowOrigin);
+                !Objects.equals(maxAge, o.maxAge);
     }
 
     public void update(
@@ -185,30 +143,6 @@ public class CorsProfile extends Auditable {
 
     private void setAllowCredentials(Boolean allowCredentials) {
         this.allowCredentials = allowCredentials;
-    }
-
-    private void setAllowedHeaders(Set<String> allowedHeaders) {
-        Validator.validOptionalCollection(10, allowedHeaders);
-        if (Checker.notNull(allowedHeaders)) {
-            validateHeaderName(allowedHeaders);
-        }
-        CommonUtility.updateCollection(this.allowedHeaders, allowedHeaders,
-            () -> this.allowedHeaders = allowedHeaders);
-    }
-
-    private void setAllowOrigin(Set<Origin> origins) {
-        Validator.validRequiredCollection(1, 5, origins);
-        CommonUtility.updateCollection(this.allowOrigin, origins,
-            () -> this.allowOrigin = origins);
-    }
-
-    private void setExposedHeaders(Set<String> headers) {
-        Validator.validOptionalCollection(10, headers);
-        if (Checker.notNull(headers)) {
-            validateHeaderName(headers);
-        }
-        CommonUtility.updateCollection(this.exposedHeaders, headers,
-            () -> this.exposedHeaders = headers);
     }
 
     public void removeAllReference(TransactionContext context) {

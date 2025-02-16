@@ -34,7 +34,7 @@ export class ProjectService {
     return this.httpProxy.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId, { 'loading': 'false' })
   };
   ready(projectId: string) {
-    return this.httpProxy.checkPorjectReady(projectId)
+    return this.httpProxy.checkProjectReady(projectId)
   };
   getMyProject(projectId: string) {
     return this.httpProxy.readEntityById<IProjectDashboard>(environment.serverUri + '/auth-svc/projects', projectId)
@@ -42,7 +42,7 @@ export class ProjectService {
   resolveNameById(id: Observable<string>) {
     return id.pipe(map(ee => this.totalProjects.find(e => e.id === ee)?.name))
   }
-  showMgmtPanel() {
+  containMainProject() {
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
   hasTenantProjects() {

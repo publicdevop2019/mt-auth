@@ -36,7 +36,6 @@ public class ProxyService {
     }
 
     public void checkSum(TransactionContext context) {
-        CommonDomainRegistry.getLogService().initTrace();
         log.debug("[checking proxy cache value] started");
         CheckSumRepresentation checkSumRepresentation = checkSumValue();
         String hostValue = checkSumRepresentation.getHostValue();

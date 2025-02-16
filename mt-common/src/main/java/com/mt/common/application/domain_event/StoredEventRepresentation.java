@@ -12,7 +12,6 @@ public class StoredEventRepresentation {
     private String eventBody;
     private Long timestamp;
     private String name;
-    private Boolean internal;
     private String domainId;
 
     public StoredEventRepresentation(StoredEvent event) {
@@ -20,7 +19,6 @@ public class StoredEventRepresentation {
         setId(event.getId());
         setTimestamp(event.getTimestamp());
         setName(ClassUtility.getShortName(event.getName()));
-        setInternal(event.getInternal());
         setDomainId(event.getDomainId());
     }
 }

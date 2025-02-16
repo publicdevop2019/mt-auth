@@ -10,15 +10,18 @@ import com.mt.access.application.cors_profile.command.CorsProfileUpdateCommand;
 import com.mt.access.application.cors_profile.representation.CorsProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
+import com.mt.access.domain.model.cors_profile.AllowedHeader;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
+import com.mt.access.domain.model.cors_profile.ExposedHeader;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.infrastructure.CommonUtility;
+import com.mt.common.infrastructure.Utility;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +38,12 @@ public class CorsProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId, API_MGMT);
         SumPagedRep<CorsProfile> query = DomainRegistry.getCorsProfileRepository()
             .query(CorsProfileQuery.tenantQuery(queryParam, pageParam, config));
-        return new SumPagedRep<>(query, CorsProfileRepresentation::new);
+        return new SumPagedRep<>(query, e -> {
+            Set<String> allowed = DomainRegistry.getCorsAllowedHeaderRepository().query(e);
+            Set<String> exposed = DomainRegistry.getCorsExposedHeaderRepository().query(e);
+            Set<Origin> origin = DomainRegistry.getCorsOriginRepository().query(e);
+            return new CorsProfileRepresentation(e, allowed, exposed, origin);
+        });
     }
 
     @AuditLog(actionName = CREATE_TENANT_CORS_PROFILE)
@@ -48,15 +56,15 @@ public class CorsProfileApplicationService {
             CorsProfile corsProfile = new CorsProfile(
                 command.getName(),
                 command.getDescription(),
-                command.getAllowedHeaders(),
                 command.getAllowCredentials(),
-                CommonUtility.map(command.getAllowOrigin(), Origin::new),
-                command.getExposedHeaders(),
                 command.getMaxAge(),
                 corsProfileId,
                 projectId1
             );
             DomainRegistry.getCorsProfileRepository().add(corsProfile);
+            AllowedHeader.add(corsProfile, command.getAllowedHeaders());
+            ExposedHeader.add(corsProfile, command.getExposedHeaders());
+            Origin.add(corsProfile, Utility.mapToSet(command.getAllowOrigin(), Origin::new));
             return null;
         }, CORS_PROFILE);
         return corsProfileId.getDomainId();
@@ -73,17 +81,23 @@ public class CorsProfileApplicationService {
             Optional<CorsProfile> corsProfile =
                 DomainRegistry.getCorsProfileRepository().query(corsProfileQuery).findFirst();
             corsProfile.ifPresent(e -> {
-                CorsProfile update = e.update(
+                CorsProfile updated = e.update(
                     command.getName(),
                     command.getDescription(),
-                    command.getAllowedHeaders(),
                     command.getAllowCredentials(),
-                    CommonUtility.map(command.getAllowOrigin(), Origin::new),
-                    command.getExposedHeaders(),
                     command.getMaxAge(),
                     context
                 );
-                DomainRegistry.getCorsProfileRepository().update(e, update);
+                Set<String> allowed =
+                    DomainRegistry.getCorsAllowedHeaderRepository().query(updated);
+                AllowedHeader.update(updated, allowed, command.getAllowedHeaders(), context);
+                Set<String> exposed =
+                    DomainRegistry.getCorsExposedHeaderRepository().query(updated);
+                ExposedHeader.update(updated, exposed, command.getExposedHeaders(), context);
+                Set<Origin> origins = DomainRegistry.getCorsOriginRepository().query(updated);
+                Origin.update(updated, origins,
+                    Utility.mapToSet(command.getAllowOrigin(), Origin::new), context);
+                DomainRegistry.getCorsProfileRepository().update(e, updated);
             });
             return null;
         }, CORS_PROFILE);
@@ -102,6 +116,12 @@ public class CorsProfileApplicationService {
                     .findFirst();
             corsProfile.ifPresent(e -> {
                 e.removeAllReference(context);
+                DomainRegistry.getCorsAllowedHeaderRepository()
+                    .remove(e, DomainRegistry.getCorsAllowedHeaderRepository().query(e));
+                DomainRegistry.getCorsExposedHeaderRepository()
+                    .remove(e, DomainRegistry.getCorsExposedHeaderRepository().query(e));
+                DomainRegistry.getCorsOriginRepository()
+                    .remove(e, DomainRegistry.getCorsOriginRepository().query(e));
                 DomainRegistry.getCorsProfileRepository().remove(e);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_CORS_PROFILE,

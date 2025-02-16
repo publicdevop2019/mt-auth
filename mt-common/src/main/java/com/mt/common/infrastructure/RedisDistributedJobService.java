@@ -1,8 +1,5 @@
 package com.mt.common.infrastructure;
 
-import static com.mt.common.domain.model.constant.AppInfo.SPAN_ID_LOG;
-import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
-
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -14,6 +11,8 @@ import com.mt.common.domain.model.job.event.JobNotFound;
 import com.mt.common.domain.model.job.event.JobStarving;
 import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Timer;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -21,7 +20,6 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +39,9 @@ public class RedisDistributedJobService implements DistributedJobService {
     private ThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
-    @Value("${mt.common.instance-id}")
+    @Autowired
+    private MeterRegistry meterRegistry;
+    @Value("${mt.misc.instance-id}")
     private Long instanceId;
 
     private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,
@@ -103,7 +103,7 @@ public class RedisDistributedJobService implements DistributedJobService {
 
     private static void checkJobStarving(String jobName, JobDetail job) {
         //check if job was executed in time, otherwise send notification
-        if (job.notifyJobStarving()) {
+        if (job.starving()) {
             log.warn("job {} exceed max idle time, last execution time {}",
                 jobName, job.getLastExecution());
             if (!job.getNotifiedAdmin()) {
@@ -130,18 +130,18 @@ public class RedisDistributedJobService implements DistributedJobService {
     @Override
     public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional,
                         int ignoreCount) {
-        MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
-        MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+        CommonDomainRegistry.getLogService().initTrace();
         Integer orDefault = jobIgnoreCount.getOrDefault(jobName, ignoreCount);
         if (orDefault != 0) {
             jobIgnoreCount.put(jobName, --orDefault);
             return;
         }
         taskExecutor.execute(() -> {
-            MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
-            MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+            CommonDomainRegistry.getLogService().initTrace();
             Analytics start = Analytics.start(Analytics.Type.JOB_EXECUTION);
-            log.info("running job {}", jobName);
+            Timer.Sample sample = Timer.start(meterRegistry);
+
+            log.info("started job {}", jobName);
             //check if job exist
             Optional<JobDetail> byName =
                 CommonDomainRegistry.getJobRepository().getByName(jobName);
@@ -184,6 +184,8 @@ public class RedisDistributedJobService implements DistributedJobService {
                 jobWrapper(jobFn, transactional, jobDetail);
             }
             start.stop();
+            sample.stop(meterRegistry.timer("job_execution", "name", jobName));
+            log.info("finished job {}", jobName);
         });
     }
 

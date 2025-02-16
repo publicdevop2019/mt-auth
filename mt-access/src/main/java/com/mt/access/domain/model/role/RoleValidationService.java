@@ -10,9 +10,10 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -23,23 +24,51 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RoleValidationService {
 
-    public void validate(boolean newProjectOrClient, Role role,
-                         ValidationNotificationHandler handler) {
-        //skip validation for system create to boost performance
-        if (Checker.isFalse(role.getSystemCreate())) {
-            checkParentId(newProjectOrClient, role);
-            permissionMustBeSameProject(role, handler);
-            checkPermission(role.getApiPermissionIds(), PermissionType.API);
-            checkPermission(role.getCommonPermissionIds(), PermissionType.COMMON);
-        }
+    public void validate(Role role,
+                         Set<PermissionId> comPerm,
+                         Set<PermissionId> apiPerm,
+                         Set<PermissionId> extPerm) {
+        ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        checkParentId(role);
+        permissionMustBeSameProject(role, comPerm, apiPerm, extPerm, handler);
+        checkPermission(apiPerm, PermissionType.API);
+        checkPermission(comPerm, PermissionType.COMMON);
     }
 
-    private void permissionMustBeSameProject(Role role, ValidationNotificationHandler handler) {
-        Set<PermissionId> commonPermissionIds = role.getCommonPermissionIds();
-        if (commonPermissionIds != null && !commonPermissionIds.isEmpty()) {
+    public void validate(Role role,
+                         Set<PermissionId> comPerm
+    ) {
+        ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        checkParentId(role);
+        permissionMustBeSameProject(role, comPerm, Collections.emptySet(), Collections.emptySet(),
+            handler);
+        checkPermission(comPerm, PermissionType.COMMON);
+    }
+
+    public void validate(Role role,
+                         Set<PermissionId> apiPerm,
+                         Set<PermissionId> extPerm) {
+        ValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        checkParentId(role);
+        permissionMustBeSameProject(role, Collections.emptySet(), apiPerm, extPerm, handler);
+        checkPermission(apiPerm, PermissionType.API);
+    }
+
+    public void validate(Role role) {
+        checkParentId(role);
+    }
+
+    private void permissionMustBeSameProject(
+        Role role,
+        Set<PermissionId> comPerm,
+        Set<PermissionId> apiPerm,
+        Set<PermissionId> extPerm,
+        ValidationNotificationHandler handler
+    ) {
+        if (comPerm != null && !comPerm.isEmpty()) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    PermissionQuery.internalQuery(commonPermissionIds));
+                    PermissionQuery.internalQuery(comPerm));
             Set<ProjectId> permProjectIds =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (permProjectIds.size() != 1) {
@@ -54,11 +83,10 @@ public class RoleValidationService {
                     "common permissions and role must belong to same tenant project");
             }
         }
-        Set<PermissionId> apiPermissionIds = role.getApiPermissionIds();
-        if (apiPermissionIds != null && !apiPermissionIds.isEmpty()) {
+        if (apiPerm != null && !apiPerm.isEmpty()) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    PermissionQuery.internalQuery(apiPermissionIds));
+                    PermissionQuery.internalQuery(apiPerm));
             Set<ProjectId> collect =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (collect.size() != 1) {
@@ -69,8 +97,7 @@ public class RoleValidationService {
                 handler.handleError("api permissions and role must belong to same tenant project");
             }
         }
-        Set<PermissionId> externalPermissionIds = role.getExternalPermissionIds();
-        if (externalPermissionIds != null && !externalPermissionIds.isEmpty()) {
+        if (extPerm != null && !extPerm.isEmpty()) {
             //get subscribed endpoints
             Set<EndpointId> endpointIds =
                 ApplicationServiceRegistry.getSubRequestApplicationService()
@@ -85,7 +112,7 @@ public class RoleValidationService {
                         .filter(
                             Objects::nonNull)//filter shared endpoint that has no permission check
                         .collect(Collectors.toSet());
-                if (!allowedPermission.containsAll(externalPermissionIds)) {
+                if (!allowedPermission.containsAll(extPerm)) {
                     handler.handleError("external permissions not allowed");
                 }
             } else {
@@ -94,8 +121,8 @@ public class RoleValidationService {
         }
     }
 
-    private void checkParentId(boolean newProjectOrClient, Role role) {
-        if (role.getParentId() != null && !newProjectOrClient) {
+    private void checkParentId(Role role) {
+        if (role.getParentId() != null) {
             Role parentRole = DomainRegistry.getRoleRepository().get(role.getParentId());
             log.debug("comparing parent role {}, project id is {} and role {}, project id is {}",
                 parentRole.getRoleId(), parentRole.getProjectId(), role.getRoleId(),

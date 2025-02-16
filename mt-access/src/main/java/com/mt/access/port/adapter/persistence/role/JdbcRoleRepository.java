@@ -1,13 +1,11 @@
 package com.mt.access.port.adapter.persistence.role;
 
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleType;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -32,8 +30,6 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 @Repository
 public class JdbcRoleRepository implements RoleRepository {
-
-
     private static final String INSERT_SQL = "INSERT INTO role " +
         "(" +
         "id, " +
@@ -52,47 +48,13 @@ public class JdbcRoleRepository implements RoleRepository {
         "type" +
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    private static final String INSERT_COMMON_MAP = "INSERT INTO role_common_permission_map " +
-        "(" +
-        "id, " +
-        "permission" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_API_MAP = "INSERT INTO role_api_permission_map " +
-        "(" +
-        "id, " +
-        "permission" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_EXT_MAP = "INSERT INTO role_external_permission_map " +
-        "(" +
-        "id, " +
-        "permission" +
-        ") VALUES " +
-        "(?,?)";
     private static final String DELETE_SQL = "DELETE FROM role r WHERE r.id = ?";
-    private static final String DELETE_COMMON_SQL =
-        "DELETE FROM role_common_permission_map map WHERE map.id = ?";
-    private static final String DELETE_API_SQL =
-        "DELETE FROM role_api_permission_map map WHERE map.id = ?";
-    private static final String DELETE_EXT_SQL =
-        "DELETE FROM role_external_permission_map map WHERE map.id = ?";
-    private static final String DELETE_API_MAP_PERMISSION_SQL =
-        "DELETE FROM role_common_permission_map map WHERE map.permission = ?";
-    private static final String DELETE_COMMON_MAP_PERMISSION_SQL =
-        "DELETE FROM role_api_permission_map map WHERE map.permission = ?";
-    private static final String DELETE_EXT_MAP_PERMISSION_SQL =
-        "DELETE FROM role_external_permission_map map WHERE map.permission = ?";
+
     private static final String FIND_PROJECT_IDS =
         "SELECT DISTINCT r.project_id FROM role r";
     private static final String FIND_BY_DOMAIN_ID_SQL =
         "SELECT * FROM role r WHERE r.domain_id = ? ";
-    private static final String FIND_COMMON_PERMISSION = "SELECT m.permission " +
-        "FROM role_common_permission_map m WHERE m.id = ?";
-    private static final String FIND_API_PERMISSION = "SELECT m.permission " +
-        "FROM role_api_permission_map m WHERE m.id = ?";
-    private static final String FIND_EXT_PERMISSION = "SELECT m.permission " +
-        "FROM role_external_permission_map m WHERE m.id = ?";
+
     private static final String COUNT_PROJECT_CREATED_TOTAL =
         "SELECT COUNT(*) AS count FROM role r " +
             "WHERE r.project_id = ? AND r.type = 'USER'";
@@ -110,12 +72,6 @@ public class JdbcRoleRepository implements RoleRepository {
         "r.description = ?, " +
         "r.parent_id = ? " +
         "WHERE r.id = ? AND r.version = ? ";
-    private static final String BATCH_DELETE_COMMON_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL =
-        "DELETE FROM role_common_permission_map rcpm WHERE rcpm.id = ? AND rcpm.permission IN (%s)";
-    private static final String BATCH_DELETE_API_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL =
-        "DELETE FROM role_api_permission_map rapm WHERE rapm.id = ? AND rapm.permission IN (%s)";
-    private static final String BATCH_DELETE_EXT_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL =
-        "DELETE FROM role_external_permission_map repm WHERE repm.id = ? AND repm.permission IN (%s)";
 
     @Override
     public void add(Role role) {
@@ -138,52 +94,6 @@ public class JdbcRoleRepository implements RoleRepository {
                     role.getTenantId().getDomainId(),
                 role.getType().name()
             );
-        //for mapped tables
-        List<BatchInsertKeyValue> commonPermList = new ArrayList<>();
-        List<BatchInsertKeyValue> apiPermList = new ArrayList<>();
-        List<BatchInsertKeyValue> extPermList = new ArrayList<>();
-        if (Checker.notNullOrEmpty(role.getCommonPermissionIds())) {
-            List<BatchInsertKeyValue> collect = role.getCommonPermissionIds().stream()
-                .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
-                    Collectors.toList());
-            commonPermList.addAll(collect);
-        }
-        if (Checker.notNullOrEmpty(role.getApiPermissionIds())) {
-            List<BatchInsertKeyValue> collect = role.getApiPermissionIds().stream()
-                .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
-                    Collectors.toList());
-            apiPermList.addAll(collect);
-        }
-        if (Checker.notNullOrEmpty(role.getExternalPermissionIds())) {
-            List<BatchInsertKeyValue> collect = role.getExternalPermissionIds().stream()
-                .map(ee -> new BatchInsertKeyValue(role.getId(), ee.getDomainId())).collect(
-                    Collectors.toList());
-            extPermList.addAll(collect);
-        }
-        if (commonPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_COMMON_MAP, commonPermList, commonPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (apiPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_API_MAP, apiPermList, apiPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (extPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_EXT_MAP, extPermList, extPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
     }
 
     @Override
@@ -209,85 +119,8 @@ public class JdbcRoleRepository implements RoleRepository {
                         role.getTenantId().getDomainId());
                     ps.setString(14, role.getType().name());
                 });
-        //for mapped tables
-        List<BatchInsertKeyValue> commonPermList = new ArrayList<>();
-        List<BatchInsertKeyValue> apiPermList = new ArrayList<>();
-        List<BatchInsertKeyValue> extPermList = new ArrayList<>();
-        roles.forEach(e -> {
-            if (Checker.notNullOrEmpty(e.getCommonPermissionIds())) {
-                List<BatchInsertKeyValue> collect = e.getCommonPermissionIds().stream()
-                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-                commonPermList.addAll(collect);
-            }
-            if (Checker.notNullOrEmpty(e.getApiPermissionIds())) {
-                List<BatchInsertKeyValue> collect = e.getApiPermissionIds().stream()
-                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-                apiPermList.addAll(collect);
-            }
-            if (Checker.notNullOrEmpty(e.getExternalPermissionIds())) {
-                List<BatchInsertKeyValue> collect = e.getExternalPermissionIds().stream()
-                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-                extPermList.addAll(collect);
-            }
-        });
-        if (commonPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_COMMON_MAP, commonPermList, commonPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (apiPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_API_MAP, apiPermList, apiPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (extPermList.size() > 0) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_EXT_MAP, extPermList, extPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
     }
 
-    @Override
-    public Set<PermissionId> findCommonPermission(Role role) {
-        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_COMMON_PERMISSION,
-                new PermissionIdRowMapper(),
-                role.getId()
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public Set<PermissionId> findApiPermission(Role role) {
-        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_API_PERMISSION,
-                new PermissionIdRowMapper(),
-                role.getId()
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public Set<PermissionId> findExtPermission(Role role) {
-        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_EXT_PERMISSION,
-                new PermissionIdRowMapper(),
-                role.getId()
-            );
-        return new HashSet<>(data);
-    }
 
     @Override
     public SumPagedRep<Role> query(RoleQuery query) {
@@ -388,18 +221,6 @@ public class JdbcRoleRepository implements RoleRepository {
     @Override
     public void remove(Role role) {
         CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_COMMON_SQL,
-                role.getId()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_API_SQL,
-                role.getId()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_EXT_SQL,
-                role.getId()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
             .update(DELETE_SQL,
                 role.getId()
             );
@@ -471,113 +292,6 @@ public class JdbcRoleRepository implements RoleRepository {
                 updated.getVersion()
             );
         DatabaseUtility.checkUpdate(update);
-        DatabaseUtility.updateMap(old.getCommonPermissionIds(),
-            updated.getCommonPermissionIds(),
-            (added) -> {
-                //for linked tables
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_COMMON_MAP, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_COMMON_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        DatabaseUtility.updateMap(old.getApiPermissionIds(),
-            updated.getApiPermissionIds(),
-            (added) -> {
-                //for linked tables
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_API_MAP, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_API_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        DatabaseUtility.updateMap(old.getExternalPermissionIds(),
-            updated.getExternalPermissionIds(),
-            (added) -> {
-                //for linked tables
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_EXT_MAP, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_EXT_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-
-    }
-
-    @Override
-    public void removeReferredPermissionId(PermissionId permissionId) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_API_MAP_PERMISSION_SQL,
-                permissionId.getDomainId()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_COMMON_MAP_PERMISSION_SQL,
-                permissionId.getDomainId()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_EXT_MAP_PERMISSION_SQL,
-                permissionId.getDomainId()
-            );
     }
 
     private static class RowMapper implements ResultSetExtractor<List<Role>> {
@@ -620,22 +334,4 @@ public class JdbcRoleRepository implements RoleRepository {
         }
     }
 
-    private static class PermissionIdRowMapper implements ResultSetExtractor<List<PermissionId>> {
-
-        @Override
-        public List<PermissionId> extractData(ResultSet rs)
-            throws SQLException, DataAccessException {
-            if (!rs.next()) {
-                return Collections.emptyList();
-            }
-            List<PermissionId> list = new ArrayList<>();
-            do {
-                String idRaw = rs.getString("permission");
-                if (Checker.notNull(idRaw)) {
-                    list.add(new PermissionId(idRaw));
-                }
-            } while (rs.next());
-            return list;
-        }
-    }
 }

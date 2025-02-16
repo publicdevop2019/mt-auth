@@ -14,6 +14,7 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
+import com.mt.access.domain.model.permission.LinkedApiPermissionId;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
@@ -131,8 +132,9 @@ public class PermissionApplicationService {
                 Permission permission = Permission
                     .manualCreate(new ProjectId(command.getProjectId()), permissionId,
                         command.getName(), command.getDescription(), PermissionType.COMMON,
-                        null, linkedPermId);
+                        null);
                 DomainRegistry.getPermissionRepository().add(permission);
+                LinkedApiPermissionId.add(permission,linkedPermId);
                 return permissionId.getDomainId();
             }, PERMISSION);
     }

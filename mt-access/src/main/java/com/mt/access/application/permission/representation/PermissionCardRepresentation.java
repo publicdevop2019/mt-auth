@@ -33,13 +33,13 @@ public class PermissionCardRepresentation {
     @JsonIgnore
     private Set<PermissionId> linkedApiPermissionIds;
 
-    public PermissionCardRepresentation(Permission permission) {
+    public PermissionCardRepresentation(Permission permission, Set<PermissionId> permissionIds) {
         this.name = permission.getName();
         this.description = permission.getDescription();
         this.systemCreate = permission.getSystemCreate();
         this.type = permission.getType();
         this.id = permission.getPermissionId().getDomainId();
-        this.linkedApiPermissionIds = permission.getLinkedApiPermissionIds();
+        this.linkedApiPermissionIds = permissionIds;
         if (permission.getTenantId() != null) {
             this.tenantId = permission.getTenantId().getDomainId();
         }
@@ -67,7 +67,7 @@ public class PermissionCardRepresentation {
         SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
         //update name for root project only
-        if (new ProjectId(projectId).equals(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID))) {
+        if (new ProjectId(projectId).equals(new ProjectId(AppConstant.MAIN_PROJECT_ID))) {
             Set<ProjectId> collect = data.stream()
                 .filter(e -> e.type.equals(PermissionType.COMMON) &&
                     e.name.contains(ProjectId.getIdPrefix()))

@@ -1,14 +1,21 @@
 package com.mt.integration.single.access.mgmt;
 
 import com.mt.helper.AppConstant;
+import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
+import com.mt.helper.pojo.GrantType;
+import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
+import com.mt.helper.pojo.User;
+import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -110,4 +117,23 @@ public class MgmtClientTest{
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
+
+
+    @Test
+    public void admin_can_create_client_w_password_grant() {
+        TenantContext tenantContext = new TenantContext();
+        User user = new User();
+        user.setEmail(AppConstant.ACCOUNT_EMAIL_ADMIN);
+        user.setPassword(AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        Project project = new Project();
+        project.setId(AppConstant.MAIN_PROJECT_ID);
+        tenantContext.setCreator(user);
+        tenantContext.setProject(project);
+        Client client = ClientUtility.getClientAsNonResource();
+        client.setGrantTypeEnums(
+            new HashSet<>(Collections.singletonList(GrantType.PASSWORD.name())));
+        ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+    }
+
 }

@@ -1,9 +1,9 @@
 package com.mt.proxy.port.adapter.messaging;
 
 import static com.mt.proxy.domain.ProxyCacheService.CACHE_LOG_PREFIX;
-import static com.mt.proxy.infrastructure.AppConstant.MT_ACCESS_ID;
 
 import com.mt.proxy.domain.DomainRegistry;
+import com.mt.proxy.domain.UniqueIdGeneratorService;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -11,6 +11,7 @@ import com.rabbitmq.client.DeliverCallback;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +21,10 @@ public class EndpointMqListener {
 
     public static final String MT_GLOBAL_EXCHANGE = "mt_global_exchange";
 
-    private EndpointMqListener(@Value("${mt.common.url.message-queue}") String url) {
+    private EndpointMqListener(
+        @Value("${mt.rabbitmq.url}") String url,
+        @Autowired UniqueIdGeneratorService idGeneratorService
+    ) {
         ConnectionFactory factory = new ConnectionFactory();
         String[] split = url.split(":");
         factory.setHost(split[0]);
@@ -31,15 +35,13 @@ public class EndpointMqListener {
             Connection connection = factory.newConnection("mt-proxy-sub");
             Channel channel = connection.createChannel();
             channel.basicQos(1);
-            String queueName = channel.queueDeclare().getQueue();
-            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
-                MT_ACCESS_ID + ".external.endpoint_reload_requested");
-            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
-                MT_ACCESS_ID + ".external.endpoint_collection_modified");
-            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
-                MT_ACCESS_ID + ".external.client_path_changed");
-            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
-                MT_ACCESS_ID + ".external.sub_req_approved");
+            long id = idGeneratorService.id();
+            String queueName = Long.toString(id, 36) + "_combined_events_proxy_handler";
+            channel.queueDeclare(queueName, true, false, true, null);
+            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "endpoint_reload_requested");
+            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "endpoint_collection_modified");
+            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "client_path_changed");
+            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "sub_req_approved");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 try {
                     //use auto ack, since admin will have to trigger sync job to match

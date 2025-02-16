@@ -4,6 +4,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.LoginType;
 import com.mt.access.domain.model.token.TokenGrantClient;
@@ -30,6 +31,7 @@ import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -132,7 +134,13 @@ public class TokenGrantService {
                 HttpResponseCode.BAD_REQUEST);
         }
         Client client = DomainRegistry.getClientRepository().get(clientId);
-        TokenGrantClient tokenGrantClient = new TokenGrantClient(client);
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        Set<ClientId> extResources =
+            DomainRegistry.getClientExternalResourceRepository().query(client);
+        Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
+        Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(client);
+        TokenGrantClient tokenGrantClient =
+            new TokenGrantClient(client, resources, extResources, urls, grantTypes);
         if (!tokenGrantClient.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
@@ -267,13 +275,36 @@ public class TokenGrantService {
             throw new DefinedRuntimeException("wrong client secret", "1070",
                 HttpResponseCode.UNAUTHORIZED);
         }
+        Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(client);
         if (grantType.equals(TokenGrantType.REFRESH_TOKEN)) {
-            if (!client.getGrantTypes().contains(GrantType.REFRESH_TOKEN)) {
+            if (!grantTypes.contains(GrantType.REFRESH_TOKEN)) {
                 throw new DefinedRuntimeException("invalid params", "1089",
                     HttpResponseCode.BAD_REQUEST);
             }
         }
-        context.setClient(new TokenGrantClient(client));
+        if (grantType.equals(TokenGrantType.PASSWORD)) {
+            if (!grantTypes.contains(GrantType.PASSWORD)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+        if (grantType.equals(TokenGrantType.CLIENT_CREDENTIALS)) {
+            if (!grantTypes.contains(GrantType.CLIENT_CREDENTIALS)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+        if (grantType.equals(TokenGrantType.AUTHORIZATION_CODE)) {
+            if (!grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
+                throw new DefinedRuntimeException("invalid params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
+        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
+        Set<ClientId> extResources =
+            DomainRegistry.getClientExternalResourceRepository().query(client);
+        Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
+        context.setClient(new TokenGrantClient(client, resources, extResources, urls, grantTypes));
     }
 
 

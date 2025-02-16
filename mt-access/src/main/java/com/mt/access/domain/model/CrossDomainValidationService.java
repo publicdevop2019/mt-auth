@@ -24,13 +24,13 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,12 +45,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CrossDomainValidationService {
 
-    @Value("${mt.mgmt.email}")
+    @Value("${mt.misc.mgmt-email}")
     private String adminEmail;
 
     public void validate(TransactionContext context) {
-        CommonDomainRegistry.getLogService().initTrace();
-        log.trace("start of validate job");
+        log.debug("start of validate existing data");
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().query();
         ValidationResult validationResult;
@@ -70,22 +69,31 @@ public class CrossDomainValidationService {
         boolean b8 = false;
         boolean b9 = false;
         if (b) {
+            log.debug("check client and endpoint");
             b1 = validateClientAndEndpoint(context);
             if (b1) {
+                log.debug("check client and project");
                 b2 = validateClientAndProject(context);
                 if (b2) {
+                    log.debug("check client and role");
                     b3 = validateClientAndRole(context);
                     if (b3) {
+                        log.debug("check cors and endpoint");
                         b4 = validateCorsProfileAndEndpoint(context);
                         if (b4) {
+                            log.debug("check project and role");
                             b5 = validateProjectAndRole(context);
                             if (b5) {
+                                log.debug("check project and user");
                                 b6 = validateProjectAndUser(context);
                                 if (b6) {
+                                    log.debug("check endpoint and permission");
                                     b7 = validateEndpointAndPermission(context);
                                     if (b7) {
+                                        log.debug("check role and permission");
                                         b8 = validateRoleAndPermission(context);
                                         if (b8) {
+                                            log.debug("check user and user relation");
                                             b9 = validateUserAndUserRelation(context);
                                         }
                                     }
@@ -139,7 +147,18 @@ public class CrossDomainValidationService {
         Set<Role> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e), RoleQuery.all());
         Set<PermissionId> collect =
-            allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream())
+            allByQuery.stream().flatMap(e -> {
+                    Set<PermissionId> totalPerm = new HashSet<>();
+                    Set<PermissionId> comPerm =
+                        DomainRegistry.getCommonPermissionIdRepository().query(e);
+                    Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(e);
+                    Set<PermissionId> extPerm =
+                        DomainRegistry.getExternalPermissionIdRepository().query(e);
+                    totalPerm.addAll(comPerm);
+                    totalPerm.addAll(apiPerm);
+                    totalPerm.addAll(extPerm);
+                    return totalPerm.stream();
+                })
                 .collect(Collectors.toSet());
         Set<PermissionId> permissionIds =
             DomainRegistry.getPermissionRepository().allPermissionId();

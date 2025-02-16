@@ -61,4 +61,27 @@ public class Checker {
     public static boolean notBlank(@Nullable String str) {
         return !isBlank(str);
     }
+
+    /**
+     * check if two collections are same, null and empty collection will be treated as same
+     *
+     * @param a   a collection
+     * @param b   b collection
+     * @param <T> type of collection
+     * @return same or not
+     */
+    public static <T> boolean sameAs(@Nullable Collection<T> a, @Nullable Collection<T> b
+    ) {
+        if (a == null && b == null) {
+            return true;
+        } else if (a != null && b == null) {
+            return a.isEmpty();
+        } else if (a == null) {
+            return b.isEmpty();
+        } else {
+            return a.equals(b);
+        }
+    }
+
+
 }

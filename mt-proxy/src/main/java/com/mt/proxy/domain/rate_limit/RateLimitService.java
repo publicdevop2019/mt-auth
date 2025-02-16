@@ -9,9 +9,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RScript;
+import org.redisson.api.RedissonClient;
+import org.redisson.client.codec.IntegerCodec;
+import org.redisson.client.codec.LongCodec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +22,33 @@ import org.springframework.stereotype.Service;
 public class RateLimitService {
     public static final String RATE_LIMITER = "rate_limiter";
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-    @Autowired
-    private RedisScript<List<Long>> script;
+    private RedissonClient redissonClient;
+    private static final String LUA_SCRIPT =
+            "local tokens_key = KEYS[1]\n" +
+            "local timestamp_key = KEYS[2]\n" +
+            "local rate = tonumber(ARGV[1])\n" +
+            "local capacity = tonumber(ARGV[2])\n" +
+            "local now = tonumber(ARGV[3])\n" +
+            "local fill_time = capacity/rate\n" +
+            "local ttl = math.floor(fill_time*2)\n" +
+            "local last_tokens = tonumber(redis.call(\"get\", tokens_key))\n" +
+            "if last_tokens == nil then\n" +
+            "  last_tokens = capacity\n" +
+            "end\n" +
+            "local last_refreshed = tonumber(redis.call(\"get\", timestamp_key))\n" +
+            "if last_refreshed == nil then\n" +
+            "  last_refreshed = 0\n" +
+            "end\n" +
+            "local delta = math.max(0, now-last_refreshed)\n" +
+            "local filled_tokens = math.min(capacity, last_tokens+(delta*rate))\n" +
+            "local allowed = filled_tokens >= 1\n" +
+            "local new_tokens = filled_tokens\n" +
+            "if allowed then\n" +
+            "  new_tokens = filled_tokens-1\n" +
+            "end\n" +
+            "redis.call(\"setex\", tokens_key, ttl, new_tokens)\n" +
+            "redis.call(\"setex\", timestamp_key, ttl, now)\n" +
+            "return { allowed, new_tokens }";
 
     public RateLimitResult withinRateLimit(String path, String method,
                                            HttpHeaders headers, InetSocketAddress address) {
@@ -77,11 +103,19 @@ public class RateLimitService {
     private RateLimitResult checkLimit(String tokenKey, Endpoint.Subscription subscription) {
         RateLimitResult result;
         try {
-            List<Long> execute = redisTemplate.execute(script,
+            RScript script = redissonClient.getScript(LongCodec.INSTANCE);
+            Integer replenishRate = subscription.getReplenishRate();
+            Integer burstCapacity = subscription.getBurstCapacity();
+            long epochSecond = Instant.now().getEpochSecond();
+            List<Long> execute = script.eval(
+                RScript.Mode.READ_WRITE,
+                LUA_SCRIPT,
+                RScript.ReturnType.MULTI,
                 List.of(tokenKey + ".tokens", tokenKey + ".timestamp"),
-                String.valueOf(subscription.getReplenishRate()),
-                String.valueOf(subscription.getBurstCapacity()),
-                String.valueOf(Instant.now().getEpochSecond()));
+                replenishRate,
+                burstCapacity,
+                epochSecond
+            );
             if (execute == null) {
                 log.error("redis script return null");
                 return RateLimitResult.deny();

@@ -33,5 +33,4 @@ public interface PermissionRepository {
 
     long countProjectCreateTotal(ProjectId projectId);
 
-    void removeLinkedApiPermission(PermissionId permissionId);
 }

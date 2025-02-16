@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json", path = "tickets")
 public class TicketResource {
-    @PostMapping("{resourceId}")
+    @PostMapping("{clientId}")
     public ResponseEntity<Void> create(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-        @PathVariable String resourceId
+        @PathVariable String clientId
     ) {
         DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         SignedTicket encryptedTicket =
-            ApplicationServiceRegistry.getTicketApplicationService().create(resourceId);
+            ApplicationServiceRegistry.getTicketApplicationService().create(clientId);
         return ResponseEntity.ok().header("Location", encryptedTicket.getValue()).build();
     }
 

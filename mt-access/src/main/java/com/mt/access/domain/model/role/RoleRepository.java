@@ -12,12 +12,6 @@ public interface RoleRepository {
 
     void addAll(Set<Role> role);
 
-    Set<PermissionId> findCommonPermission(Role role);
-
-    Set<PermissionId> findApiPermission(Role role);
-
-    Set<PermissionId> findExtPermission(Role role);
-
     SumPagedRep<Role> query(RoleQuery roleQuery);
 
     void remove(Role e);
@@ -44,5 +38,4 @@ public interface RoleRepository {
 
     void update(Role old, Role updated);
 
-    void removeReferredPermissionId(PermissionId permissionId);
 }

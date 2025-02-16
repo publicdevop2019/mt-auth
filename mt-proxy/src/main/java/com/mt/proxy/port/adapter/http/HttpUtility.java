@@ -22,7 +22,7 @@ public class HttpUtility {
     @Getter
     private RestTemplate restTemplate;
     @Getter
-    @Value("${mt.common.url.access}")
+    @Value("${mt.misc.url.access}")
     private String accessUrl;
 
     /**

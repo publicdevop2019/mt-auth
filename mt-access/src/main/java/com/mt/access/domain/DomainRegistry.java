@@ -1,6 +1,7 @@
 package com.mt.access.domain;
 
 import com.mt.access.domain.model.CacheProfileValidationService;
+import com.mt.access.domain.model.ClientExternalResourceService;
 import com.mt.access.domain.model.ComputePermissionService;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
@@ -11,13 +12,21 @@ import com.mt.access.domain.model.NewUserService;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.PwdResetService;
 import com.mt.access.domain.model.RemoteProxyService;
+import com.mt.access.domain.model.RevokeTokenValidationService;
 import com.mt.access.domain.model.TokenGrantService;
 import com.mt.access.domain.model.VerificationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
+import com.mt.access.domain.model.cache_profile.CacheControlRepository;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
+import com.mt.access.domain.model.client.ClientExternalResourceRepository;
+import com.mt.access.domain.model.client.ClientGrantTypeRepository;
+import com.mt.access.domain.model.client.ClientRedirectUrlRepository;
 import com.mt.access.domain.model.client.ClientRepository;
-import com.mt.access.domain.model.client.ClientValidationService;
+import com.mt.access.domain.model.client.ClientResourceRepository;
+import com.mt.access.domain.model.cors_profile.CorsAllowedHeaderRepository;
+import com.mt.access.domain.model.cors_profile.CorsExposedHeaderRepository;
+import com.mt.access.domain.model.cors_profile.CorsOriginRepository;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
@@ -28,6 +37,7 @@ import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
+import com.mt.access.domain.model.permission.LinkedApiPermissionIdRepository;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.project.ProjectRepository;
@@ -40,6 +50,9 @@ import com.mt.access.domain.model.report.RawAccessRecordRepository;
 import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
+import com.mt.access.domain.model.role.ApiPermissionIdRepository;
+import com.mt.access.domain.model.role.CommonPermissionIdRepository;
+import com.mt.access.domain.model.role.ExternalPermissionIdRepository;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
@@ -53,6 +66,8 @@ import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeGenerator;
 import com.mt.access.domain.model.user.PwdResetTokenGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
+import com.mt.access.domain.model.user.UserRelationRoleIdRepository;
+import com.mt.access.domain.model.user.UserRelationTenantIdRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
 import com.mt.access.domain.model.verification_code.VerificationCodeGenerator;
@@ -67,6 +82,16 @@ import org.springframework.stereotype.Service;
 public class DomainRegistry {
     @Getter
     private static ClientRepository clientRepository;
+    @Getter
+    private static ClientResourceRepository clientResourceRepository;
+    @Getter
+    private static ClientExternalResourceService clientExternalResourceService;
+    @Getter
+    private static ClientExternalResourceRepository clientExternalResourceRepository;
+    @Getter
+    private static ClientRedirectUrlRepository clientRedirectUrlRepository;
+    @Getter
+    private static ClientGrantTypeRepository clientGrantTypeRepository;
     @Getter
     private static UserRepository userRepository;
     @Getter
@@ -94,7 +119,7 @@ public class DomainRegistry {
     @Getter
     private static EndpointValidationService endpointValidationService;
     @Getter
-    private static ClientValidationService clientValidationService;
+    private static RevokeTokenValidationService revokeTokenValidationService;
     @Getter
     private static TicketService ticketService;
     @Getter
@@ -179,11 +204,110 @@ public class DomainRegistry {
     private static PwdResetService pwdResetService;
     @Getter
     private static TokenGrantService tokenGrantService;
+    @Getter
+    private static CacheControlRepository cacheControlRepository;
+    @Getter
+    private static CorsAllowedHeaderRepository corsAllowedHeaderRepository;
+    @Getter
+    private static CorsExposedHeaderRepository corsExposedHeaderRepository;
+    @Getter
+    private static CorsOriginRepository corsOriginRepository;
+    @Getter
+    private static LinkedApiPermissionIdRepository linkedApiPermissionIdRepository;
+    @Getter
+    private static ApiPermissionIdRepository apiPermissionIdRepository;
+    @Getter
+    private static CommonPermissionIdRepository commonPermissionIdRepository;
+    @Getter
+    private static ExternalPermissionIdRepository externalPermissionIdRepository;
+    @Getter
+    private static UserRelationRoleIdRepository userRelationRoleIdRepository;
+    @Getter
+    private static UserRelationTenantIdRepository userRelationTenantIdRepository;
 
+    @Autowired
+    public void setUserRelationRoleIdRepository(UserRelationRoleIdRepository services) {
+        DomainRegistry.userRelationRoleIdRepository = services;
+    }
+
+    @Autowired
+    public void setUserRelationTenantIdRepository(UserRelationTenantIdRepository services) {
+        DomainRegistry.userRelationTenantIdRepository = services;
+    }
+
+    @Autowired
+    public void setApiPermissionIdRepository(ApiPermissionIdRepository services) {
+        DomainRegistry.apiPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setCommonPermissionIdRepository(CommonPermissionIdRepository services) {
+        DomainRegistry.commonPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setExternalPermissionIdRepository(ExternalPermissionIdRepository services) {
+        DomainRegistry.externalPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setLinkedApiPermissionIdRepository(LinkedApiPermissionIdRepository services) {
+        DomainRegistry.linkedApiPermissionIdRepository = services;
+    }
+
+    @Autowired
+    public void setCorsAllowedHeaderRepository(CorsAllowedHeaderRepository services) {
+        DomainRegistry.corsAllowedHeaderRepository = services;
+    }
+
+    @Autowired
+    public void setCorsExposedHeaderRepository(CorsExposedHeaderRepository services) {
+        DomainRegistry.corsExposedHeaderRepository = services;
+    }
+
+    @Autowired
+    public void setCorsOriginRepository(CorsOriginRepository services) {
+        DomainRegistry.corsOriginRepository = services;
+    }
+
+    @Autowired
+    public void setCacheControlRepository(CacheControlRepository services) {
+        DomainRegistry.cacheControlRepository = services;
+    }
+
+    @Autowired
+    public void setClientGrantTypeRepository(ClientGrantTypeRepository services) {
+        DomainRegistry.clientGrantTypeRepository = services;
+    }
 
     @Autowired
     public void setTokenGrantService(TokenGrantService services) {
         DomainRegistry.tokenGrantService = services;
+    }
+
+    @Autowired
+    public void setClientRedirectUrlRepository(ClientRedirectUrlRepository services) {
+        DomainRegistry.clientRedirectUrlRepository = services;
+    }
+
+    @Autowired
+    public void setClientExternalResourceRepository(ClientExternalResourceRepository services) {
+        DomainRegistry.clientExternalResourceRepository = services;
+    }
+
+    @Autowired
+    public void setClientExternalResourceService(ClientExternalResourceService services) {
+        DomainRegistry.clientExternalResourceService = services;
+    }
+
+    @Autowired
+    public void setClientResourceRepository(ClientResourceRepository repository) {
+        DomainRegistry.clientResourceRepository = repository;
+    }
+
+    @Autowired
+    public void setRevokeTokenValidationService(RevokeTokenValidationService services) {
+        DomainRegistry.revokeTokenValidationService = services;
     }
 
     @Autowired
@@ -396,11 +520,6 @@ public class DomainRegistry {
     @Autowired
     public void setTicketService(TicketService ticketService) {
         DomainRegistry.ticketService = ticketService;
-    }
-
-    @Autowired
-    public void setClientValidationService(ClientValidationService clientValidationService) {
-        DomainRegistry.clientValidationService = clientValidationService;
     }
 
     @Autowired

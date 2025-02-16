@@ -3,10 +3,8 @@ package com.mt.access.domain.model.user;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Immutable;
 
 @Getter
-@Immutable
 public class LoginUser {
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;

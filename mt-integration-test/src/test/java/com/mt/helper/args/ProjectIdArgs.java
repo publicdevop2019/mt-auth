@@ -14,7 +14,7 @@ public class ProjectIdArgs implements ArgumentsProvider {
             Arguments.of("null", HttpStatus.BAD_REQUEST),
             Arguments.of("", HttpStatus.NOT_FOUND),
             Arguments.of("  ", HttpStatus.NOT_FOUND),
-            Arguments.of(AppConstant.MT_ACCESS_PROJECT_ID, HttpStatus.FORBIDDEN)
+            Arguments.of(AppConstant.MT_MALL_PROJECT_ID, HttpStatus.FORBIDDEN)
         );
     }
 }

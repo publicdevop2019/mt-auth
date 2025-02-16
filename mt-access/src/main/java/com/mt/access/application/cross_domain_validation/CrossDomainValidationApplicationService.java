@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CrossDomainValidationApplicationService {
 
-    @Scheduled(cron = "0 * * ? * *")
+    @Scheduled(cron = "0 */5 * ? * *")
     public void validate() {
         log.trace("triggered scheduled task 1");
         CommonDomainRegistry.getJobService()

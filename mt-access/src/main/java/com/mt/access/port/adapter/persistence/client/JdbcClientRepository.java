@@ -6,11 +6,8 @@ import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.ExternalUrl;
-import com.mt.access.domain.model.client.GrantType;
-import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -21,7 +18,6 @@ import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -55,6 +51,7 @@ public class JdbcClientRepository implements ClientRepository {
         "description, " +
         "name, " +
         "path, " +
+        "type, " +
         "project_id, " +
         "role_id, " +
         "secret, " +
@@ -62,69 +59,9 @@ public class JdbcClientRepository implements ClientRepository {
         "refresh_token_validity_seconds, " +
         "external_url" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    private static final String INSERT_REDIRECT_URL_SQL = "INSERT INTO client_redirect_url_map " +
-        "(" +
-        "id, " +
-        "redirect_url" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_RESOURCE_SQL = "INSERT INTO resources_map " +
-        "(" +
-        "id, " +
-        "domain_id" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_GRANT_TYPE_SQL = "INSERT INTO client_grant_type_map " +
-        "(" +
-        "id, " +
-        "grant_type" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_CLIENT_TYPE_SQL = "INSERT INTO client_type_map " +
-        "(" +
-        "id, " +
-        "type" +
-        ") VALUES " +
-        "(?,?)";
-    private static final String INSERT_EXT_RESOURCE_SQL = "INSERT INTO external_resources_map " +
-        "(" +
-        "id, " +
-        "domain_id" +
-        ") VALUES " +
-        "(?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
     private static final String DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id = ?";
-    private static final String BATCH_DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id IN (%s)";
-    private static final String DELETE_RESOURCE_BY_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.id = ?";
-    private static final String BATCH_DELETE_RESOURCE_BY_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.id IN (%s)";
-    private static final String BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.id = ? AND rm.domain_id IN (%s)";
-    private static final String DELETE_EXT_RESOURCE_BY_ID_SQL =
-        "DELETE FROM external_resources_map erm WHERE erm.id = ?";
-    private static final String BATCH_DELETE_EXT_RESOURCE_BY_ID_SQL =
-        "DELETE FROM external_resources_map erm WHERE erm.id IN (%s)";
-    private static final String BATCH_DELETE_EXT_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL =
-        "DELETE FROM external_resources_map erm WHERE erm.id = ? AND rm.domain_id IN (%s)";
-    private static final String DELETE_CLIENT_TYPE_BY_ID_SQL =
-        "DELETE FROM client_type_map ctm WHERE ctm.id = ?";
-    private static final String BATCH_DELETE_CLIENT_TYPE_BY_ID_AND_TYPE_SQL =
-        "DELETE FROM client_type_map ctm WHERE ctm.id = ? AND ctm.type IN (%s)";
-    private static final String BATCH_DELETE_CLIENT_TYPE_BY_ID_SQL =
-        "DELETE FROM client_type_map ctm WHERE ctm.id IN (%s)";
-    private static final String DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL =
-        "DELETE FROM client_grant_type_map cgtm WHERE cgtm.id = ?";
-    private static final String BATCH_DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL =
-        "DELETE FROM client_grant_type_map cgtm WHERE cgtm.id IN (%s)";
-    private static final String BATCH_DELETE_CLIENT_GRANT_TYPE_BY_ID_AND_TYPE_SQL =
-        "DELETE FROM client_grant_type_map cgtm WHERE cgtm.id = ? AND cgtm.grant_type IN (%s)";
-    private static final String DELETE_REDIRECT_URL_BY_ID_SQL =
-        "DELETE FROM client_redirect_url_map crum WHERE crum.id = ?";
-    private static final String BATCH_DELETE_REDIRECT_URL_BY_ID_AND_URL_SQL =
-        "DELETE FROM client_redirect_url_map crum WHERE crum.id = ? AND crum.redirect_url IN (%s)";
-    private static final String BATCH_DELETE_REDIRECT_URL_BY_ID_SQL =
-        "DELETE FROM client_redirect_url_map crum WHERE crum.id IN (%s)";
     private static final String FIND_ALL_PROJECT_ID_SQL =
         "SELECT DISTINCT c.project_id FROM client c";
     private static final String FIND_ALL_CLIENT_ID_SQL = "SELECT c.domain_id FROM client c";
@@ -133,16 +70,6 @@ public class JdbcClientRepository implements ClientRepository {
         "SELECT COUNT(*) AS count FROM client c WHERE c.project_id = ?";
     private static final String COUNT_RESOURCE_SQL =
         "SELECT COUNT(DISTINCT rm.id) AS count FROM resources_map rm LEFT JOIN client c ON rm.id = c.id WHERE rm.domain_id IN (%s)";
-    private static final String FIND_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +
-        "FROM resources_map m WHERE m.id = ?";
-    private static final String FIND_EXT_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +
-        "FROM external_resources_map m WHERE m.id = ?";
-    private static final String FIND_GRANT_TYPE_BY_ID_SQL = "SELECT m.grant_type " +
-        "FROM client_grant_type_map m WHERE m.id = ?";
-    private static final String FIND_CLIENT_TYPE_BY_ID_SQL = "SELECT m.type " +
-        "FROM client_type_map m WHERE m.id = ?";
-    private static final String FIND_REDIRECT_URL_BY_ID_SQL = "SELECT m.redirect_url " +
-        "FROM client_redirect_url_map m WHERE m.id = ?";
     private static final String UPDATE_SQL = "UPDATE client c SET " +
         "c.modified_at = ? ," +
         "c.modified_by = ?, " +
@@ -156,8 +83,6 @@ public class JdbcClientRepository implements ClientRepository {
         "c.refresh_token_validity_seconds = ?, " +
         "c.external_url = ? " +
         "WHERE c.id = ? AND c.version = ? ";
-    private static final String DELETE_RESOURCE_BY_DOMAIN_ID_SQL =
-        "DELETE FROM resources_map rm WHERE rm.domain_id = ?";
 
 
     @Override
@@ -185,6 +110,7 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getDescription(),
                 client.getName(),
                 client.getPath(),
+                client.getType().name(),
                 client.getProjectId().getDomainId(),
                 client.getRoleId().getDomainId(),
                 client.getSecret(),
@@ -192,155 +118,15 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getTokenDetail().getRefreshTokenValiditySeconds(),
                 Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
             );
-        //for linked tables
-        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getRedirectUrls().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getValue())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_REDIRECT_URL_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (Checker.notNullOrEmpty(client.getResources())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getResources().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_RESOURCE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (Checker.notNullOrEmpty(client.getExternalResources())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getExternalResources().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_EXT_RESOURCE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (Checker.notNullOrEmpty(client.getTypes())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getTypes().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.name())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_CLIENT_TYPE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
-        if (Checker.notNullOrEmpty(client.getGrantTypes())) {
-            List<BatchInsertKeyValue> keyValues = new ArrayList<>();
-            List<BatchInsertKeyValue> collect =
-                client.getGrantTypes().stream()
-                    .map(ee -> new BatchInsertKeyValue(client.getId(), ee.name())).collect(
-                        Collectors.toList());
-            keyValues.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_GRANT_TYPE_SQL, keyValues,
-                    keyValues.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
     }
 
     @Override
     public void remove(Client client) {
-        if (Checker.notNullOrEmpty(client.getResources())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_RESOURCE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        if (Checker.notNullOrEmpty(client.getExternalResources())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_EXT_RESOURCE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        if (Checker.notNullOrEmpty(client.getGrantTypes())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        if (Checker.notNullOrEmpty(client.getTypes())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_CLIENT_TYPE_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        if (Checker.notNullOrEmpty(client.getRedirectUrls())) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_REDIRECT_URL_BY_ID_SQL,
-                    client.getId()
-                );
-        }
-        CommonDomainRegistry.getJdbcTemplate()
+        int update = CommonDomainRegistry.getJdbcTemplate()
             .update(DELETE_BY_ID_SQL,
                 client.getId()
             );
-    }
-
-    @Override
-    public void remove(Collection<Client> clients) {
-        Set<Long> ids = clients.stream().map(Auditable::getId).collect(Collectors.toSet());
-        String inClause = DatabaseUtility.getInClause(ids.size());
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_RESOURCE_BY_ID_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_EXT_RESOURCE_BY_ID_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_CLIENT_TYPE_BY_ID_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_CLIENT_GRANT_TYPE_BY_ID_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                String.format(BATCH_DELETE_REDIRECT_URL_BY_ID_SQL, inClause),
-                ids.toArray()
-            );
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(BATCH_DELETE_BY_ID_SQL,
-                ids.toArray()
-            );
+        DatabaseUtility.checkUpdate(update);
     }
 
     @Override
@@ -475,115 +261,6 @@ public class JdbcClientRepository implements ClientRepository {
     }
 
     @Override
-    public Set<ClientId> getResources(Long id) {
-        List<ClientId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_RESOURCE_IDS_BY_ID_SQL,
-                new ClientIdRowMapper(),
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public Set<ClientId> getExternalResources(Long id) {
-        List<ClientId> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_EXT_RESOURCE_IDS_BY_ID_SQL,
-                new ClientIdRowMapper(),
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated){
-        DatabaseUtility.updateMap(old, updated,
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(id, ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_EXT_RESOURCE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(id);
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_EXT_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-    }
-
-    @Override
-    public Set<GrantType> getGrantType(Long id) {
-        List<GrantType> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_GRANT_TYPE_BY_ID_SQL,
-                rs -> {
-                    if (!rs.next()) {
-                        return Collections.emptyList();
-                    }
-                    List<GrantType> list = new ArrayList<>();
-                    do {
-                        list.add(GrantType.valueOf(rs.getString("grant_type")));
-                    } while (rs.next());
-                    return list;
-                },
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public Set<ClientType> getType(Long id) {
-        List<ClientType> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_CLIENT_TYPE_BY_ID_SQL,
-                rs -> {
-                    if (!rs.next()) {
-                        return Collections.emptyList();
-                    }
-                    List<ClientType> list = new ArrayList<>();
-                    do {
-                        list.add(ClientType.valueOf(rs.getString("type")));
-                    } while (rs.next());
-                    return list;
-                },
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
-    public Set<RedirectUrl> getRedirectUrls(Long id) {
-        List<RedirectUrl> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(FIND_REDIRECT_URL_BY_ID_SQL,
-                rs -> {
-                    if (!rs.next()) {
-                        return Collections.emptyList();
-                    }
-                    List<RedirectUrl> list = new ArrayList<>();
-                    do {
-                        list.add(new RedirectUrl(rs.getString("redirect_url")));
-                    } while (rs.next());
-                    return list;
-                },
-                id
-            );
-        return new HashSet<>(data);
-    }
-
-    @Override
     public void update(Client old, Client updated) {
         if (old.sameAs(updated)) {
             return;
@@ -606,163 +283,7 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getVersion()
             );
         DatabaseUtility.checkUpdate(update);
-        DatabaseUtility.updateMap(old.getGrantTypes(),
-            updated.getGrantTypes(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.name()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_GRANT_TYPE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(Enum::name).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_CLIENT_GRANT_TYPE_BY_ID_AND_TYPE_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        Set<RedirectUrl> oldRedirectUrls;
-        Set<RedirectUrl> updatedRedirectUrls;
-        oldRedirectUrls = old.getRedirectUrls();
-        updatedRedirectUrls = updated.getRedirectUrls();
-        DatabaseUtility.updateMap(oldRedirectUrls,
-            updatedRedirectUrls,
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getValue()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_REDIRECT_URL_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(RedirectUrl::getValue).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_REDIRECT_URL_BY_ID_AND_URL_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        DatabaseUtility.updateMap(old.getTypes(), updated.getTypes(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.name()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_CLIENT_TYPE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(Enum::name).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_CLIENT_TYPE_BY_ID_AND_TYPE_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        DatabaseUtility.updateMap(old.getResources(), updated.getResources(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_RESOURCE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
-        DatabaseUtility.updateMap(old.getExternalResources(), updated.getExternalResources(),
-            (added) -> {
-                List<BatchInsertKeyValue> insertKeyValues = new ArrayList<>();
-                List<BatchInsertKeyValue> collect = added.stream()
-                    .map(ee -> new BatchInsertKeyValue(old.getId(), ee.getDomainId()))
-                    .collect(
-                        Collectors.toList());
-                insertKeyValues.addAll(collect);
-                CommonDomainRegistry.getJdbcTemplate()
-                    .batchUpdate(INSERT_EXT_RESOURCE_SQL, insertKeyValues,
-                        insertKeyValues.size(),
-                        (ps, perm) -> {
-                            ps.setLong(1, perm.getId());
-                            ps.setString(2, perm.getValue());
-                        });
-            }, (removed) -> {
-                String inClause = DatabaseUtility.getInClause(removed.size());
-                List<Object> args = new ArrayList<>();
-                args.add(old.getId());
-                args.addAll(
-                    removed.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                CommonDomainRegistry.getJdbcTemplate()
-                    .update(
-                        String.format(BATCH_DELETE_EXT_RESOURCE_BY_ID_AND_DOMAIN_ID_SQL,
-                            inClause),
-                        args.toArray()
-                    );
-            });
     }
-
-    @Override
-    public void removeRef(ClientId removedClientId) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(
-                DELETE_RESOURCE_BY_DOMAIN_ID_SQL,
-                removedClientId.getDomainId()
-            );
-    }
-
 
     private SumPagedRep<Client> resourceSearch(ClientQuery query) {
         Set<String> resourceIds =
@@ -846,6 +367,7 @@ public class JdbcClientRepository implements ClientRepository {
                         rs.getString("description"),
                         rs.getString("name"),
                         rs.getString("path"),
+                        ClientType.valueOf(rs.getString("type")),
                         new ProjectId(rs.getString("project_id")),
                         new RoleId(rs.getString("role_id")),
                         rs.getString("secret"),
@@ -862,22 +384,4 @@ public class JdbcClientRepository implements ClientRepository {
         }
     }
 
-    private static class ClientIdRowMapper implements ResultSetExtractor<List<ClientId>> {
-
-        @Override
-        public List<ClientId> extractData(ResultSet rs)
-            throws SQLException, DataAccessException {
-            if (!rs.next()) {
-                return Collections.emptyList();
-            }
-            List<ClientId> list = new ArrayList<>();
-            do {
-                String idRaw = rs.getString("domain_id");
-                if (Checker.notNull(idRaw)) {
-                    list.add(new ClientId(idRaw));
-                }
-            } while (rs.next());
-            return list;
-        }
-    }
 }

@@ -223,7 +223,6 @@ export const enUS = {
     "SYSTEM_ROLE_DELETED": "System Role Deleted",
     "USER_AUTHORITY_CHANGED": "User Authority Changed",
     "USER_CREATED": "User Created",
-    "USER_DELETED": "User Deleted",
     "USER_GET_LOCKED": "User Locked",
     "USER_PASSWORD_CHANGED": "User Password Changed",
     "USER_PWD_RESET_CODE_UPDATED": "User Password Reset Code Changed",
@@ -264,7 +263,6 @@ export const enUS = {
     "PROJECT_CREATED_AT": "Created At",
     "PROJECT_CREATED_BY": "Created by",
     "CREATED_BY": "Created By",
-    "TYPES": "Types",
     "BACKEND_APP": "Standard Web Application",
     "FRONTEND_APP": "Single Page Web Application",
     "API": "API",
@@ -651,4 +649,5 @@ export const enUS = {
     "USER_ROLE_NOTE": "All roles assigned to this user",
     "ADD_USER_ROLE": "Add role",
     "CACHE_ENABLED": "Enalbe Cache",
+    "FINAL_URL": "URL",
 }

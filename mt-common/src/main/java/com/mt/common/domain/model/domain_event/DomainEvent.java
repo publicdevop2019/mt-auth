@@ -28,7 +28,6 @@ public class DomainEvent implements Serializable {
     private DomainId domainId;
 
     private Set<DomainId> domainIds;
-    private Boolean internal = true;
     private String topic;
 
     public DomainEvent(DomainId domainId) {

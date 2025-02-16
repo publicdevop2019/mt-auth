@@ -1,8 +1,9 @@
 package com.mt.access.application.cache_profile.representation;
 
+import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
@@ -20,12 +21,12 @@ public class CacheProfileCardRepresentation {
     private Boolean weakValidation;
     private Integer version;
 
-    public CacheProfileCardRepresentation(CacheProfile profile) {
+    public CacheProfileCardRepresentation(CacheProfile profile, Set<CacheControlValue> values) {
         this.name = profile.getName();
         this.id = profile.getCacheProfileId().getDomainId();
         this.description = profile.getDescription();
         this.cacheControl =
-            profile.getCacheControl().stream().map(e -> e.label).collect(Collectors.toSet());
+            Utility.mapToSet(values, e -> e.label);
         this.expires = profile.getExpires();
         this.maxAge = profile.getMaxAge();
         this.vary = profile.getVary();

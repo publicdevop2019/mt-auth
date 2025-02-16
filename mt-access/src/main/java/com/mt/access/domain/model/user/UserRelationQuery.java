@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.user;
 
-import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
+import static com.mt.access.infrastructure.AppConstant.MAIN_PROJECT_ID;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
@@ -10,7 +10,6 @@ import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -55,16 +54,9 @@ public class UserRelationQuery extends QueryCriteria {
         setQueryConfig(new QueryConfig(config));
     }
 
-    public UserRelationQuery(UserId userId) {
-        userIds = new HashSet<>();
-        userIds.add(userId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-    }
-
     public static UserRelationQuery findTenantAdmin(RoleId tenantAdminRole, String pageConfig) {
         UserRelationQuery userRelationQuery = new UserRelationQuery();
-        userRelationQuery.projectIds = Collections.singleton(new ProjectId(MT_AUTH_PROJECT_ID));
+        userRelationQuery.projectIds = Collections.singleton(new ProjectId(MAIN_PROJECT_ID));
         userRelationQuery.roleId = tenantAdminRole;
         userRelationQuery.pageConfig = PageConfig.limited(pageConfig, 1000);
         userRelationQuery.queryConfig = QueryConfig.countRequired();
@@ -73,7 +65,7 @@ public class UserRelationQuery extends QueryCriteria {
 
     public static UserRelationQuery internalAdminQuery(RoleId adminRole) {
         UserRelationQuery userRelationQuery = new UserRelationQuery();
-        userRelationQuery.projectIds = Collections.singleton(new ProjectId(MT_AUTH_PROJECT_ID));
+        userRelationQuery.projectIds = Collections.singleton(new ProjectId(MAIN_PROJECT_ID));
         userRelationQuery.roleId = adminRole;
         userRelationQuery.pageConfig = PageConfig.defaultConfig();
         userRelationQuery.queryConfig = QueryConfig.countRequired();

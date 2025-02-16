@@ -26,19 +26,19 @@ public class CustomBeanFactory {
     private static final Integer STRENGTH = 12;
 
     @Bean
-    private KeyPair keyPair(@Autowired Environment env) {
+    private KeyPair keyPair(Environment env) {
         KeyStoreKeyFactory keyStoreKeyFactory =
             new KeyStoreKeyFactory(
                 new ClassPathResource(
-                    Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.key-store"))),
-                Objects.requireNonNull(env.getProperty("mt.feature.oauth.jwt.password"))
+                    Objects.requireNonNull(env.getProperty("mt.jwt.key-store"))),
+                Objects.requireNonNull(env.getProperty("mt.jwt.password"))
                     .toCharArray());
 
-        return keyStoreKeyFactory.getKeyPair(env.getProperty("mt.feature.oauth.jwt.alias"));
+        return keyStoreKeyFactory.getKeyPair(env.getProperty("mt.jwt.alias"));
     }
 
     @Bean
-    private JWKSet jwkSet(@Autowired KeyPair keyPair) {
+    private JWKSet jwkSet(KeyPair keyPair) {
         RSAKey.Builder builder = new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.RS256)

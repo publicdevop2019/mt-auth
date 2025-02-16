@@ -1,7 +1,6 @@
 package com.mt.common.domain;
 
 
-import com.mt.common.domain.model.constant.ApplicationInfoService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
@@ -33,8 +32,6 @@ public class CommonDomainRegistry {
     @Getter
     private static JobRepository jobRepository;
     @Getter
-    private static ApplicationInfoService applicationInfoService;
-    @Getter
     private static TransactionService transactionService;
     @Getter
     private static LogService logService;
@@ -54,11 +51,6 @@ public class CommonDomainRegistry {
     @Autowired
     public void setLogService(LogService logService) {
         CommonDomainRegistry.logService = logService;
-    }
-
-    @Autowired
-    public void setApplicationInfoService(ApplicationInfoService applicationInfoService) {
-        CommonDomainRegistry.applicationInfoService = applicationInfoService;
     }
 
     @Autowired

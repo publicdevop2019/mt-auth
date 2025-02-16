@@ -179,7 +179,7 @@ export interface IClient extends IIdName {
     projectId: string;
     description?: string;
     grantTypeEnums: grantTypeEnums[];
-    types: CLIENT_TYPE[];
+    type: CLIENT_TYPE;
     accessTokenValiditySeconds?: number;
     refreshTokenValiditySeconds?: number;
     resourceIds?: string[]
@@ -188,6 +188,12 @@ export interface IClient extends IIdName {
     resourceIndicator?: boolean;
     registeredRedirectUri?: string[];
     version: number;
+}
+
+export interface ITenantClientSummary {
+    id: string;
+    name: string;
+    type: CLIENT_TYPE;
 }
 
 export interface ITokenResponse {
@@ -235,6 +241,9 @@ export interface ICommonServerError {
 export interface IOption {
     label: string;
     value: string;
+}
+export interface IEndpointClient extends IOption {
+    path: string;
 }
 export interface IQueryProvider {
     readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => Observable<ISumRep<IIdName>>;

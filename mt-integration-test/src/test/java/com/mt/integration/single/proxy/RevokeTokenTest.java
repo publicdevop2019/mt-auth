@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.args.RevokeTokenArgs;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
@@ -13,10 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -63,7 +66,6 @@ public class RevokeTokenTest {
         //block client
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
-        stringStringHashMap.put("type", "CLIENT");
         String s = TestContext.mapper.writeValueAsString(stringStringHashMap);
 
         HttpHeaders headers = new HttpHeaders();
@@ -97,12 +99,11 @@ public class RevokeTokenTest {
     }
 
     @Test
-    public void only_root_user_can_add_blacklist_client() throws JsonProcessingException {
+    public void super_admin_can_blacklist_client() throws JsonProcessingException {
 
         String url = AppConstant.PROXY_URL + MGMT_REVOKE_TOKEN;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
-        stringStringHashMap.put("type", "CLIENT");
         String s = TestContext.mapper.writeValueAsString(stringStringHashMap);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(UserUtility.getJwtAdmin());
@@ -111,6 +112,22 @@ public class RevokeTokenTest {
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+    }
+
+    @Test
+    public void only_super_admin_can_blacklist_client() throws JsonProcessingException {
+
+        String url = AppConstant.PROXY_URL + MGMT_REVOKE_TOKEN;
+        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
+        String s = TestContext.mapper.writeValueAsString(stringStringHashMap);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(UserUtility.getJwtUser());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
     }
 
     @Test
@@ -142,7 +159,6 @@ public class RevokeTokenTest {
         String url = AppConstant.PROXY_URL + MGMT_REVOKE_TOKEN;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", userId);
-        stringStringHashMap.put("type", "USER");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtAdmin);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -174,15 +190,21 @@ public class RevokeTokenTest {
 
     }
 
-    @Disabled
-    @Test
-    public void validation_revoke_token_id() {
-        //TODO
-        //null
-        //blank
-        //empty
-        //min length
-        //max length
-        //invalid char
+    @ParameterizedTest
+    @ArgumentsSource(RevokeTokenArgs.class)
+    @NullSource
+    public void validation_revoke_token_id(String tokenId)
+        throws JsonProcessingException {
+        String url = AppConstant.PROXY_URL + MGMT_REVOKE_TOKEN;
+        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        stringStringHashMap.put("id", tokenId);
+        String s = TestContext.mapper.writeValueAsString(stringStringHashMap);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(UserUtility.getJwtAdmin());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 }

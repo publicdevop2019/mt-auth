@@ -7,7 +7,6 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -29,8 +28,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JdbcPermissionRepository implements PermissionRepository {
-
-
     private static final String INSERT_SQL = "INSERT INTO permission " +
         "(" +
         "id, " +
@@ -49,36 +46,21 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "type" +
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    private static final String INSERT_LINKED_PERMISSION_MAP_SQL =
-        "INSERT INTO linked_permission_ids_map " +
-            "(" +
-            "id, " +
-            "domain_id" +
-            ") VALUES " +
-            "(?,?)";
     private static final String FIND_BY_DOMAIN_ID_SQL =
-        "SELECT p.*, lpm.domain_id AS lp_id FROM permission AS p LEFT JOIN linked_permission_ids_map lpm ON p.id = lpm.id " +
-            "WHERE p.domain_id = ?";
+        "SELECT * FROM permission p WHERE p.domain_id = ?";
     private static final String FIND_DOMAIN_ID_BY_NAME_AND_TENANT_ID =
         "SELECT p.domain_id FROM permission p " +
             "WHERE p.tenant_id IN (%s) AND p.name IN (%s) ORDER BY p.id ASC LIMIT ? OFFSET ?";
     private static final String COUNT_BY_NAME_AND_TENANT_ID =
         "SELECT COUNT(*) AS count FROM permission p WHERE p.tenant_id IN (%s) AND p.name IN (%s)";
-    private static final String DELETE_LINKED_API_PERMISSION_BY_ID_SQL =
-        "DELETE FROM linked_permission_ids_map lpm WHERE lpm.id = ?";
-    private static final String DELETE_LINKED_API_PERMISSION_BY_DOMAIN_ID_SQL =
-        "DELETE FROM linked_permission_ids_map lpm WHERE lpm.domain_id = ?";
+
     private static final String DELETE_BY_ID_SQL = "DELETE FROM permission p WHERE p.id = ?";
     private static final String FIND_ALL_ENDPOINT_ID_USED =
         "SELECT DISTINCT p.name FROM permission p WHERE p.type='API'";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM permission p WHERE %s";
     private static final String DYNAMIC_DATA_QUERY_SQL =
-        "SELECT temp.*, lpm.domain_id AS lp_id FROM " +
-            "(SELECT * FROM permission p WHERE %s ORDER BY p.id ASC LIMIT ? OFFSET ?) " +
-            "AS temp " +
-            "LEFT JOIN linked_permission_ids_map lpm ON temp.id = lpm.id ";
-    ;
+        "SELECT * FROM permission p WHERE %s ORDER BY p.id ASC LIMIT ? OFFSET ?";
     private static final String FIND_ALL_PERMISSION_ID_USED =
         "SELECT DISTINCT p.domain_id FROM permission p";
     private static final String COUNT_PROJECT_CREATED_TOTAL =
@@ -108,21 +90,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                     permission.getTenantId().getDomainId(),
                 permission.getType().name()
             );
-        //for linked tables
-        List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
-        if (Checker.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
-            List<BatchInsertKeyValue> collect = permission.getLinkedApiPermissionIds().stream()
-                .map(ee -> new BatchInsertKeyValue(permission.getId(), ee.getDomainId())).collect(
-                    Collectors.toList());
-            linkedPermList.addAll(collect);
-            CommonDomainRegistry.getJdbcTemplate()
-                .batchUpdate(INSERT_LINKED_PERMISSION_MAP_SQL, linkedPermList,
-                    linkedPermList.size(),
-                    (ps, perm) -> {
-                        ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getValue());
-                    });
-        }
+
     }
 
     @Override
@@ -146,22 +114,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
                     ps.setString(13, permission.getTenantId() == null ? null :
                         permission.getTenantId().getDomainId());
                     ps.setString(14, permission.getType().name());
-                });
-        //for linked tables
-        List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
-        permissions.forEach(e -> {
-            if (Checker.notNullOrEmpty(e.getLinkedApiPermissionIds())) {
-                List<BatchInsertKeyValue> collect = e.getLinkedApiPermissionIds().stream()
-                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
-                        Collectors.toList());
-                linkedPermList.addAll(collect);
-            }
-        });
-        CommonDomainRegistry.getJdbcTemplate()
-            .batchUpdate(INSERT_LINKED_PERMISSION_MAP_SQL, linkedPermList, linkedPermList.size(),
-                (ps, permission) -> {
-                    ps.setLong(1, permission.getId());
-                    ps.setString(2, permission.getValue());
                 });
     }
 
@@ -284,14 +236,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
 
     @Override
     public void remove(Permission permission) {
-
-        if (Checker.notNullOrEmpty(permission.getLinkedApiPermissionIds())) {
-
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(DELETE_LINKED_API_PERMISSION_BY_ID_SQL,
-                    permission.getId()
-                );
-        }
         CommonDomainRegistry.getJdbcTemplate()
             .update(DELETE_BY_ID_SQL,
                 permission.getId()
@@ -379,13 +323,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
         return count;
     }
 
-    @Override
-    public void removeLinkedApiPermission(PermissionId permissionId) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_LINKED_API_PERMISSION_BY_DOMAIN_ID_SQL,
-                permissionId.getDomainId()
-            );
-    }
 
     private static class RowMapper implements ResultSetExtractor<List<Permission>> {
 
@@ -420,11 +357,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
                     );
                     permissions.add(permission);
                     currentId = dbId;
-                }
-                Set<PermissionId> linkedApiPermissionIds = permission.getLinkedApiPermissionIds();
-                String rawId = rs.getString("lp_id");
-                if (Checker.notNull(rawId)) {
-                    linkedApiPermissionIds.add(new PermissionId(rawId));
                 }
             } while (rs.next());
             return permissions;

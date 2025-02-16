@@ -10,12 +10,9 @@ import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
-import java.util.LinkedHashSet;
 import java.util.Objects;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -41,8 +38,6 @@ public class CacheProfile extends Auditable {
 
     private Boolean allowCache;
 
-    @Getter
-    private Set<CacheControlValue> cacheControl = new LinkedHashSet<>();
     /**
      * HTTP header contains the date/time after which the response is considered expired.
      * ignored if maxAge or smaxAge
@@ -79,7 +74,6 @@ public class CacheProfile extends Auditable {
      * @param name           profile name
      * @param description    profile description
      * @param cacheProfileId domain id
-     * @param cacheControl   value of cache control
      * @param expires        value of expires
      * @param maxAge         value of max age
      * @param smaxAge        value of server max age
@@ -93,7 +87,6 @@ public class CacheProfile extends Auditable {
         String name,
         String description,
         CacheProfileId cacheProfileId,
-        Set<String> cacheControl,
         Long expires,
         Long maxAge,
         Long smaxAge,
@@ -113,7 +106,6 @@ public class CacheProfile extends Auditable {
         setDescription(description);
         setAllowCache(allowCache);
         setCacheProfileId(cacheProfileId);
-        setCacheControl(CommonUtility.map(cacheControl, CacheControlValue::valueOfLabel));
         setExpires(expires);
         setMaxAge(maxAge);
         setSmaxAge(smaxAge);
@@ -222,7 +214,6 @@ public class CacheProfile extends Auditable {
      *
      * @param name           profile name
      * @param description    profile description
-     * @param cacheControl   value of cache control
      * @param expires        value of expires
      * @param maxAge         value of max age
      * @param smaxAge        value of server max age
@@ -235,7 +226,6 @@ public class CacheProfile extends Auditable {
     public CacheProfile update(
         String name,
         String description,
-        Set<CacheControlValue> cacheControl,
         Long expires,
         Long maxAge,
         Long smaxAge,
@@ -250,7 +240,6 @@ public class CacheProfile extends Auditable {
 
         updated.setName(name);
         updated.setDescription(description);
-        updated.setCacheControl(cacheControl);
         updated.setExpires(expires);
         updated.setMaxAge(maxAge);
         updated.setSmaxAge(smaxAge);
@@ -270,13 +259,6 @@ public class CacheProfile extends Auditable {
         return updated;
     }
 
-
-    private void setCacheControl(Set<CacheControlValue> cacheControl) {
-        Validator.validOptionalCollection(9, cacheControl);
-        CommonUtility.updateCollection(this.cacheControl, cacheControl,
-            () -> this.cacheControl = cacheControl);
-    }
-
     @Override
     public void validate(ValidationNotificationHandler handler) {
         (new CacheProfileValidator(this, handler)).validate();
@@ -289,7 +271,6 @@ public class CacheProfile extends Auditable {
     private boolean keyFieldsChanged(CacheProfile o) {
         return
             !Objects.equals(allowCache, o.allowCache) ||
-                !Objects.equals(cacheControl, o.cacheControl) ||
                 !Objects.equals(expires, o.expires) ||
                 !Objects.equals(maxAge, o.maxAge) ||
                 !Objects.equals(smaxAge, o.smaxAge) ||

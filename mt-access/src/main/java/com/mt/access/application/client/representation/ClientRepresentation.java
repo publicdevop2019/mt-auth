@@ -5,15 +5,13 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.RedirectUrl;
-import java.util.HashSet;
+import com.mt.common.infrastructure.Utility;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
-import org.springframework.util.ObjectUtils;
 
 @Data
 public class ClientRepresentation {
-    private final Set<ClientType> types;
+    private ClientType type;
     private String id;
 
     private String name;
@@ -41,21 +39,17 @@ public class ClientRepresentation {
 
     private Boolean hasSecret;
 
-    public ClientRepresentation(Client client) {
+    public ClientRepresentation(Client client, Set<ClientId> resources, Set<RedirectUrl> urls,
+                                Set<GrantType> grantTypes) {
         id = client.getClientId().getDomainId();
         name = client.getName();
         path = client.getPath();
         description = client.getDescription();
-        grantTypeEnums = new HashSet<>();//avoid lazy load
-        grantTypeEnums.addAll(client.getGrantTypes());
+        grantTypeEnums = grantTypes;
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        registeredRedirectUri = client.getRedirectUrls().stream()
-            .map(RedirectUrl::getValue).collect(Collectors.toSet());
+        registeredRedirectUri = Utility.mapToSet(urls, RedirectUrl::getValue);
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
-        if (!ObjectUtils.isEmpty(client.getResources())) {
-            resourceIds = client.getResources().stream().map(ClientId::getDomainId)
-                .collect(Collectors.toSet());
-        }
+        resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
         resourceIndicator = client.getAccessible();
         if (client.getExternalUrl() != null) {
             externalUrl = client.getExternalUrl().getValue();
@@ -63,8 +57,6 @@ public class ClientRepresentation {
         version = client.getVersion();
         clientSecret = client.getSecret();
         projectId = client.getProjectId().getDomainId();
-        types = new HashSet<>();//avoid lazy load
-        types.addAll(client.getTypes());
-
+        type = client.getType();
     }
 }

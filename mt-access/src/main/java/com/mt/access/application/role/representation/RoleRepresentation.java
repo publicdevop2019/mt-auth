@@ -16,6 +16,7 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -37,7 +38,8 @@ public class RoleRepresentation {
     private Boolean systemCreate;
     private Integer version;
 
-    public RoleRepresentation(Role role) {
+    public RoleRepresentation(Role role, Set<PermissionId> comPerm, Set<PermissionId> apiPerm,
+                              Set<PermissionId> extPerm) {
         this.id = role.getRoleId().getDomainId();
         this.name = role.getName();
         this.version = role.getVersion();
@@ -48,20 +50,9 @@ public class RoleRepresentation {
         this.originalName = role.getName();
         this.systemCreate = role.getSystemCreate();
         this.roleType = role.getType();
-        if (role.getApiPermissionIds() != null) {
-            this.apiPermissionIds = role.getApiPermissionIds().stream().map(DomainId::getDomainId)
-                .collect(Collectors.toSet());
-        }
-        if (role.getCommonPermissionIds() != null) {
-            this.commonPermissionIds =
-                role.getCommonPermissionIds().stream().map(DomainId::getDomainId)
-                    .collect(Collectors.toSet());
-        }
-        if (role.getExternalPermissionIds() != null) {
-            this.externalPermissionIds =
-                role.getExternalPermissionIds().stream().map(DomainId::getDomainId)
-                    .collect(Collectors.toSet());
-        }
+        this.apiPermissionIds = Utility.mapToSet(apiPerm, DomainId::getDomainId);
+        this.commonPermissionIds = Utility.mapToSet(comPerm, DomainId::getDomainId);
+        this.externalPermissionIds = Utility.mapToSet(extPerm, DomainId::getDomainId);
         if (this.roleType.equals(RoleType.CLIENT)) {
             Client client =
                 DomainRegistry.getClientRepository().get(new ClientId(role.getName()));
@@ -74,10 +65,10 @@ public class RoleRepresentation {
             this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();
-        if (Checker.notNullOrEmpty(role.getCommonPermissionIds())) {
+        if (Checker.notNullOrEmpty(comPerm)) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .query(e), PermissionQuery.internalQuery(role.getCommonPermissionIds()));
+                    .query(e), PermissionQuery.internalQuery(comPerm));
 
             Set<PermissionDetail> details =
                 permissions.stream()
@@ -86,11 +77,11 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Checker.notNullOrEmpty(role.getApiPermissionIds())) {
+        if (Checker.notNullOrEmpty(apiPerm)) {
             Set<Permission> permissions =
                 new HashSet<>(
                     QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                        .query(e), PermissionQuery.internalQuery(role.getApiPermissionIds())));
+                        .query(e), PermissionQuery.internalQuery(apiPerm)));
             Set<EndpointId> endpointIds =
                 permissions.stream()
                     .map(e -> new EndpointId(e.getName()))
@@ -106,10 +97,10 @@ public class RoleRepresentation {
                         Collectors.toSet());
             permissionDetails.addAll(details);
         }
-        if (Checker.notNullOrEmpty(role.getExternalPermissionIds())) {
+        if (Checker.notNullOrEmpty(extPerm)) {
             Set<Permission> permissions =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .query(e), PermissionQuery.internalQuery(role.getExternalPermissionIds()));
+                    .query(e), PermissionQuery.internalQuery(extPerm));
             Set<EndpointId> endpointIds =
                 permissions.stream()
                     .map(e -> new EndpointId(e.getName()))

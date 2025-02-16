@@ -24,13 +24,13 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Component
 public class ResourceServiceTokenHelper {
-    @Value("${security.oauth2.client.accessTokenUri:#{null}}")
+    @Value("${mt.jwt.url:#{null}}")
     private String tokenUrl;
 
-    @Value("${security.oauth2.client.clientId:#{null}}")
+    @Value("${mt.jwt.client-id:#{null}}")
     private String clientId;
 
-    @Value("${security.oauth2.client.clientSecret:#{null}}")
+    @Value("${mt.jwt.client-secret:#{null}}")
     private String clientSecret;
 
     @Autowired

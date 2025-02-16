@@ -1,0 +1,51 @@
+mt:
+  jwt:
+    password:
+    alias: svcAsyKey
+    key-store: keystore/svcAsyKey.jks
+    client-id: 0C8AZTODP4HT
+  redis:
+    url:
+    client-name: mt-auth
+  rabbitmq:
+    url:
+  email:
+    type: noop
+  sms:
+    type: noop
+  misc:
+    instance-id:
+    mgmt-email:
+    url:
+      proxy:
+
+server:
+  port: 8080
+  max-http-header-size: 1MB
+  tomcat:
+    mbeanregistry:
+      enabled: true
+spring:
+  jackson:
+    default-property-inclusion: non_null
+  datasource:
+    url:
+    username:
+    password:
+  freemarker:
+    template-loader-path: classpath:/email/templates
+    suffix: .ftl
+  servlet:
+    multipart:
+      max-file-size: 128MB
+      max-request-size: 128MB
+      enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true

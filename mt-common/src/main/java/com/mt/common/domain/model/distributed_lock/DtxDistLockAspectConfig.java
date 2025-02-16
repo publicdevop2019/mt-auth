@@ -23,10 +23,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 @Configuration
 @Aspect
 @Slf4j
-@ConditionalOnProperty(
-    value = "mt.distributed_lock",
-    havingValue = "true",
-    matchIfMissing = true)
 public class DtxDistLockAspectConfig {
 
     private final RedissonClient redissonClient;

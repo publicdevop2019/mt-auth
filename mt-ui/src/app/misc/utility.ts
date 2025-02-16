@@ -7,7 +7,7 @@ import { IOption } from './interface';
 
 
 export class Utility {
-    static mergeUnique(source: IOption[], list: IOption[]): IOption[] {
+    static mergeUnique<T extends IOption>(source: T[], list: T[]): T[] {
         source.push(...list);
         return source.filter((e, i) => source.findIndex(ee => ee.value === e.value) === i)
     }

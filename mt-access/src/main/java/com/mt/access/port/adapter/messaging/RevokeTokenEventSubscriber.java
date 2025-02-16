@@ -11,7 +11,6 @@ import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
 import com.mt.access.domain.model.user.event.UserAuthorityChanged;
-import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -37,13 +36,6 @@ public class RevokeTokenEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener3() {
         ListenerHelper.listen(new UserAuthorityChanged(),
-            (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handle(event));
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener4() {
-        ListenerHelper.listen(new UserDeleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handle(event));
     }
@@ -86,8 +78,7 @@ public class RevokeTokenEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener11() {
         ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
-            .listen(AppInfo.MT_ACCESS_APP_ID, true,
-                MqHelper.handlerOf(AppInfo.MT_ACCESS_APP_ID + "_token", CLIENT_DELETED),
+            .listen(MqHelper.handlerOf("revoke_token_" + CLIENT_DELETED),
                 ClientDeleted.class,
                 (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                     .handle(event), 1, CLIENT_DELETED);

@@ -13,6 +13,7 @@ import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientAutoApproveRepresentation;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
+import com.mt.access.application.client.representation.ClientMgmtCardRepresentation;
 import com.mt.access.application.client.representation.ClientProxyRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -95,7 +96,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUserJwt(jwt);
-        SumPagedRep<ClientCardRepresentation> rep =
+        SumPagedRep<ClientMgmtCardRepresentation> rep =
             ApplicationServiceRegistry.getClientApplicationService()
                 .mgmtQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(rep);

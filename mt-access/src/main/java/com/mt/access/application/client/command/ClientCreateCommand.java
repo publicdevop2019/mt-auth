@@ -16,7 +16,7 @@ public class ClientCreateCommand {
     private String path;
     private String externalUrl;
     private Set<GrantType> grantTypeEnums;
-    private Set<ClientType> types;
+    private ClientType type;
     private Integer accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private Integer refreshTokenValiditySeconds;

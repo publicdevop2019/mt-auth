@@ -13,6 +13,7 @@ import com.mt.proxy.infrastructure.AppConstant;
 import com.mt.proxy.infrastructure.LogService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -52,9 +53,10 @@ public class CustomFilter implements WebFilter, Ordered {
     private static final String EMPTY_CACHE_RESPONSE = "{\"msg\": \"proxy cache empty\"}";
     private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
         "{\"msg\": \"endpoint not found\"}";
-    private static final String PROXY_INTERNAL_ENDPOINT = "/info/checkSum";
+    private static final String[] WHITE_LIST_URLS =
+        {"/info/checkSum", "/actuator/health", "/actuator/prometheus"};
     public static final String REFRESH_TOKEN = "refresh_token";
-    @Value("${mt.common.domain-name}")
+    @Value("${mt.misc.domain}")
     String domain;
 
     private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
@@ -127,9 +129,9 @@ public class CustomFilter implements WebFilter, Ordered {
         String path = request.getPath().value();
         String method = request.getMethodValue();
         CustomFilterContext context = new CustomFilterContext(exchange);
-        if (proxyInternalCheckSum(exchange)) {
+        if (internalWhitelistUrl(exchange)) {
             LogService.reactiveLog(exchange.getRequest(),
-                () -> log.debug("skip check for proxy internal check sum"));
+                () -> log.debug("skip check for whitelisted url"));
             return chain.filter(exchange);
         }
         if (DomainRegistry.getEndpointService().cacheEmpty()) {
@@ -210,8 +212,9 @@ public class CustomFilter implements WebFilter, Ordered {
         });
     }
 
-    private boolean proxyInternalCheckSum(ServerWebExchange exchange) {
-        return PROXY_INTERNAL_ENDPOINT.equals(exchange.getRequest().getPath().value());
+    private boolean internalWhitelistUrl(ServerWebExchange exchange) {
+        return Arrays.stream(WHITE_LIST_URLS)
+            .anyMatch(e -> e.equals(exchange.getRequest().getPath().value()));
     }
 
     private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {

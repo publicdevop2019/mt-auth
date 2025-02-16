@@ -27,8 +27,6 @@ public interface ClientRepository {
 
     void remove(Client client);
 
-    void remove(Collection<Client> clients);
-
     SumPagedRep<Client> query(ClientQuery clientQuery);
 
     Set<ProjectId> getProjectIds();
@@ -39,19 +37,5 @@ public interface ClientRepository {
 
     long countProjectTotal(ProjectId projectId);
 
-    Set<ClientId> getResources(Long id);
-
-    Set<ClientId> getExternalResources(Long id);
-
-    void updateExternalResources(Long id, Set<ClientId> old, Set<ClientId> updated);
-
-    Set<GrantType> getGrantType(Long id);
-
-    Set<ClientType> getType(Long id);
-
-    Set<RedirectUrl> getRedirectUrls(Long id);
-
     void update(Client old, Client update);
-
-    void removeRef(ClientId removedClientId);
 }

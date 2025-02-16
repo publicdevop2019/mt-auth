@@ -26,12 +26,12 @@
                     {{row.name}}
                 </td>
             </ng-container>
-            <ng-container matColumnDef="types">
-                <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['types']|translate}} </th>
+            <ng-container matColumnDef="type">
+                <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['type']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <mat-chip-list aria-label="chip list selection">
                         <mat-chip>
-                            {{row.types[0]|translate}}
+                            {{row.type|translate}}
                         </mat-chip>
                     </mat-chip-list>
                 </td>

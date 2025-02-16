@@ -34,7 +34,6 @@ public class WebSocketNotificationService implements WsPushNotificationService {
         log.trace("triggered scheduled task 4");
         CommonDomainRegistry.getJobService()
             .execute(KEEP_WS_CONNECTION_JOB_NAME, (ignored) -> {
-                CommonDomainRegistry.getLogService().initTrace();
                 log.trace("start of renewing all ws connects");
                 mgmtWsHandler.broadcastToAll("_renew");
                 userWsHandler.broadcastToAll("_renew");

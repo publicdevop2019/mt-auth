@@ -85,7 +85,7 @@ export class HttpProxyService {
         const exp: number = +(JSON.parse(decoded) as any).exp
         return exp - Math.ceil(new Date().getTime() / 1000);
     }
-    checkPorjectReady(projectId: string) {
+    checkProjectReady(projectId: string) {
         return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
     }
     getJobStatus() {
@@ -185,6 +185,15 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {
             this._httpClient.post<any>(environment.serverUri + '/auth-svc/mgmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
+                e.next(true)
+            });
+        });
+    }
+    lockUser(id: string, locked: boolean): Observable<boolean> {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', Utility.getChangeId())
+        return new Observable<boolean>(e => {
+            this._httpClient.put<any>(environment.serverUri + '/auth-svc/mgmt/users/' + id, { "locked": locked }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

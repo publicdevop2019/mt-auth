@@ -1,7 +1,7 @@
 # Docker
 在Docker上运行MT-AUTH
 ## 准备工作
-请确保您本地已Docker已安装并且可运行
+请确保您本地Docker已安装并且可运行
 ## 启动 MT-AUTH
 在terminal输入Docker命令来启动MT-AUTH
 ```shell

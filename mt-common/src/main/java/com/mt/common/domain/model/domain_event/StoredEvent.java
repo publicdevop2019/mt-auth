@@ -22,12 +22,10 @@ public class StoredEvent implements Serializable {
     private Long id;
     private Long timestamp;
     private String name;
-    private Boolean internal;
     private Boolean send = false;
     private String topic;
     private String domainId;
 
-    private String applicationId;
     private String traceId;
     private Boolean routable = true;
     private Boolean rejected = false;
@@ -37,9 +35,7 @@ public class StoredEvent implements Serializable {
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
         this.timestamp = event.getTimestamp();
         this.name = event.getName();
-        this.internal = event.getInternal();
         this.topic = event.getTopic();
-        this.applicationId = CommonDomainRegistry.getApplicationInfoService().getApplicationId();
         if (event.getDomainId() != null) {
             this.domainId = event.getDomainId().getDomainId();
         }
@@ -63,22 +59,19 @@ public class StoredEvent implements Serializable {
     }
 
     public static StoredEvent fromDatabaseRow(Long id, String domainId, String eventBody,
-                                              Boolean internal, String name, Long timestamp,
+                                              String name, Long timestamp,
                                               String topic, Boolean send, Boolean routable,
-                                              Boolean rejected, String applicationId,
-                                              String traceId) {
+                                              Boolean rejected, String traceId) {
         StoredEvent storedEvent = new StoredEvent();
         storedEvent.setId(id);
         storedEvent.setDomainId(domainId);
         storedEvent.setEventBody(eventBody);
-        storedEvent.setInternal(internal);
         storedEvent.setName(name);
         storedEvent.setTimestamp(timestamp);
         storedEvent.setTopic(topic);
         storedEvent.setSend(send);
         storedEvent.setRoutable(routable);
         storedEvent.setRejected(rejected);
-        storedEvent.setApplicationId(applicationId);
         storedEvent.setTraceId(traceId);
         return storedEvent;
     }

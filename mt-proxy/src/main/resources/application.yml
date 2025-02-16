@@ -1,47 +1,28 @@
 mt:
-  common:
-    domain-name:
+  rabbitmq:
+    url:
+  redis:
+    url:
+    client-name: mt-proxy
+  misc:
+    domain:
     instance-id:
     url:
-      message-queue:
       access:
 server:
   port: 8111
 spring:
-  application:
-    name: 0C8AZYTQ5W5C
-  zipkin:
-    baseUrl: http://localhost:9411/
-  sleuth:
-    sampler:
-      probability: 1.0
   cloud:
     gateway:
       httpclient:
         connect-timeout: 10000
         response-timeout: 15s
-  loadbalancer:
-    ribbon:
-      enabled: false
-  redis:
-    port:
-    database: 0
-    host:
-    password:
-    lettuce:
-      shutdown-timeout: 500ms
-      pool:
-        max-active: 10
-        max-idle: 5
-        min-idle: 1
-        max-wait: 0
-    timeout: 1s
-ribbon:
-  ReadTimeout: 15000
-hystrix:
-  command:
-    default:
-      execution:
-        isolation:
-          thread:
-            timeoutInMilliseconds: 35000
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true

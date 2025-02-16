@@ -21,7 +21,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Service
 @Slf4j
 @ConditionalOnProperty(
-    value = "mt.feature.email.type",
+    value = "mt.email.type",
     havingValue = "gmail")
 public class GmailNotificationService implements EmailNotificationService {
     @Autowired

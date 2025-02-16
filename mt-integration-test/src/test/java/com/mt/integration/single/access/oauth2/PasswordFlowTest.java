@@ -72,12 +72,12 @@ public class PasswordFlowTest {
     }
 
     @Test
-    public void should_get_token_when_user_credentials_are_valid_and_client_is_valid_but_grant_type_is_wrong() {
+    public void should_not_get_token_when_user_credentials_are_valid_and_client_is_valid_but_grant_type_is_wrong() {
         ResponseEntity<?> tokenResponse =
             OAuth2Utility.getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        Assertions.assertEquals(HttpStatus.OK,tokenResponse.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST,tokenResponse.getStatusCode());
     }
 
 

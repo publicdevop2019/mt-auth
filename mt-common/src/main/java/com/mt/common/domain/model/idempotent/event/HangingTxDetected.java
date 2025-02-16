@@ -15,7 +15,6 @@ public class HangingTxDetected extends DomainEvent {
     {
         setTopic(HANGING_TX_DETECTED);
         setName(name);
-        setInternal(false);
     }
 
     public HangingTxDetected(String changeId) {

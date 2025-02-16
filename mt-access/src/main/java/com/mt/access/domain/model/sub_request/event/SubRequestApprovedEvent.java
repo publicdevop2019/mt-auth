@@ -16,7 +16,6 @@ public class SubRequestApprovedEvent extends DomainEvent {
     {
         setTopic(SUB_REQ_APPROVED);
         setName(name);
-        setInternal(false);
     }
 
     public SubRequestApprovedEvent(SubRequestId endpointId) {

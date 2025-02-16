@@ -75,19 +75,19 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_gzip_for_get_resources_more_then_1kb() {
-        String url2 = HttpUtility.getAccessUrl(AppConstant.CLIENTS);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        headers1.set("changeId", UUID.randomUUID().toString());
-        headers1.set("X-XSRF-TOKEN", "123");
-        headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
-        HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
+        String url = HttpUtility.getAccessUrl(AppConstant.MGMT_CLIENTS);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(UserUtility.getJwtAdmin());
+        headers.set("changeId", UUID.randomUUID().toString());
+        headers.set("X-XSRF-TOKEN", "123");
+        headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
+        HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers);
         //use regular RestTemplate so headers can be retrieved
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> exchange2;
         try {
             exchange2 =
-                restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+                restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
         } catch (Exception ex) {
             log.error("error during call", ex);
             throw ex;

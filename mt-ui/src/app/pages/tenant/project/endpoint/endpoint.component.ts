@@ -4,13 +4,14 @@ import { take } from 'rxjs/operators';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate, IOption } from 'src/app/misc/interface';
+import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointClient, IEndpointCreate, IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { DeviceService } from 'src/app/services/device.service';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -18,7 +19,7 @@ import { DeviceService } from 'src/app/services/device.service';
 })
 export class EndpointComponent {
   private projectId = this.router.getProjectIdFromUrl()
-  private clientUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
+  private clientUrl = Utility.getUrl([Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS), "dropdown"])
   private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   changeId: string = Utility.getChangeId();
   allowError: boolean = false;
@@ -34,7 +35,7 @@ export class EndpointComponent {
 
   performanceWarnning: boolean = false;
   data: IEndpoint;
-  options: IOption[] = []
+  options: IEndpointClient[] = []
   corsOptions: IOption[] = []
   cacheOptions: IOption[] = []
   fg = new FormGroup({
@@ -85,7 +86,7 @@ export class EndpointComponent {
         this.router.navProjectHome()
       }
       const createData = this.router.getData() as IEndpointCreate
-      Logger.debug('create data {}', createData)
+      Logger.trace('create data {}', createData)
       this.fg.get('projectId').setValue(router.getProjectIdFromUrl())
       this.fg.get('name').setValue(createData.name)
       this.fg.get('type').setValue(createData.type)
@@ -110,9 +111,9 @@ export class EndpointComponent {
       })
     }
     this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
-      this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
+      this.resourceIdPageNum, this.resourceIdPageSize, `resourceIndicator:1`)
       .subscribe(next => {
-        this.options = Utility.mergeUnique(this.options, next.data.map(e => <IOption>{ label: e.name, value: e.id }));
+        this.options = Utility.mergeUnique(this.options, next.data.map(e => <IEndpointClient>{ label: e.name, value: e.id, path: e.path }));
       })
     this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsUrl,
       this.corsPageNum, this.corsPageSize)
@@ -348,6 +349,10 @@ export class EndpointComponent {
     } else {
       return 'visibility_off'
     }
+  }
+  finaleUrl() {
+    const path = this.options.find(e => e.value === this.fg.get('resourceId').value)?.path
+    return Utility.getUrl([environment.serverUri, path, this.fg.get('path').value])
   }
 }
 

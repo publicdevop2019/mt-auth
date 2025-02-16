@@ -90,7 +90,7 @@ public class TokenService {
         //for user & client
         ProjectId projectId = null;
         ProjectId viewTenantId = null;
-        Set<PermissionId> permissionIds = Collections.emptySet();
+        Set<PermissionId> totalPerm = new HashSet<>();
         Set<ProjectId> tenantIds = Collections.emptySet();
         if (isClient) {
             log.debug("grant client token");
@@ -99,7 +99,14 @@ public class TokenService {
             Role byId =
                 DomainRegistry.getRoleRepository().query(roleId);
             projectId = clientDetails.getProjectId();
-            permissionIds = byId.getTotalPermissionIds();
+            Set<PermissionId> comPerm =
+                DomainRegistry.getCommonPermissionIdRepository().query(byId);
+            Set<PermissionId> apiPerm = DomainRegistry.getApiPermissionIdRepository().query(byId);
+            Set<PermissionId> extPerm =
+                DomainRegistry.getExternalPermissionIdRepository().query(byId);
+            totalPerm.addAll(comPerm);
+            totalPerm.addAll(apiPerm);
+            totalPerm.addAll(extPerm);
             log.debug("creating client token");
             return createJwtToken(
                 projectId,
@@ -110,7 +117,7 @@ public class TokenService {
                 clientId,
                 null,
                 hasRefresh,
-                permissionIds,
+                totalPerm,
                 Collections.emptySet(),
                 null
             );
@@ -124,30 +131,30 @@ public class TokenService {
                 Optional<String> first = scope.stream().findFirst();
                 projectId = new ProjectId(first.get());
                 UserRelation userRelation = createUserRelationIfNotExist(userId, projectId);
-                permissionIds =
+                totalPerm =
                     DomainRegistry.getComputePermissionService().compute(userRelation, null);
                 projectId = userRelation.getProjectId();
             } else {
                 log.debug("get user relation for root project");
                 Optional<UserRelation> optional =
                     DomainRegistry.getUserRelationRepository()
-                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                        .query(userId, new ProjectId(AppConstant.MAIN_PROJECT_ID));
                 if (optional.isPresent()) {
                     UserRelation userRelation = optional.get();
+                    Set<ProjectId> tenantIdSet =
+                        DomainRegistry.getUserRelationTenantIdRepository().query(userRelation);
                     log.debug("auth user relation for token is {}", userRelation);
-                    if (!userRelation.getTenantIds().isEmpty()) {
+                    if (!tenantIdSet.isEmpty()) {
                         //for user with no projects
                         viewTenantId = DomainRegistry.getProjectService()
-                            .getDefaultProject(userRelation.getTenantIds());
+                            .getDefaultProject(tenantIdSet);
                     }
                     //get default project instead of all projects' permission to reduce header size
-                    permissionIds =
+                    totalPerm =
                         DomainRegistry.getComputePermissionService()
                             .compute(userRelation, viewTenantId);
                     projectId = userRelation.getProjectId();
-                    if (userRelation.getTenantIds() != null) {
-                        tenantIds = userRelation.getTenantIds();
-                    }
+                    tenantIds = tenantIdSet;
                 }
             }
             log.debug("creating token");
@@ -160,7 +167,7 @@ public class TokenService {
                 clientId,
                 userId,
                 hasRefresh,
-                permissionIds,
+                totalPerm,
                 tenantIds,
                 viewTenantId
             );
@@ -234,7 +241,7 @@ public class TokenService {
                 log.debug("retrieve permissions for new view tenant id");
                 Optional<UserRelation> optional =
                     DomainRegistry.getUserRelationRepository()
-                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                        .query(userId, new ProjectId(AppConstant.MAIN_PROJECT_ID));
                 if (optional.isPresent()) {
                     UserRelation userRelation = optional.get();
                     //get default project instead of all projects' permission to reduce header size
@@ -381,8 +388,8 @@ public class TokenService {
         try {
             signedJWT.sign(new RSASSASigner(keyPair.getPrivate()));
         } catch (JOSEException e) {
-            //TODO add custom error code
-            log.error("error during generating token", e);
+            throw new DefinedRuntimeException("unable to create jwt token", "1095",
+                HttpResponseCode.INTERNAL_SERVER_ERROR, e);
         }
         return signedJWT.serialize();
     }

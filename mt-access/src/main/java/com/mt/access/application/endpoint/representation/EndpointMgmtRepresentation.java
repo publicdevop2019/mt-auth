@@ -2,22 +2,19 @@ package com.mt.access.application.endpoint.representation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
-import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import java.util.Collections;
-import java.util.LinkedHashSet;
+import com.mt.common.infrastructure.Utility;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -63,18 +60,21 @@ public class EndpointMgmtRepresentation {
             DomainRegistry.getClientRepository().query(new ClientQuery(clientId))
                 .findFirst();
         if (cacheProfileId != null) {
-            Optional<CacheProfile> cacheFetched =
+            CacheProfile cacheFetched =
                 DomainRegistry.getCacheProfileRepository()
-                    .query(CacheProfileQuery.internalQuery(cacheProfileId))
-                    .findFirst();
-            this.cacheConfig = new CacheConfig(cacheFetched.get());
+                    .get(cacheProfileId);
+            Set<CacheControlValue> query =
+                DomainRegistry.getCacheControlRepository().query(cacheFetched);
+            this.cacheConfig = new CacheConfig(cacheFetched, query);
         }
         if (corsProfileId != null) {
-            Optional<CorsProfile> corsFetched =
-                DomainRegistry.getCorsProfileRepository().query(CorsProfileQuery.internalQuery(
-                        Collections.singleton(corsProfileId)))
-                    .findFirst();
-            this.corsConfig = new CorsConfig(corsFetched.get());
+            CorsProfile corsProfile = DomainRegistry.getCorsProfileRepository().get(corsProfileId);
+            Set<String> allowed =
+                DomainRegistry.getCorsAllowedHeaderRepository().query(corsProfile);
+            Set<String> exposed =
+                DomainRegistry.getCorsExposedHeaderRepository().query(corsProfile);
+            Set<Origin> origins = DomainRegistry.getCorsOriginRepository().query(corsProfile);
+            this.corsConfig = new CorsConfig(corsProfile, origins, allowed, exposed);
         }
         this.resourceName = clientFetched.get().getName();
         this.path = "/" + clientFetched.get().getPath() + "/" + this.path;
@@ -88,15 +88,12 @@ public class EndpointMgmtRepresentation {
         private Set<String> exposedHeaders;
         private Long maxAge;
 
-        public CorsConfig(CorsProfile e) {
-            this.origin =
-                e.getAllowOrigin().stream().map(Origin::getValue).sorted().collect(
-                    Collectors.toCollection(LinkedHashSet::new));
+        public CorsConfig(CorsProfile e, Set<Origin> origins, Set<String> allowed,
+                          Set<String> exposed) {
+            this.origin = Utility.mapToSet(origins, Origin::getValue);
             this.credentials = e.getAllowCredentials();
-            this.allowedHeaders = e.getAllowedHeaders().stream().sorted().collect(
-                Collectors.toCollection(LinkedHashSet::new));
-            this.exposedHeaders = e.getExposedHeaders().stream().sorted().collect(
-                Collectors.toCollection(LinkedHashSet::new));
+            this.allowedHeaders = allowed;
+            this.exposedHeaders = exposed;
             this.maxAge = e.getMaxAge();
         }
     }
@@ -118,10 +115,9 @@ public class EndpointMgmtRepresentation {
 
         private Boolean weakValidation;
 
-        public CacheConfig(CacheProfile cacheProfile) {
+        public CacheConfig(CacheProfile cacheProfile, Set<CacheControlValue> values) {
             allowCache = cacheProfile.getAllowCache();
-            cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
-                .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+            cacheControl = Utility.mapToSet(values, e -> e.label);
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();

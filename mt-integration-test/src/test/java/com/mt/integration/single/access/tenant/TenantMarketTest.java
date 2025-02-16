@@ -269,6 +269,7 @@ public class TenantMarketTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(HttpUtility.getId(tenantEndpoint));
+        String name = endpoint.getName();
         //send sub req tenantB
         SubscriptionReq subReq =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
@@ -286,7 +287,9 @@ public class TenantMarketTest {
         //update it's api
         ResponseEntity<SumTotal<Permission>> shared =
             PermissionUtility.readTenantPermissionShared(tenantContextB);
-        String permissionId = shared.getBody().getData().get(0).getId();
+        String permissionId = shared.getBody()
+            .getData().stream().filter(e -> e.getName().equalsIgnoreCase(name)).findFirst().get()
+            .getId();
         role.setExternalPermissionIds(Collections.singleton(permissionId));
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =

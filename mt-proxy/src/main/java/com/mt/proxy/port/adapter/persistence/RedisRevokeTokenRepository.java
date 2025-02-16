@@ -6,8 +6,9 @@ import com.mt.proxy.domain.RevokeTokenRepository;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RBucket;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
 @Slf4j
@@ -15,12 +16,13 @@ import org.springframework.stereotype.Repository;
 public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     private static final String REVOKE_TOKEN_PREFIX = "RT:";
     @Autowired
-    private StringRedisTemplate redisTemplate;
+    private RedissonClient redissonClient;
     @Autowired
     private ObjectMapper mapper;
 
     public Optional<RevokeToken> revokeToken(String id) {
-        String cache = redisTemplate.opsForValue().get(REVOKE_TOKEN_PREFIX + id);
+        RBucket<Object> bucket = redissonClient.getBucket(REVOKE_TOKEN_PREFIX + id);
+        String cache = (String) bucket.get();
         if (cache != null) {
             try {
                 return Optional.of(mapper.readValue(cache, RevokeToken.class));

@@ -6,7 +6,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
 
 @NoArgsConstructor
 public class AuditRecord {
@@ -17,7 +16,6 @@ public class AuditRecord {
     private String actionName;
     @Getter
     private String detail;
-    @CreatedDate
     @Getter
     private Long actionAt;
     @Getter

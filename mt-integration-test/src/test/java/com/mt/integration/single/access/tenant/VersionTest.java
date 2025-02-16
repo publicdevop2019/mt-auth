@@ -188,43 +188,6 @@ public class VersionTest {
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));
-        //update it's permission
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(HttpUtility.getId(response1));
-        role.setCommonPermissionIds(Collections.singleton(permission.getId()));
-        role.setType(UpdateType.COMMON_PERMISSION.name());
-        ResponseEntity<Void> response2 =
-            RoleUtility.updateTenantRole(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        //do same update
-        ResponseEntity<Void> response3 =
-            RoleUtility.updateTenantRole(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //read again
-        ResponseEntity<Role> roleResponseEntity =
-            RoleUtility.readTenantRoleById(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, roleResponseEntity.getStatusCode());
-        Assertions.assertEquals(1, roleResponseEntity.getBody().getVersion().intValue());
-        //update it's api
-        ResponseEntity<SumTotal<ProtectedEndpoint>> sumTotalResponseEntity2 =
-            EndpointUtility.readTenantProtectedEndpoint(tenantContext);
-        String permissionId2 = sumTotalResponseEntity2.getBody().getData().get(0).getPermissionId();
-        role.setApiPermissionIds(Collections.singleton(permissionId2));
-        role.setType(UpdateType.API_PERMISSION.name());
-        ResponseEntity<Void> response4 =
-            RoleUtility.updateTenantRole(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
-        //do same update
-        ResponseEntity<Void> response5 =
-            RoleUtility.updateTenantRole(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, response5.getStatusCode());
-        //read again
-        ResponseEntity<Role> roleResponseEntity2 =
-            RoleUtility.readTenantRoleById(tenantContext, role);
-        Assertions.assertEquals(HttpStatus.OK, roleResponseEntity2.getStatusCode());
-        Assertions.assertEquals(2, roleResponseEntity2.getBody().getVersion().intValue());
         //update basic info
         role.setName(RandomUtility.randomStringWithNum());
         role.setType(UpdateType.BASIC.name());
@@ -238,7 +201,7 @@ public class VersionTest {
         ResponseEntity<Role> response8 =
             RoleUtility.readTenantRoleById(tenantContext, role);
         Assertions.assertEquals(HttpStatus.OK, response8.getStatusCode());
-        Assertions.assertEquals(3, response8.getBody().getVersion().intValue());
+        Assertions.assertEquals(1, response8.getBody().getVersion().intValue());
     }
 
 

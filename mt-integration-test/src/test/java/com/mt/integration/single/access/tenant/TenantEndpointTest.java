@@ -131,7 +131,7 @@ public class TenantEndpointTest {
         shared.setSecured(false);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, shared);
-        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tenantEndpoint2.getStatusCode());
     }
 
 
