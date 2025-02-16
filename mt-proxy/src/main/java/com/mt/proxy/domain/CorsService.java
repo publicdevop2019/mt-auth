@@ -90,7 +90,7 @@ public class CorsService implements CorsConfigurationSource {
                     exchange.getRequest().getMethodValue()));
             LogService.reactiveLog(exchange.getRequest(),
                 () -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
-        }else {
+        } else {
             LogService.reactiveLog(exchange.getRequest(),
                 () -> log.debug("no cors found"));
         }
