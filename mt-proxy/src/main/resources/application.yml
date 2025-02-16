@@ -13,9 +13,19 @@ server:
   port: 8111
 spring:
   application:
-    name: 0C8AZYTQ5W5C
+    name: mt-proxy
   cloud:
     gateway:
       httpclient:
         connect-timeout: 10000
         response-timeout: 15s
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
