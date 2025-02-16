@@ -52,10 +52,6 @@ management:
     health:
       show-details: always
   metrics:
-    web:
-      server:
-        tomcat:
-          enabled: true
     enable:
       all: true
     export:
