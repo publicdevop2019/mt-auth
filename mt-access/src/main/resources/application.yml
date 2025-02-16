@@ -22,10 +22,12 @@ mt:
 server:
   port: 8080
   max-http-header-size: 1MB
-
+  tomcat:
+    mbeanregistry:
+      enabled: true
 spring:
   application:
-    name: 0C8AZTODP4HT
+    name: mt-access
   jackson:
     default-property-inclusion: non_null
   datasource:
@@ -40,3 +42,24 @@ spring:
       max-file-size: 128MB
       max-request-size: 128MB
       enabled: true
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, prometheus
+        exclude: shutdown
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    web:
+      server:
+        tomcat:
+          enabled: true
+    enable:
+      all: true
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
