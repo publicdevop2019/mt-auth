@@ -12,8 +12,6 @@ mt:
 server:
   port: 8111
 spring:
-  application:
-    name: mt-proxy
   cloud:
     gateway:
       httpclient:
@@ -24,8 +22,7 @@ management:
     web:
       exposure:
         include: health, prometheus
+  metrics:
     export:
       prometheus:
         enabled: true
-    tags:
-      application: ${spring.application.name}
