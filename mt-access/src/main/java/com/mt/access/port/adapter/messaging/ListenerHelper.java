@@ -1,7 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;

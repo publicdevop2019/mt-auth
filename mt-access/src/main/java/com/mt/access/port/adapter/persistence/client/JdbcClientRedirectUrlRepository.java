@@ -54,7 +54,7 @@ public class JdbcClientRedirectUrlRepository implements ClientRedirectUrlReposit
         String inClause = DatabaseUtility.getInClause(redirectUrls.size());
         List<Object> args = new ArrayList<>();
         args.add(client.getId());
-        args.addAll(Utility.mapToSet(redirectUrls,RedirectUrl::getValue));
+        args.addAll(Utility.mapToSet(redirectUrls, RedirectUrl::getValue));
         CommonDomainRegistry.getJdbcTemplate()
             .update(
                 String.format(BATCH_DELETE_REDIRECT_URL_BY_ID_AND_URL_SQL,

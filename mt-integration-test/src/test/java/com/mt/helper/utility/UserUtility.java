@@ -262,7 +262,9 @@ public class UserUtility {
      * @param client  sso client
      * @return user logged in
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> userLoginToTenant(Project project, Client client, User user) {
+    public static ResponseEntity<DefaultOAuth2AccessToken> userLoginToTenant(Project project,
+                                                                             Client client,
+                                                                             User user) {
         String user1Token = emailPwdLogin(user);
         return ssoLogin(project, client, user, user1Token);
     }
@@ -316,8 +318,9 @@ public class UserUtility {
         return tenantUser;
     }
 
-    private static ResponseEntity<DefaultOAuth2AccessToken> ssoLogin(Project project, Client client, User tenantUser,
-                                    String user1Token) {
+    private static ResponseEntity<DefaultOAuth2AccessToken> ssoLogin(Project project, Client client,
+                                                                     User tenantUser,
+                                                                     String user1Token) {
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(project.getId(), client.getId(), user1Token,
                 AppConstant.TEST_REDIRECT_URL);

@@ -1,7 +1,8 @@
 package com.mt.helper;
 
 public class AppConstant {
-    public static final String TEST_CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID = "0C8YKJ5EW16Q";
+    public static final String TEST_CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID =
+        "0C8YKJ5EW16Q";
     public static final String TEST_PROJECT_ID = "0P8YKJ2XAXAB";
     public static final String MAIN_PROJECT_ID = "0P8HE307W6IO";
     public static final String CLIENT_ID_LOGIN_ID = "0C8AZZ16LZB4";
@@ -50,9 +51,9 @@ public class AppConstant {
     public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
     public static final String MFA_CODE = "654321";
     public static String PROXY_URL = "http://localhost:" + 8111;
+    public static final String CLIENT_MGMT_URL = PROXY_URL + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_SOCKET_URL = "ws://localhost:" + 8111;
     public static String ACCESS_URL = "http://localhost:" + 8080;
-    public static final String CLIENT_MGMT_URL = PROXY_URL + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";
     public static String MT_ACCESS_CORS_ID = "0O8G2WE71L35";
     public static String MT_ACCESS_CACHE_ID = "0X8G900BJFGG";

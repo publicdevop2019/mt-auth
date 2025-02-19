@@ -219,7 +219,7 @@ public class OAuth2Utility {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AppConstant.CSRF_DISABLE_HEADER,"true");
+        headers.add(AppConstant.CSRF_DISABLE_HEADER, "true");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
             .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
@@ -243,7 +243,7 @@ public class OAuth2Utility {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AppConstant.CSRF_DISABLE_HEADER,"true");
+        headers.add(AppConstant.CSRF_DISABLE_HEADER, "true");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
             .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
@@ -361,7 +361,7 @@ public class OAuth2Utility {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AppConstant.CSRF_DISABLE_HEADER,"true");
+        headers.add(AppConstant.CSRF_DISABLE_HEADER, "true");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
@@ -422,7 +422,7 @@ public class OAuth2Utility {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AppConstant.CSRF_DISABLE_HEADER,"true");
+        headers.add(AppConstant.CSRF_DISABLE_HEADER, "true");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
             .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
@@ -494,7 +494,7 @@ public class OAuth2Utility {
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AppConstant.CSRF_DISABLE_HEADER,"true");
+        headers.add(AppConstant.CSRF_DISABLE_HEADER, "true");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
             .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,

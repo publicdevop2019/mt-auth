@@ -38,6 +38,17 @@ public class UserProfileTest {
         TestHelper.beforeAll(log);
     }
 
+    private static ResponseEntity<User> getMyProfile(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<User> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, User.class);
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        return exchange;
+    }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
@@ -148,7 +159,6 @@ public class UserProfileTest {
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
-
     @Test
     public void user_can_update_prefer_language() {
         User user = UserUtility.createEmailPwdUser();
@@ -210,17 +220,6 @@ public class UserProfileTest {
         String token = UserUtility.usernamePwdLogin(user).getBody().getValue();
         ResponseEntity<User> exchange = getMyProfile(token);
         Assertions.assertNotNull(exchange.getBody().getUsername());
-    }
-
-    private static ResponseEntity<User> getMyProfile(String token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        String url = HttpUtility.getAccessUrl("/users" + "/profile");
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<User> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, User.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        return exchange;
     }
 
     @Test

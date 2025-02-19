@@ -51,6 +51,14 @@ public class MgmtTest {
         TestHelper.beforeAll(log);
     }
 
+    private static HttpEntity<String> getAdminHttpEntity() {
+        String token =
+            UserUtility.getJwtAdmin();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        return new HttpEntity<>(null, headers);
+    }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
@@ -128,7 +136,6 @@ public class MgmtTest {
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getHostValue());
     }
-
 
     @Test
     public void admin_can_reload_proxy_cache() {
@@ -273,13 +280,5 @@ public class MgmtTest {
         webSocket.close(1000, "Test complete");
         Assertions.assertTrue(success);
         Assertions.assertEquals("_renew", receivedMessage[0]);
-    }
-
-    private static HttpEntity<String> getAdminHttpEntity() {
-        String token =
-            UserUtility.getJwtAdmin();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(token);
-        return new HttpEntity<>(null, headers);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+
 @Slf4j
 public class RoleUtility {
     private static final ParameterizedTypeReference<SumTotal<Role>> reference =

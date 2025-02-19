@@ -254,8 +254,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             "error during consume, catch error to maintain connection, reject message",
                             ex);
                         consumeSuccess = false;
-                    }finally {
-                        sample.stop(meterRegistry.timer("event_handling", "name", storedEvent.getName()));
+                    } finally {
+                        sample.stop(
+                            meterRegistry.timer("event_handling", "name", storedEvent.getName()));
                     }
                     log.debug("replying delivery tag {}, result {}, channel number {}", deliveryTag,
                         consumeSuccess, finalChannel.getChannelNumber());

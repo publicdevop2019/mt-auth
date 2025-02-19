@@ -5,8 +5,8 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
-import com.mt.helper.utility.ProjectUtility;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.ProjectUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -18,17 +18,20 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantProjectTest{
+public class TenantProjectTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
     }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void tenant_can_create_project() throws InterruptedException {
         User user = UserUtility.createEmailPwdUser();
@@ -41,7 +44,7 @@ public class TenantProjectTest{
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
         //get updated project list
         ResponseEntity<SumTotal<Project>> exchange2 = ProjectUtility.readTenantProjects(user);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
@@ -58,7 +61,7 @@ public class TenantProjectTest{
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
         String id = HttpUtility.getId(tenantProject);
         randomProjectObj.setId(id);
         //get updated project list

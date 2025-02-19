@@ -11,6 +11,7 @@ public class TicketApplicationService {
     public SignedTicket create(String rawClientId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         ClientId clientId = DomainRegistry.getCurrentUserService().getClientId();
-        return DomainRegistry.getTicketService().create(userId, clientId, new ClientId(rawClientId));
+        return DomainRegistry.getTicketService()
+            .create(userId, clientId, new ClientId(rawClientId));
     }
 }

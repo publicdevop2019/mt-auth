@@ -16,12 +16,11 @@ import com.mt.helper.args.ProjectIdArgs;
 import com.mt.helper.args.ResourceIdArgs;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
-import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.Utility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -36,18 +35,15 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantEndpointValidationTest{
+public class TenantEndpointValidationTest {
     private static Client client;
     private static TenantContext tenantContext;
 
-    @BeforeEach
-    public void beforeEach(TestInfo testInfo) {
-        TestHelper.beforeEach(log, testInfo);
-    }
     @BeforeAll
     public static void initTenant() {
         TestHelper.beforeAll(log);
@@ -59,6 +55,11 @@ public class TenantEndpointValidationTest{
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(HttpUtility.getId(tenantClient));
         log.info("init tenant complete");
+    }
+
+    @BeforeEach
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
 
     @Test

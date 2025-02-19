@@ -49,13 +49,13 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomFilter implements WebFilter, Ordered {
+    public static final String REFRESH_TOKEN = "refresh_token";
     private static final String CSRF_INVALID_JSON_RESPONSE = "{\"msg\": \"csrf required\"}";
     private static final String EMPTY_CACHE_RESPONSE = "{\"msg\": \"proxy cache empty\"}";
     private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
         "{\"msg\": \"endpoint not found\"}";
     private static final String[] WHITE_LIST_URLS =
         {"/info/checkSum", "/actuator/health", "/actuator/prometheus"};
-    public static final String REFRESH_TOKEN = "refresh_token";
     @Value("${mt.misc.domain}")
     String domain;
 

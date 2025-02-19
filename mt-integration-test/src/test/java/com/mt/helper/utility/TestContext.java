@@ -13,11 +13,11 @@ import org.springframework.web.client.RestTemplate;
 
 public class TestContext {
     private static final ThreadLocal<UUID> testId = new ThreadLocal<>();
+    private static final ThreadLocal<TestRestTemplate> restTemplate = new ThreadLocal<>();
     @Getter
     public static ObjectMapper mapper =
         new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL);
-    private static final ThreadLocal<TestRestTemplate> restTemplate = new ThreadLocal<>();
 
     private TestContext() {
 

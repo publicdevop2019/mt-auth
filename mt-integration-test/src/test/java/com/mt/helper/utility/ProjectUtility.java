@@ -71,7 +71,8 @@ public class ProjectUtility {
         ResponseEntity<ProjectStatus> projectStatus =
             checkProjectReady(tenantUser, project);
         if (!projectStatus.getStatusCode().is2xxSuccessful()) {
-            log.info("project status check failed, status {} body {}", projectStatus.getStatusCode().value(), projectStatus.getBody());
+            log.info("project status check failed, status {} body {}",
+                projectStatus.getStatusCode().value(), projectStatus.getBody());
         }
         log.info("project status {}", Objects.requireNonNull(projectStatus.getBody()).isStatus());
         Assertions.assertTrue(projectStatus.getBody().isStatus());

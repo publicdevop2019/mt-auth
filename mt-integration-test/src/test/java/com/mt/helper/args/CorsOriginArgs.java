@@ -25,7 +25,8 @@ public class CorsOriginArgs implements ArgumentsProvider {
             Arguments.of(Collections.emptySet(), HttpStatus.BAD_REQUEST),
             Arguments.of(Collections.singleton(" "), HttpStatus.BAD_REQUEST),
             Arguments.of(Collections.singleton(""), HttpStatus.BAD_REQUEST),
-            Arguments.of(Collections.singleton(RandomUtility.randomStringWithNum()), HttpStatus.BAD_REQUEST),
+            Arguments.of(Collections.singleton(RandomUtility.randomStringWithNum()),
+                HttpStatus.BAD_REQUEST),
             Arguments.of(strings, HttpStatus.BAD_REQUEST)
         );
     }

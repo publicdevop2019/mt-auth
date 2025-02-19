@@ -19,7 +19,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class ClientCredentialsTest{
+public class ClientCredentialsTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
@@ -29,6 +29,7 @@ public class ClientCredentialsTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void use_client_with_secret() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =

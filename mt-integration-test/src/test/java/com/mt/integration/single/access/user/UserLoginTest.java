@@ -5,14 +5,10 @@ import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.ForgetPasswordRequest;
 import com.mt.helper.pojo.User;
-import com.mt.helper.pojo.UserUpdatePwd;
 import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.OAuth2Utility;
-import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -21,7 +17,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,9 +25,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.ResourceUtils;
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
@@ -55,7 +47,7 @@ public class UserLoginTest {
     }
 
     @Test
-    public void send_code_to_new_email_twice(){
+    public void send_code_to_new_email_twice() {
         User user = UserUtility.randomEmailOnlyUser();
         ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
@@ -259,10 +251,11 @@ public class UserLoginTest {
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
     }
-    private void waitForCoolDown(){
+
+    private void waitForCoolDown() {
         //sleep to wait for operation has cool down
         try {
-            Thread.sleep(65*1000);
+            Thread.sleep(65 * 1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

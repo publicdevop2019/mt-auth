@@ -19,7 +19,8 @@ public class ClientPathArgs implements ArgumentsProvider {
         return Stream.of(
             Arguments.of(ClientUtility.createValidBackendClient(), null, HttpStatus.BAD_REQUEST),
             Arguments.of(ClientUtility.createValidBackendClient(), "", HttpStatus.BAD_REQUEST),
-            Arguments.of(ClientUtility.createValidBackendClient(), longPath, HttpStatus.BAD_REQUEST),
+            Arguments.of(ClientUtility.createValidBackendClient(), longPath,
+                HttpStatus.BAD_REQUEST),
             Arguments.of(ClientUtility.createValidBackendClient(),
                 RandomUtility.randomStringNoNum() + "-/-test", HttpStatus.BAD_REQUEST),
             Arguments.of(ClientUtility.createValidBackendClient(), "  ", HttpStatus.BAD_REQUEST),

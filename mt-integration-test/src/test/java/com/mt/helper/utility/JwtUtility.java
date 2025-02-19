@@ -24,8 +24,9 @@ public class JwtUtility {
         byte[] decode = decoder.decode(jwtBody);
         String s = new String(decode);
         try {
-            Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
-            });
+            Map<String, Object> var0 =
+                mapper.readValue(s, new TypeReference<Map<String, Object>>() {
+                });
             return (String) var0.get(USER_ID);
         } catch (IOException e) {
             throw new IllegalArgumentException("unable to find uid in authorization header");
@@ -44,11 +45,13 @@ public class JwtUtility {
         byte[] decode = decoder.decode(jwtBody);
         String s = new String(decode);
         try {
-            Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
-            });
+            Map<String, Object> var0 =
+                mapper.readValue(s, new TypeReference<Map<String, Object>>() {
+                });
             return (List<String>) var0.get(AUTHORITIES);
         } catch (IOException e) {
-            throw new IllegalArgumentException("unable to find authorities in authorization header");
+            throw new IllegalArgumentException(
+                "unable to find authorities in authorization header");
         }
     }
 }

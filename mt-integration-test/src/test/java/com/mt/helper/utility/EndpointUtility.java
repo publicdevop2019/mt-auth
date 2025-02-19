@@ -21,6 +21,7 @@ public class EndpointUtility {
     private static final ParameterizedTypeReference<SumTotal<ProtectedEndpoint>> protectedEpRef =
         new ParameterizedTypeReference<>() {
         };
+
     public static String getUrl(Project project) {
         return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "endpoints");
     }
@@ -114,7 +115,8 @@ public class EndpointUtility {
     }
 
     public static ResponseEntity<Void> patchTenantEndpoint(TenantContext tenantContext,
-                                                           Endpoint endpoint, PatchCommand command) {
+                                                           Endpoint endpoint,
+                                                           PatchCommand command) {
         String url = getUrl(tenantContext.getProject());
         return Utility.patchResource(tenantContext.getCreator(), url, command, endpoint.getId());
     }

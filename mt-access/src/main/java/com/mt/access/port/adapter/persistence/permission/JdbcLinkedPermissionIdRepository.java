@@ -88,6 +88,14 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
                 });
     }
 
+    @Override
+    public void remove(PermissionId permissionId) {
+        CommonDomainRegistry.getJdbcTemplate()
+            .update(DELETE_LINKED_API_PERMISSION_BY_DOMAIN_ID_SQL,
+                permissionId.getDomainId()
+            );
+    }
+
     private static class RowMapper implements ResultSetExtractor<List<PermissionId>> {
 
         @Override
@@ -105,13 +113,5 @@ public class JdbcLinkedPermissionIdRepository implements LinkedApiPermissionIdRe
             } while (rs.next());
             return list;
         }
-    }
-
-    @Override
-    public void remove(PermissionId permissionId) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_LINKED_API_PERMISSION_BY_DOMAIN_ID_SQL,
-                permissionId.getDomainId()
-            );
     }
 }

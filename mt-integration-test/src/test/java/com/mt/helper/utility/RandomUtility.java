@@ -128,9 +128,11 @@ public class RandomUtility {
     public static String randomEmail() {
         return RandomUtility.randomStringWithNum() + "@sample.com";
     }
+
     public static String randomUsername() {
         return RandomUtility.randomStringWithNum();
     }
+
     public static String randomMobileNumber() {
         Random random = new Random();
 
@@ -141,7 +143,7 @@ public class RandomUtility {
 
         long randomNumber = min + ((long) (random.nextDouble() * (max - min)));
 
-        return String.valueOf(randomNumber) ;
+        return String.valueOf(randomNumber);
     }
 
     public static String randomPassword() {

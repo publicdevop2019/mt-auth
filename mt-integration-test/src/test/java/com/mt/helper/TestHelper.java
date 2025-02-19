@@ -15,7 +15,7 @@ public class TestHelper {
     public static void beforeEach(Logger log, TestInfo testInfo) {
         MDC.put(TEST_ID, UUID.randomUUID().toString());
         log.info("test id {}", MDC.get(TEST_ID));
-        log.info("test name {}",testInfo.getTestMethod().get().getName());
+        log.info("test name {}", testInfo.getTestMethod().get().getName());
     }
 
     public static void beforeAll(Logger log) {

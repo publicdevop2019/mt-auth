@@ -11,7 +11,6 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
-import org.redisson.client.codec.IntegerCodec;
 import org.redisson.client.codec.LongCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -21,10 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class RateLimitService {
     public static final String RATE_LIMITER = "rate_limiter";
-    @Autowired
-    private RedissonClient redissonClient;
     private static final String LUA_SCRIPT =
-            "local tokens_key = KEYS[1]\n" +
+        "local tokens_key = KEYS[1]\n" +
             "local timestamp_key = KEYS[2]\n" +
             "local rate = tonumber(ARGV[1])\n" +
             "local capacity = tonumber(ARGV[2])\n" +
@@ -49,6 +46,8 @@ public class RateLimitService {
             "redis.call(\"setex\", tokens_key, ttl, new_tokens)\n" +
             "redis.call(\"setex\", timestamp_key, ttl, now)\n" +
             "return { allowed, new_tokens }";
+    @Autowired
+    private RedissonClient redissonClient;
 
     public RateLimitResult withinRateLimit(String path, String method,
                                            HttpHeaders headers, InetSocketAddress address) {

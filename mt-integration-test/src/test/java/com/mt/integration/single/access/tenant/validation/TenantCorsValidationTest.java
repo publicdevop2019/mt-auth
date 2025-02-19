@@ -10,7 +10,6 @@ import com.mt.helper.args.DescriptionArgs;
 import com.mt.helper.args.NameArgs;
 import com.mt.helper.args.ProjectIdArgs;
 import com.mt.helper.pojo.Cors;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.CorsUtility;
 import com.mt.helper.utility.HttpUtility;
@@ -29,20 +28,24 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantCorsValidationTest{
+public class TenantCorsValidationTest {
     private static TenantContext tenantContext;
+
     @BeforeAll
     public static void beforeAll() {
         tenantContext = TestHelper.beforeAllTenant(log);
     }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void validation_create_valid() {
         Cors cors = CorsUtility.createValidCors();
