@@ -21,7 +21,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class MetricsFilter extends OncePerRequestFilter {
-    private static final String DOMAIN_PREFIX_REGEX = "^0[A-Z][0-9A-Z]{10}$";
+    private static final String DOMAIN_PREFIX_REGEX = "^[0-9][A-Z][0-9A-Z]{10}$";
     @Autowired
     private MeterRegistry meterRegistry;
 
