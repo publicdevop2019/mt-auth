@@ -28,7 +28,7 @@ public class SendSmsNotification extends DomainEvent {
         super(notification.getNotificationId());
         mobileNumber = event.getMobileNumber();
         countryCode = event.getCountryCode();
-        code = event.getCode().toString();
+        code = event.getCode().getValue();
     }
 
     public SendSmsNotification(VerificationCodeUpdated event, Notification notification) {
