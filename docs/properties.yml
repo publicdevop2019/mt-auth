@@ -30,6 +30,7 @@ mt:
   misc:
     instance-id:
     domain:
+    code-generator: # values: fixed (default), random
     mgmt-email:
     url:
       proxy:
