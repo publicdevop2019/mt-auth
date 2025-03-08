@@ -14,7 +14,8 @@ public class SendSmsNotification extends DomainEvent {
     public static final String SEND_SMS_NOTIFICATION_EVENT =
         "send_sms_notification_event";
     public static final String name = "SEND_SMS_NOTIFICATION_EVENT";
-    private String mobile;
+    private String mobileNumber;
+    private String countryCode;
     private String code;
 
     {
@@ -25,19 +26,22 @@ public class SendSmsNotification extends DomainEvent {
 
     public SendSmsNotification(UserMfaNotification event, Notification notification) {
         super(notification.getNotificationId());
-        mobile = event.getMobile();
+        mobileNumber = event.getMobileNumber();
+        countryCode = event.getCountryCode();
         code = event.getCode().toString();
     }
 
     public SendSmsNotification(VerificationCodeUpdated event, Notification notification) {
         super(notification.getNotificationId());
-        mobile = event.getCountryCode() + " " + event.getMobileNumber();
-        code = event.getCode().toString();
+        mobileNumber = event.getMobileNumber();
+        countryCode = event.getCountryCode();
+        code = event.getCode();
     }
 
     public SendSmsNotification(UserPwdResetCodeUpdated event, Notification notification) {
         super(notification.getNotificationId());
-        mobile = event.getCountryCode() + " " + event.getMobileNumber();
+        mobileNumber = event.getMobileNumber();
+        countryCode = event.getCountryCode();
         code = event.getCode();
     }
 }

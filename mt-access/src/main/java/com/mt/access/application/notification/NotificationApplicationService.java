@@ -123,7 +123,7 @@ public class NotificationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getSmsNotificationService()
-                    .notify(event.getMobile(), event.getCode());
+                    .notify(event.getCountryCode(), event.getMobileNumber(), event.getCode());
                 DomainRegistry.getNotificationRepository()
                     .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;

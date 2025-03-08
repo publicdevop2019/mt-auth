@@ -101,6 +101,18 @@
             <version>1.0.7.RELEASE</version>
             <scope>compile</scope>
         </dependency>
+        <!--aliyun sms sdk-->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dysmsapi20170525</artifactId>
+            <version>3.1.1</version>
+        </dependency>
+        <!--aliyun email sdk-->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dm20151123</artifactId>
+            <version>1.2.2</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>access</finalName>

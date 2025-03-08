@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
     matchIfMissing = true)
 public class NoOpSmsNotificationService implements SmsNotificationService {
     @Override
-    public void notify(String mobileNumber, String message) {
+    public void notify(String countryCode, String mobileNumber, String code) {
         log.info("skip sending sms message to user mobile");
     }
 }
