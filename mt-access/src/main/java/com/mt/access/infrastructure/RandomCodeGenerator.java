@@ -18,7 +18,7 @@ public class RandomCodeGenerator implements
     @Override
     public String generate() {
         if (mode == null || "fixed".equalsIgnoreCase(mode)) {
-            return "654321";
+            return "123456";
         }
         return RandomUtility.randomNumber(6);
     }

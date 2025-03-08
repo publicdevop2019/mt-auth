@@ -16,6 +16,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
 import { DeviceService } from 'src/app/services/device.service';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -93,16 +94,11 @@ export class LoginComponent {
         this.loginOrRegister()
       }
     });
-    if (localStorage.getItem('home_notification') !== 'true') {
-
-      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+    if(deviceSvc.isDemo()){
+      this.translate.get("DEMO_NOTIFICAIONT").subscribe(next => {
         this.snackBar.open(next, 'OK');
-        this.snackBar._openedSnackBarRef.afterDismissed().subscribe(() => {
-          localStorage.setItem('home_notification', 'true')
-        })
       })
     }
-
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
         Logger.debug('checking login')
