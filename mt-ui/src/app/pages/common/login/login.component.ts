@@ -99,6 +99,14 @@ export class LoginComponent {
         this.snackBar.open(next, 'OK');
       })
     }
+    if (localStorage.getItem('home_notification') !== 'true') {
+      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+        this.snackBar.open(next, 'OK');
+        this.snackBar._openedSnackBarRef.afterDismissed().subscribe(() => {
+          localStorage.setItem('home_notification', 'true')
+        })
+      })
+    }
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
         Logger.debug('checking login')

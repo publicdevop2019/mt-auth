@@ -501,6 +501,7 @@ export const enUS = {
     "REFERENCE_ID": "Reference ID",
     "PROJECT_PERMISSION_REMOVED": "Project Permission Removed",
     "DEMO_NOTIFICAIONT": "Demo version, system will not send any emails or SMS, default code is always 123456",
+    "HOME_NOTIFICAIONT": "Beta version, your data may get lost during release",
     "WELCOME_MSG_1": "Open-source projects are not easy, your support is the greatest encouragement!",
     "SYSTEM_MESSAGES": "System Notifications",
     "QUICK_START": "Quick Start Guide",

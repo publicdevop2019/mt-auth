@@ -501,6 +501,7 @@ export const zhHans = {
     "REFERENCE_ID": "关联ID",
     "PROJECT_PERMISSION_REMOVED": "项目权限移除",
     "DEMO_NOTIFICAIONT": "演示版本，系统不会发送真实邮件，短信。默认验证码为123456",
+    "HOME_NOTIFICAIONT": "Beta版本, 您的数据可能会在版本更新时丢失",
     "WELCOME_MSG_1": "开源不易，您的收藏是对本项目最大的支持！",
     "SYSTEM_MESSAGES": "系统通知",
     "QUICK_START": "新手引导",
