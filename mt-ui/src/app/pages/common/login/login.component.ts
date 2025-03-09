@@ -85,14 +85,6 @@ export class LoginComponent {
         /** get  authorize party info */
         this.nextUrl = '/' + RouterWrapperService.AUTHORIZE_URL;
       }
-      if (queryMaps.get('demo') !== null) {
-        Logger.debug('demo mode')
-        this.loginContext = 'PWD';
-        this.selectedLoginIndex = 2;
-        this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
-        this.form.get('pwd').setValue('Password1!')
-        this.loginOrRegister()
-      }
     });
     if(deviceSvc.isDemo()){
       this.translate.get("DEMO_NOTIFICAIONT").subscribe(next => {
