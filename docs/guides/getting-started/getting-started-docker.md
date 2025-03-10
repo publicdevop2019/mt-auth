@@ -5,7 +5,7 @@
 ## 启动 MT-AUTH
 在terminal输入Docker命令来启动MT-AUTH
 ```shell
-docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:latest
+docker run -dt --rm --name mt-auth -p 4300:4300 -p 8111:8111 publicdevop2019/mt-auth:latest
 ```
 MT-AUTH将会使用port 4300
 
@@ -23,7 +23,7 @@ MT-AUTH将会使用port 4300
 ##### 创建您的第一个项目
 
 1. 打开 [控制台](http://localhost:4300)
-2. 打开左侧导航栏并点击创建项目
+2. 打开左侧导航栏并点击新建项目
 3. 在名称一栏输入：我的项目
 4. 点击创建
    

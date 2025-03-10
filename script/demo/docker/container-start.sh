@@ -24,6 +24,8 @@ nginx &
 rabbitmq-server &
 redis-server &
 java -cp h2*.jar org.h2.tools.Server -tcpAllowOthers -webAllowOthers &
+sleep 10
+# required to sleep to wait for app ready to connect
 java -jar access.jar $ACCESS_ARGS &
 echo "sleeping start"
 # required to sleep to wait for app ready to connect
