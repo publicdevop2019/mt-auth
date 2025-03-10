@@ -64,7 +64,7 @@ import com.mt.access.domain.model.token.TokenService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeGenerator;
-import com.mt.access.domain.model.user.PwdResetTokenGenerator;
+import com.mt.access.domain.model.user.PwdResetCodeGenerator;
 import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRelationRoleIdRepository;
 import com.mt.access.domain.model.user.UserRelationTenantIdRepository;
@@ -113,7 +113,7 @@ public class DomainRegistry {
     @Getter
     private static VerificationCodeGenerator loginCodeGenerator;
     @Getter
-    private static PwdResetTokenGenerator pwdResetTokenGeneratorService;
+    private static PwdResetCodeGenerator pwdResetCodeGenerator;
     @Getter
     private static RevokeTokenRepository revokeTokenRepository;
     @Getter
@@ -548,9 +548,9 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPwdResetTokenGeneratorService(
-        PwdResetTokenGenerator pwdResetTokenGeneratorService) {
-        DomainRegistry.pwdResetTokenGeneratorService = pwdResetTokenGeneratorService;
+    public void setPwdResetCodeGenerator(
+        PwdResetCodeGenerator pwdResetTokenGeneratorService) {
+        DomainRegistry.pwdResetCodeGenerator = pwdResetTokenGeneratorService;
     }
 
     @Autowired

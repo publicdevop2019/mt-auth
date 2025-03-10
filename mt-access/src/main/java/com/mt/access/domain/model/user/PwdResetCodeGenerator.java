@@ -1,5 +1,5 @@
 package com.mt.access.domain.model.user;
 
-public interface PwdResetTokenGenerator {
+public interface PwdResetCodeGenerator {
     String generate();
 }

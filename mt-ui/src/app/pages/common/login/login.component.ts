@@ -16,6 +16,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
 import { DeviceService } from 'src/app/services/device.service';
+import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -84,17 +85,13 @@ export class LoginComponent {
         /** get  authorize party info */
         this.nextUrl = '/' + RouterWrapperService.AUTHORIZE_URL;
       }
-      if (queryMaps.get('demo') !== null) {
-        Logger.debug('demo mode')
-        this.loginContext = 'PWD';
-        this.selectedLoginIndex = 2;
-        this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
-        this.form.get('pwd').setValue('Password1!')
-        this.loginOrRegister()
-      }
     });
+    if(deviceSvc.isDemo()){
+      this.translate.get("DEMO_NOTIFICAIONT").subscribe(next => {
+        this.snackBar.open(next, 'OK');
+      })
+    }
     if (localStorage.getItem('home_notification') !== 'true') {
-
       this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
         this.snackBar.open(next, 'OK');
         this.snackBar._openedSnackBarRef.afterDismissed().subscribe(() => {
@@ -102,7 +99,6 @@ export class LoginComponent {
         })
       })
     }
-
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
         Logger.debug('checking login')

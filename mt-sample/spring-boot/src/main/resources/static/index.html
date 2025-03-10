@@ -160,13 +160,13 @@
             localStorage.setItem(clientSecretKey, "97b29ceb-c445-4178-bb95-84755f14cba6")
         }
         if (isEmpty(localStorage.getItem(publicApiPathKey))) {
-            localStorage.setItem(publicApiPathKey, "tenant-svc/public")
+            localStorage.setItem(publicApiPathKey, "demo-svc/public")
         }
         if (isEmpty(localStorage.getItem(publicStaticApiPathKey))) {
-            localStorage.setItem(publicStaticApiPathKey, "tenant-svc/icon.png")
+            localStorage.setItem(publicStaticApiPathKey, "demo-svc/icon.png")
         }
         if (isEmpty(localStorage.getItem(protectedApiPathKey))) {
-            localStorage.setItem(protectedApiPathKey, "tenant-svc/protected")
+            localStorage.setItem(protectedApiPathKey, "demo-svc/protected")
         }
 
         document.getElementById(uiUrlKey).value = localStorage.getItem(uiUrlKey)

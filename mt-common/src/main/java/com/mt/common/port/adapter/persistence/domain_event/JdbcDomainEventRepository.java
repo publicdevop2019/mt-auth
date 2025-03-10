@@ -41,7 +41,7 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
         "se.routable = ? " +
         "WHERE se.id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL =
-        "SELECT * FROM stored_event se WHERE %s ORDER BY se.id ASC LIMIT ? OFFSET ?";
+        "SELECT * FROM stored_event se WHERE %s ORDER BY se.id DESC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM stored_event se WHERE %s";
 

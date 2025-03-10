@@ -14,7 +14,7 @@ public class PwdResetCode implements Serializable {
     private String value;
 
     public PwdResetCode() {
-        setValue(DomainRegistry.getPwdResetTokenGeneratorService().generate());
+        setValue(DomainRegistry.getPwdResetCodeGenerator().generate());
     }
 
     public PwdResetCode(String value) {
@@ -23,7 +23,8 @@ public class PwdResetCode implements Serializable {
 
     private void setValue(String value) {
         Validator.notNull(value);
-        Validator.greaterThanOrEqualTo(value, 9);
+        Validator.greaterThanOrEqualTo(value, 6);
+        Validator.lessThanOrEqualTo(value, 6);
         this.value = value;
     }
 }

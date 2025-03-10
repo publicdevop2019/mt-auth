@@ -13,12 +13,24 @@ mt:
   rabbitmq:
     url:
   sms:
-    type:
+    type: # values: noop (default), aliyun
+    aliyun:
+      key-id:
+      key-secret:
+      url:
+      sign-name:
+      template-code:
   email:
-    type:
+    type: # values: noop (default), aliyun
+    aliyun:
+      key-id:
+      key-secret:
+      url:
+      account-name:
   misc:
     instance-id:
     domain:
+    code-generator: # values: fixed (default), random
     mgmt-email:
     url:
       proxy:

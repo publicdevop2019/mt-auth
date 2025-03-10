@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
     providedIn: 'root'
@@ -21,6 +22,9 @@ export class DeviceService {
                 document.title = next
             }
         )
+    }
+    isDemo(){
+        return !!environment.demo
     }
     private openSnackbar(message: string) {
         this.translate.get(message).subscribe(next => {
