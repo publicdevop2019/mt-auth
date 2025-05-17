@@ -79,7 +79,7 @@ public class CustomThreadPoolConfiguration {
 
     @Bean(name = "event-exe")
     public CleanUpThreadPoolExecutor pool4() {
-        //no queueing, max pool size = 60
+        //no queueing, max pool size = 100
         BlockingQueue<Runnable> queue = new SynchronousQueue<>();
         return new CleanUpThreadPoolExecutor(
             50,
@@ -99,7 +99,7 @@ public class CustomThreadPoolConfiguration {
 
     @Bean(name = "event-mark")
     public CleanUpThreadPoolExecutor pool5() {
-        //no queueing, max pool size = 60
+        //no queueing, max pool size = 100
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(64);
         return new CleanUpThreadPoolExecutor(
             50,

@@ -7,7 +7,7 @@
 ```shell
 docker run -dt --rm --name mt-auth -p 4300:4300 -p 8111:8111 publicdevop2019/mt-auth:latest
 ```
-MT-AUTH将会使用port 4300
+MT-AUTH将会使用port 4300 8111
 
 ## 登录
 打开MT-AUTH[登录页面](http://localhost:4300/login)
