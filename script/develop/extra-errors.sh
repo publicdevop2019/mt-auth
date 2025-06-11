@@ -1,6 +1,6 @@
 ERROR_EXP='WARN|ERROR|^\tat |Exception|^Caused by: |\t... \d+ more'
 
-#!/bin/bash
+#!/bin/sh
 cd ../../logs
 grep -E "$ERROR_EXP" access.log > analytics/access-error.log
 

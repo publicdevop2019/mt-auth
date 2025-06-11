@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 cd ../../logs
 grep -E "$1" access.log > analytics/access.$1.log
 

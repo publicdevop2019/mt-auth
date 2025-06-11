@@ -4,7 +4,6 @@ ACCESS_ARGS="
 --mt.rabbitmq.url=localhost:5672
 --mt.jwt.password=localdev
 --mt.misc.url.proxy=http://localhost:8111
---mt.misc.instance-id=0
 --mt.misc.mgmt-email=admin@sample.com
 --spring.datasource.url=jdbc:h2:tcp://localhost:9092/./demo
 --spring.datasource.username=sa
@@ -14,7 +13,6 @@ PROXY_ARG="
 --mt.rabbitmq.url=localhost:5672
 --mt.redis.url=redis://localhost:6379
 --mt.misc.domain=
---mt.misc.instance-id=1
 --mt.misc.url.access=http://localhost:8080
 "
 # prepare h2 db data

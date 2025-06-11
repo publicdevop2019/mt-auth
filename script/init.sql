@@ -311,30 +311,6 @@ INSERT INTO `cors_profile` VALUES (857844656111616,1689492851003,'0U8AZTODP4H0',
 UNLOCK TABLES;
 
 --
--- Table structure for table `data_process_tracker`
---
-
-DROP TABLE IF EXISTS `data_process_tracker`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `data_process_tracker` (
-  `id` bigint NOT NULL,
-  `last_processed_id` bigint NOT NULL,
-  `version` int NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `data_process_tracker`
---
-
-LOCK TABLES `data_process_tracker` WRITE;
-/*!40000 ALTER TABLE `data_process_tracker` DISABLE KEYS */;
-/*!40000 ALTER TABLE `data_process_tracker` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `endpoint`
 --
 
@@ -434,38 +410,6 @@ INSERT INTO `external_resources_map` VALUES (862433369391105,'0C8AZTODP4HT'),(86
 UNLOCK TABLES;
 
 --
--- Table structure for table `formatted_access_record`
---
-
-DROP TABLE IF EXISTS `formatted_access_record`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `formatted_access_record` (
-  `id` bigint NOT NULL,
-  `endpoint_id` varchar(255) NOT NULL,
-  `request_at` bigint NOT NULL,
-  `path` varchar(255) NOT NULL,
-  `client_ip` varchar(255) NOT NULL,
-  `user_id` varchar(255) DEFAULT NULL,
-  `project_id` varchar(255) DEFAULT NULL,
-  `method` varchar(255) NOT NULL,
-  `response_at` bigint NOT NULL,
-  `response_code` int NOT NULL,
-  `response_content_size` int NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `formatted_access_record`
---
-
-LOCK TABLES `formatted_access_record` WRITE;
-/*!40000 ALTER TABLE `formatted_access_record` DISABLE KEYS */;
-/*!40000 ALTER TABLE `formatted_access_record` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `image`
 --
 
@@ -493,6 +437,23 @@ LOCK TABLES `image` WRITE;
 /*!40000 ALTER TABLE `image` DISABLE KEYS */;
 /*!40000 ALTER TABLE `image` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `instance`
+--
+
+DROP TABLE IF EXISTS `instance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `instance` (
+  `id` bigint NOT NULL,
+  `created_at` bigint DEFAULT NULL,
+  `renewed_at` bigint DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `job_detail`
@@ -531,7 +492,7 @@ CREATE TABLE `job_detail` (
 
 LOCK TABLES `job_detail` WRITE;
 /*!40000 ALTER TABLE `job_detail` DISABLE KEYS */;
-INSERT INTO `job_detail` VALUES (864879623798785,NULL,NULL,NULL,NULL,0,'KEEP_WS_CONNECTION',NULL,'SINGLE',0,NULL,3,5,_binary '\0',NULL,'0J8IKO7PH9MO',30000),(864879623798787,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'MISSED_EVENT_SCAN','SUCCESS','CLUSTER',0,NULL,3,5,_binary '\0',1735967400308,'0J8IKO7PH9M2',360000),(864879623798788,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'DATA_VALIDATION','SUCCESS','CLUSTER',0,NULL,3,5,_binary '\0',1735967354714,'0J8IKO7PH9M3',600000),(864879623798789,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'PROXY_VALIDATION','SUCCESS','CLUSTER',0,NULL,3,5,_binary '\0',1735967403652,'0J8IKO7PH9M4',90000),(864879623798790,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'ACCESS_DATA_PROCESSING','SUCCESS','CLUSTER',0,NULL,2,5,_binary '\0',1735967400311,'0J8IKO7PH9M5',90000),(877685800173569,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'KEEP_WS_CONNECTION_0','SUCCESS','SINGLE',0,NULL,3,5,_binary '\0',1735967384395,'0J8N43AG8WSI',30000);
+INSERT INTO `job_detail` VALUES (864879623798785,NULL,NULL,NULL,NULL,0,'KEEP_WS_CONNECTION','SUCCESS','SINGLE',0,NULL,3,10,_binary '\0',NULL,'0J8IKO7PH9MO',30000),(864879623798787,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'MISSED_EVENT_SCAN','SUCCESS','CLUSTER',0,NULL,3,10,_binary '\0',1735967400308,'0J8IKO7PH9M2',360000),(864879623798788,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'DATA_VALIDATION','SUCCESS','CLUSTER',0,NULL,3,10,_binary '\0',1735967354714,'0J8IKO7PH9M3',600000),(864879623798789,1689492851003,'NOT_HTTP',1689492851003,'NOT_HTTP',0,'PROXY_VALIDATION','SUCCESS','CLUSTER',0,NULL,3,10,_binary '\0',1735967403652,'0J8IKO7PH9M4',90000);
 /*!40000 ALTER TABLE `job_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -630,6 +591,7 @@ CREATE TABLE `notification` (
   `ack` bit(1) NOT NULL,
   `type` varchar(255) NOT NULL,
   `status` varchar(255) NOT NULL,
+  `trace_id` varchar(255) NOT NULL,
   `user_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_domain_id` (`domain_id`)
@@ -760,37 +722,6 @@ LOCK TABLES `published_event_tracker` WRITE;
 /*!40000 ALTER TABLE `published_event_tracker` DISABLE KEYS */;
 INSERT INTO `published_event_tracker` VALUES (864064908558366,0,0);
 /*!40000 ALTER TABLE `published_event_tracker` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `raw_access_record`
---
-
-DROP TABLE IF EXISTS `raw_access_record`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `raw_access_record` (
-  `id` bigint NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `instance_id` varchar(255) NOT NULL,
-  `record_id` varchar(255) NOT NULL,
-  `record` varchar(255) NOT NULL,
-  `is_request` bit(1) NOT NULL,
-  `processed` bit(1) NOT NULL,
-  `is_response` bit(1) NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_combined_record` (`name`,`instance_id`,`record_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `raw_access_record`
---
-
-LOCK TABLES `raw_access_record` WRITE;
-/*!40000 ALTER TABLE `raw_access_record` DISABLE KEYS */;
-/*!40000 ALTER TABLE `raw_access_record` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

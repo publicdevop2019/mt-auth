@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 cd ../../logs
 grep -E "$1" proxy.log > analytics/proxy.$1.log
 
