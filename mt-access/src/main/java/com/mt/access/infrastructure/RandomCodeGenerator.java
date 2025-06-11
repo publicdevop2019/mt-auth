@@ -10,14 +10,13 @@ import org.springframework.stereotype.Service;
 public class RandomCodeGenerator implements
     MfaCodeGenerator,
     PwdResetCodeGenerator,
-    VerificationCodeGenerator
-{
+    VerificationCodeGenerator {
     @Value("${mt.misc.code-generator:#{null}}")
     private String mode;
 
     @Override
     public String generate() {
-        if (mode == null || "fixed".equalsIgnoreCase(mode)) {
+        if (mode == null || mode.isBlank() || "fixed".equalsIgnoreCase(mode)) {
             return "123456";
         }
         return RandomUtility.randomNumber(6);

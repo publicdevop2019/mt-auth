@@ -156,7 +156,6 @@ public class RedisDistributedJobService implements DistributedJobService {
                 log.debug("job is per cluster");
                 boolean b = tryDistributedJob(jobName, job.getJobId(), jobFn, transactional);
                 if (!b) {
-                    log.info("job skipped due to lock acquire failed");
                     //when thread cannot get lock, updating job is not allowed to avoid concurrent update issue
                     Integer failureCountOrDefault =
                         jobInstanceFailureCountMap.getOrDefault(jobName, 0);
