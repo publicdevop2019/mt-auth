@@ -98,10 +98,11 @@ export class LoginComponent {
       this.translate.get("DEMO_NOTIFICAIONT").subscribe(next => {
         this.snackBar.open(next, 'OK');
       })
+    } else {
+      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+        this.snackBar.open(next, 'OK');
+      })
     }
-    this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
-      this.snackBar.open(next, 'OK');
-    })
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
         Logger.debug('checking login')
