@@ -1,5 +1,6 @@
 package com.mt.common.infrastructure;
 
+import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.validate.Checker;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -9,7 +10,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
+import javax.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class Utility {
 
     /**
@@ -65,5 +69,19 @@ public class Utility {
                 removeCallback.accept(removed);
             }
         }
+    }
+
+    public static String getClientIpAddress(HttpServletRequest request) {
+        log.trace("--start of get client ip address");
+        request.getHeaderNames().asIterator().forEachRemaining(e -> {
+            log.trace("header name [{}] and value: {}", e, request.getHeader(e));
+        });
+        String ip = request.getHeader(AppInfo.X_FORWARDED_FOR);
+        if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
+            //get first ip as real ip
+            return ip.split(",")[0].trim();
+        }
+        log.trace("--end of get client ip address");
+        return request.getRemoteAddr();
     }
 }

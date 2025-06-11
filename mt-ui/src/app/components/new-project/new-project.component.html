@@ -5,7 +5,7 @@
             <mat-icon>close </mat-icon>
         </button>
     </div>
-    <div>
+    <div *ngIf="!createSuccess">
         <form [formGroup]="fg">
             <mat-form-field>
                 <mat-label>{{'ENTER_PROJECT_NAME'| translate}}</mat-label>
@@ -25,7 +25,7 @@
             <div style="font-size: 16px;margin-top: 16px;">{{'CREATING_PROJECT'| translate}}</div>
         </div>
     </ng-container>
-    <mat-card *ngIf="showNotes" style="display: flex; justify-content: space-between; align-items: center;">
+    <mat-card *ngIf="createSuccess" style="display: flex; justify-content: space-between; align-items: center;">
         <div>{{'NEW_PROJECT_NOTE'|translate}}</div>
         <button mat-button (click)="doLogout()" color="primary">{{'DISMISS'|translate}}</button>
     </mat-card>

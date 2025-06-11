@@ -9,8 +9,9 @@ import com.mt.common.domain.model.idempotent.ChangeRecord;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
+@Slf4j
 @Getter
 public class TransactionContext {
     List<StoredEvent> events = new ArrayList<>();
@@ -21,6 +22,7 @@ public class TransactionContext {
     }
 
     public void append(DomainEvent domainEvent) {
+        log.info("new event {}", domainEvent.getName());
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             throw new DefinedRuntimeException("no transaction detected", "0063",
                 HttpResponseCode.INTERNAL_SERVER_ERROR);

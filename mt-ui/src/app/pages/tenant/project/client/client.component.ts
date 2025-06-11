@@ -229,7 +229,7 @@ export class ClientComponent {
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       clientSecret: formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
-      type: CLIENT_TYPE.frontend_app,
+      type: CLIENT_TYPE.backend_app,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
       refreshTokenValiditySeconds: grants.includes(grantTypeEnums.refresh_token) && formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,

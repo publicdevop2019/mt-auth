@@ -36,15 +36,15 @@ public class JdbcNotificationRepository implements NotificationRepository {
         "ack, " +
         "type, " +
         "status, " +
+        "trace_id, " +
         "user_id" +
-        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        ") VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String MARK_AS_DELIVERED =
         "UPDATE notification n SET n.status = 'DELIVERED' where n.domain_id = ?";
     private static final String MARK_ACK_SQL =
         "UPDATE notification n SET n.ack = 1 where n.domain_id = ?";
     private static final String MARK_USER_ACK_SQL =
         "UPDATE notification n SET n.ack = 1 where n.domain_id = ? AND n.user_id = ?";
-    private static final String FIND_BY_DOMAIN_ID_SQL = "";
     private static final String FIND_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL =
         "SELECT * FROM notification n WHERE n.user_id = ? AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
     private static final String COUNT_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL =
@@ -81,6 +81,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
                 Boolean.FALSE,
                 notification.getType().name(),
                 notification.getStatus().name(),
+                notification.getTraceId(),
                 notification.getUserId() == null ? null : notification.getUserId().getDomainId()
             );
     }
@@ -196,17 +197,6 @@ public class JdbcNotificationRepository implements NotificationRepository {
     }
 
     @Override
-    public Notification query(NotificationId notificationId) {
-        List<Notification> query = CommonDomainRegistry.getJdbcTemplate()
-            .query(
-                FIND_BY_DOMAIN_ID_SQL,
-                new RowMapper(),
-                notificationId.getDomainId()
-            );
-        return query.isEmpty() ? null : query.get(0);
-    }
-
-    @Override
     public void markAsDelivered(NotificationId notificationId) {
         CommonDomainRegistry.getJdbcTemplate()
             .update(MARK_AS_DELIVERED, notificationId.getDomainId());
@@ -242,6 +232,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
                         DatabaseUtility.getNullableBoolean(rs, "ack"),
                         NotificationType.valueOf(rs.getString("type")),
                         NotificationStatus.valueOf(rs.getString("status")),
+                        rs.getString("trace_id"),
                         Checker.notNull(rs.getString("user_id")) ?
                             new UserId(rs.getString("user_id")) : null
                     );

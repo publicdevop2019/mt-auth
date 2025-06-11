@@ -6,16 +6,31 @@ mt:
     client-id: 0C8AZTODP4HT
   redis:
     url:
-    client-name: mt-auth
+    client-name: mt-access
+    timeout: 30000
   rabbitmq:
     url:
   email:
     type: noop
+    aliyun:
+      key-id:
+      key-secret:
+      url:
+      account-name:
   sms:
     type: noop
+    aliyun:
+      key-id:
+      key-secret:
+      url:
+      sign-name:
+      template-code:
+    aws:
+      key-id:
+      key-secret:
   misc:
-    instance-id:
     mgmt-email:
+    code-generator:
     url:
       proxy:
 

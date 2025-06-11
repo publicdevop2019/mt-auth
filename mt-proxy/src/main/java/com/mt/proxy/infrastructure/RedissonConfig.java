@@ -17,6 +17,8 @@ public class RedissonConfig {
     private String password;
     @Value("${mt.redis.client-name:#{null}}")
     private String name;
+    @Value("${mt.redis.timeout}")
+    private Integer timeout;
 
     @Bean
     public RedissonClient configRedisson() {
@@ -27,7 +29,7 @@ public class RedissonConfig {
             .setAddress(url)
             .setPassword(password)
             .setClientName(name)
-            .setTimeout(1000)
+            .setTimeout(timeout)
         ;
         return Redisson.create(config);
     }

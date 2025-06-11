@@ -1,27 +1,21 @@
 package com.mt.proxy.infrastructure;
 
+import com.mt.proxy.domain.InstanceInfo;
 import com.mt.proxy.domain.UniqueIdGeneratorService;
-import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
     private static final long INSTANCE_ID_LENGTH = 6L;
     private static final long SEQUENCE_ID_LENGTH = 13L;
-    @Value("${mt.misc.instance-id}")
-    private Long instanceId;
+    @Autowired
+    private InstanceInfo instanceInfo;
     private Long sequenceId = 0L;
     private Long lastSuccessSecond = -1L;
 
-    @PostConstruct
-    private void validateInstanceId() {
-        if (instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new RuntimeException("invalid instance id");
-        }
-    }
-
     public synchronized long id() {
+        validateInstanceId();
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
             throw new RuntimeException("clock reverted");
@@ -36,6 +30,7 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
             sequenceId = 0L;
         }
         lastSuccessSecond = currentSecond;
+        Integer instanceId = instanceInfo.getId();
         return (currentSecond << (INSTANCE_ID_LENGTH + SEQUENCE_ID_LENGTH))
             | (instanceId << SEQUENCE_ID_LENGTH)
             | sequenceId;
@@ -53,6 +48,13 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
             timestamp = getCurrentSecond();
         }
         return timestamp;
+    }
+
+    private void validateInstanceId() {
+        Integer instanceId = instanceInfo.getId();
+        if (instanceId == null || instanceId > ~(-1L << 4L) || instanceId < 0) {
+            throw new RuntimeException("invalid instance id");
+        }
     }
 
     private long getCurrentSecond() {

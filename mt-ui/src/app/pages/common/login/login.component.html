@@ -40,9 +40,15 @@
                                         <mat-error>{{mobileCodeErrorMsg | translate}}</mat-error>
                                     </mat-form-field>
                                 </div>
-                                <button style="height: 36px; width: auto;" mat-stroked-button (click)="getCode()"
-                                    color="secondary">
-                                    {{'GET_CODE'| translate}}
+                                <button style="height: 36px; width: auto; min-width: 102px;" mat-stroked-button
+                                    (click)="getCode()" [disabled]="mobileCodeCooldown" color="secondary">
+                                    <ng-container *ngIf="mobileCodeCooldown">
+                                        <span style="margin-right: 2px;">{{mobileCodeCountDown}}</span><span>S</span>
+                                    </ng-container>
+                                    <ng-container *ngIf="!mobileCodeCooldown">
+                                        {{'GET_CODE'| translate}}
+                                    </ng-container>
+
                                 </button>
                             </div>
                         </div>
@@ -71,9 +77,15 @@
                                         <mat-error>{{emailCodeErrorMsg | translate}}</mat-error>
                                     </mat-form-field>
                                 </div>
-                                <button style="height: 36px; width: auto;" mat-stroked-button (click)="getCode()"
-                                    color="secondary">
-                                    {{'GET_CODE'| translate}}
+                                <button style="height: 36px; width: auto; min-width: 102px;" mat-stroked-button
+                                    (click)="getCode()" [disabled]="emailCodeCooldown" color="secondary">
+                                    <ng-container *ngIf="emailCodeCooldown">
+                                        <span style="margin-right: 2px;">{{emailCodeCountDown}}</span><span>S</span>
+                                    </ng-container>
+                                    <ng-container *ngIf="!emailCodeCooldown">
+                                        {{'GET_CODE'| translate}}
+                                    </ng-container>
+
                                 </button>
                             </div>
                         </div>
@@ -199,9 +211,15 @@
                             <mat-error>{{forgetCodeErrorMsg | translate}}</mat-error>
                         </mat-form-field>
                     </div>
-                    <button style="height: 36px; width: auto;" mat-stroked-button (click)="getToken()"
-                        color="secondary">
-                        {{'GET_CODE'| translate}}
+                    <button style="height: 36px; width: auto; min-width: 102px;" mat-stroked-button (click)="getToken()"
+                        [disabled]="resetCodeCooldown" color="secondary">
+                        <ng-container *ngIf="resetCodeCooldown">
+                            <span style="margin-right: 2px;">{{resetCodeCountDown}}</span><span>S</span>
+                        </ng-container>
+                        <ng-container *ngIf="!resetCodeCooldown">
+                            {{'GET_CODE'| translate}}
+                        </ng-container>
+
                     </button>
                 </div>
 

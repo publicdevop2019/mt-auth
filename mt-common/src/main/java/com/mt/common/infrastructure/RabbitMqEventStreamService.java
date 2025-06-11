@@ -229,6 +229,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             .deserialize(new String(delivery.getBody(), StandardCharsets.UTF_8),
                                 StoredEvent.class);
                     MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
+                    log.info("consuming event {}", storedEvent.getName());
                     long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                     if (log.isDebugEnabled()) {
                         log.debug(
@@ -326,6 +327,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         }
         eventPubExecutor.execute(() -> {
             MDC.put(TRACE_ID_LOG, event.getTraceId());
+            MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
             log.debug("publishing event");
             start.stop();
             Analytics pubAnalytics = Analytics.start(Analytics.Type.EVENTS_PUBLISH);
@@ -367,6 +369,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     Consumer<StoredEvent> markAsSent = (storedEvent) -> {
                         markEventExecutor.submit(() -> {
                             MDC.put(TRACE_ID_LOG, event.getTraceId());
+                            MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
                             log.debug("marking stored event id {} as sent", storedEvent.getId());
                             Analytics markEvent = Analytics.start(Analytics.Type.MARK_EVENT);
                             CommonApplicationServiceRegistry.getStoredEventApplicationService()
@@ -428,6 +431,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
                 //in case of failure, just clear outstandingConfirms and do nothing
                 ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
+                    MDC.put(TRACE_ID_LOG, event.getTraceId());
+                    MDC.put(SPAN_ID_LOG,
+                        CommonDomainRegistry.getUniqueIdGeneratorService().idString());
                     log.debug("reject callback, published by {}", name);
                     StoredEvent body = finalOutstandingConfirms.get(sequenceNumber);
                     log.error(
@@ -467,6 +473,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 channel.basicPublish(EXCHANGE_NAME, topic, true,
                     null, bytes
                 );
+                log.info("published event {}", event.getName());
                 log.debug(
                     "channel num {} published next event id {} with routing key {} size {}(bytes)",
                     channel.getChannelNumber(), event.getId(), topic, bytes.length);

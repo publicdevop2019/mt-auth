@@ -43,7 +43,8 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
         registeredApplicationSet.stream().filter(app -> app.getBasePath() != null).forEach(app -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(app.getId());
-            definition.setUri(URI.create(app.getExternalUrl()));
+            URI uri = URI.create(app.getExternalUrl());
+            definition.setUri(uri);
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setName("Path");
             Map<String, String> predicateParams = new HashMap<>(8);
@@ -54,7 +55,11 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
             filter.setName("RewritePath");
             Map<String, String> filterParams = new HashMap<>(8);
             filterParams.put("regexp", "/" + app.getBasePath() + "(?<segment>/?.*)");
-            filterParams.put("replacement", "${segment}");
+            if (uri.getPath() != null) {
+                filterParams.put("replacement", uri.getPath() + "/${segment}");
+            } else {
+                filterParams.put("replacement", "${segment}");
+            }
             filter.setArgs(filterParams);
             definition.setFilters(List.of(filter));
             routeDefinitionWriter.save(Mono.just(definition)).subscribe();

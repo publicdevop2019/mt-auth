@@ -49,15 +49,21 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomFilter implements WebFilter, Ordered {
-    public static final String REFRESH_TOKEN = "refresh_token";
+    private static final String REFRESH_TOKEN = "refresh_token";
     private static final String CSRF_INVALID_JSON_RESPONSE = "{\"msg\": \"csrf required\"}";
     private static final String EMPTY_CACHE_RESPONSE = "{\"msg\": \"proxy cache empty\"}";
     private static final String ENDPOINT_NOT_FOUND_JSON_RESPONSE =
         "{\"msg\": \"endpoint not found\"}";
     private static final String[] WHITE_LIST_URLS =
-        {"/info/checkSum", "/actuator/health", "/actuator/prometheus"};
+        {
+            "/info/checkSum",
+            "/actuator/health",
+            "/actuator/prometheus",
+            "/actuator/ready",
+            "/service-in/ready"
+        };
     @Value("${mt.misc.domain}")
-    String domain;
+    private String domain;
 
     private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
                                                               HttpHeaders headers,
@@ -143,7 +149,7 @@ public class CustomFilter implements WebFilter, Ordered {
         }
         if (!DomainRegistry.getCorsService().checkCors(exchange)) {
             LogService.reactiveLog(exchange.getRequest(),
-                () -> log.debug("cors request check completed"));
+                () -> log.debug("cors request check failed"));
             return Mono.empty();
         }
         if (DomainRegistry.getEndpointService().findEndpoint(path, method, context.getWebsocket())
@@ -189,8 +195,6 @@ public class CustomFilter implements WebFilter, Ordered {
         }
         LogService.reactiveLog(request,
             () -> log.debug("log request and response detail"));
-        //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
-        DomainRegistry.getReportService().logRequestDetails(exchange.getRequest());
         ServerHttpResponse updatedResp = updateResponse(exchange);
         LogService.reactiveLog(request,
             () -> log.debug("response updated"));
@@ -220,7 +224,6 @@ public class CustomFilter implements WebFilter, Ordered {
     private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(context.getHttpErrorStatus());
-        DomainRegistry.getReportService().logResponseDetail(exchange);
         return response.setComplete();
     }
 

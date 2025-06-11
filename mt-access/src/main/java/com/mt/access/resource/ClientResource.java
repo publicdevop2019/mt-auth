@@ -20,6 +20,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.infrastructure.Utility;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +48,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         HttpServletRequest servletRequest
     ) {
-        String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
+        String clientIpAddress = Utility.getClientIpAddress(servletRequest);
         log.info("tenant ip {}", clientIpAddress);
         DomainRegistry.getCurrentUserService().setUserJwt(jwt);
         command.setProjectId(projectId);

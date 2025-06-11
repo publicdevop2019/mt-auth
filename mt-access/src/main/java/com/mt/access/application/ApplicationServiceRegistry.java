@@ -11,7 +11,6 @@ import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
-import com.mt.access.application.report.ReportApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.sub_request.SubRequestApplicationService;
@@ -69,22 +68,20 @@ public class ApplicationServiceRegistry {
     @Getter
     private static AuditApplicationService auditApplicationService;
     @Getter
-    private static ReportApplicationService reportApplicationService;
-    @Getter
     private static SubRequestApplicationService subRequestApplicationService;
     @Getter
     private static TokenApplicationService tokenApplicationService;
+    @Getter
+    private static InstanceApplicationService instanceApplicationService;
+
+    @Autowired
+    public void setInstanceApplicationService(InstanceApplicationService service) {
+        ApplicationServiceRegistry.instanceApplicationService = service;
+    }
 
     @Autowired
     public void setTokenApplicationService(TokenApplicationService service) {
         ApplicationServiceRegistry.tokenApplicationService = service;
-    }
-
-    @Autowired
-    public void setReportApplicationService(
-        ReportApplicationService reportApplicationService) {
-        ApplicationServiceRegistry.reportApplicationService =
-            reportApplicationService;
     }
 
     @Autowired

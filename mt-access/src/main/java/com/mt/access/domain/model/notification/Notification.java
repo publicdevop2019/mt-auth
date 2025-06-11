@@ -1,9 +1,10 @@
 package com.mt.access.domain.model.notification;
 
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
+
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
-import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -27,6 +28,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.MDC;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -50,6 +52,12 @@ public class Notification {
     private String title;
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
+    @Setter(AccessLevel.PRIVATE)
+    private String traceId;
+
+    {
+        traceId = MDC.get(TRACE_ID_LOG);
+    }
 
     public Notification(HangingTxDetected deserialize) {
         super();
@@ -215,25 +223,11 @@ public class Notification {
         descriptions.add(event.getSourceName());
     }
 
-    public Notification(RawAccessRecordProcessingWarning event) {
-        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        notificationId = new NotificationId();
-        timestamp = event.getTimestamp();
-        title = RawAccessRecordProcessingWarning.name;
-        type = NotificationType.BELL;
-        if (event.getIssueIds().size() > 3) {
-            descriptions.addAll(event.getIssueIds().stream().limit(2).collect(Collectors.toSet()));
-            descriptions.add("CHECK_EVENT_FOR_MORE");
-        } else {
-            descriptions.addAll(event.getIssueIds());
-        }
-
-    }
-
     public static Notification fromDatabaseRow(Long id, LinkedHashSet<String> descriptions,
                                                NotificationId domainId, Long timestamp,
                                                String title, Boolean ack,
                                                NotificationType type, NotificationStatus status,
+                                               String traceId,
                                                UserId userId) {
         Notification notification = new Notification();
         notification.setId(id);
@@ -244,6 +238,7 @@ public class Notification {
         notification.setAck(ack);
         notification.setType(type);
         notification.setStatus(status);
+        notification.setTraceId(traceId);
         notification.setUserId(userId);
         return notification;
     }

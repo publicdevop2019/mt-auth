@@ -13,6 +13,7 @@ public class StoredEventRepresentation {
     private Long timestamp;
     private String name;
     private String domainId;
+    private String traceId;
 
     public StoredEventRepresentation(StoredEvent event) {
         setEventBody(event.getEventBody());
@@ -20,5 +21,6 @@ public class StoredEventRepresentation {
         setTimestamp(event.getTimestamp());
         setName(ClassUtility.getShortName(event.getName()));
         setDomainId(event.getDomainId());
+        setTraceId(event.getTraceId());
     }
 }

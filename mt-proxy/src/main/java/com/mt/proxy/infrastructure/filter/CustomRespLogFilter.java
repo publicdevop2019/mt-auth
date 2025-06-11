@@ -3,9 +3,9 @@ package com.mt.proxy.infrastructure.filter;
 import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_HTTP;
 import static com.mt.proxy.infrastructure.AppConstant.X_TRACE_ID;
 
-import com.mt.proxy.domain.ReportService;
+import com.mt.proxy.infrastructure.LogService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -20,14 +20,16 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomRespLogFilter implements WebFilter, Ordered {
-    @Autowired
-    private ReportService reportService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         exchange.getResponse().beforeCommit(() -> {
             addHeaders(exchange);
-            reportService.logResponseDetail(exchange);
+            LogService.reactiveLog(exchange.getRequest(),
+                () -> log.info("response status {} url {}",
+                    exchange.getResponse().getRawStatusCode(),
+                    exchange.getAttribute(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR))
+            );
             return Mono.empty();
         });
         return chain.filter(exchange);

@@ -63,7 +63,10 @@ public class TransactionService {
             log.trace("skip publishing event since no event found");
             return;
         }
+        context.getEvents().forEach(e -> {
+            log.debug("submitting event {}", e.getName());
+            CommonDomainRegistry.getEventStreamService().next(e);
+        });
         log.debug("submitted {} event(s) to publisher pool", context.getEvents().size());
-        context.getEvents().forEach(e -> CommonDomainRegistry.getEventStreamService().next(e));
     }
 }

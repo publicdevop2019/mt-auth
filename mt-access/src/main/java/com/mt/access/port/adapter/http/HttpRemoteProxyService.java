@@ -1,17 +1,20 @@
 package com.mt.access.port.adapter.http;
 
+import static com.mt.access.infrastructure.AppConstant.PROXY_NAME;
+
 import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.proxy.CheckSumValue;
 import com.mt.access.domain.model.proxy.ProxyInfo;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.instance.Instance;
 import com.mt.common.domain.model.validate.Checker;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -21,22 +24,22 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class HttpRemoteProxyService implements RemoteProxyService {
     private static final String PROXY_CHECKSUM_URL = "/info/checkSum";
-    private static final String URL_DELIMITER = ",";
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${mt.misc.url.proxy:#{null}}")
-    private String url;
 
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {
+        List<String> urls =
+            CommonDomainRegistry.getInstanceRepository().getAllInstances().stream()
+                .filter(e -> PROXY_NAME.equalsIgnoreCase(e.getName())).map(Instance::getUrl)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
         HashMap<ProxyInfo, CheckSumValue> valueHashMap = new HashMap<>();
-        if (Checker.isBlank(url)) {
+        if (Checker.isEmpty(urls)) {
             log.warn("proxy check skipped due to no url configured");
             return valueHashMap;
         }
-        String[] urls = url.split(URL_DELIMITER);
-        Set<String> trimmedUrls = Arrays.stream(urls).map(String::trim).collect(Collectors.toSet());
-        trimmedUrls.forEach((url) -> {
+        urls.forEach((url) -> {
             ProxyInfo proxyInfo = new ProxyInfo(url);
             ResponseEntity<String> exchange = null;
             try {

@@ -4,14 +4,17 @@ import static com.mt.proxy.infrastructure.AppConstant.REQUEST_ID_HTTP;
 import static com.mt.proxy.infrastructure.AppConstant.SPAN_ID_HTTP;
 import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_HTTP;
 
+import com.mt.proxy.infrastructure.LogService;
 import java.util.HashMap;
 import java.util.Map;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
 
+@Slf4j
 public class Utility {
     public static final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
@@ -71,16 +74,6 @@ public class Utility {
     }
 
     /**
-     * get client ip and port, replace : with _ for report processing purpose
-     *
-     * @param request ServerHttpRequest
-     * @return formatted client ip
-     */
-    public static String getClientInfoForReport(ServerHttpRequest request) {
-        return getClientInfo(request).replaceAll(":", "_");
-    }
-
-    /**
      * get client ip and port
      *
      * @param request ServerHttpRequest
@@ -88,9 +81,11 @@ public class Utility {
      */
     public static String getClientInfo(ServerHttpRequest request) {
         String clientIp = "UNKNOWN";
-        String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
-        if (first != null && !first.isBlank()) {
-            clientIp = first;
+        String xForwardedFor = request.getHeaders().getFirst("X-FORWARDED-FOR");
+        LogService.reactiveLog(request, () -> log.debug("X-FORWARDED-FOR {}", xForwardedFor));
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            //get first ip as real ip
+            clientIp = xForwardedFor.split(",")[0].trim();
         } else {
             if (request.getRemoteAddress() != null) {
                 String ip = request.getRemoteAddress().toString();

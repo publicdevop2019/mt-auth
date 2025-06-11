@@ -14,6 +14,7 @@ import com.mt.common.domain.model.local_transaction.TransactionContext;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Timer;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
@@ -22,7 +23,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,8 +41,6 @@ public class RedisDistributedJobService implements DistributedJobService {
     private RedissonClient redissonClient;
     @Autowired
     private MeterRegistry meterRegistry;
-    @Value("${mt.misc.instance-id}")
-    private Long instanceId;
 
     private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,
                                    JobDetail job) {
@@ -110,12 +108,9 @@ public class RedisDistributedJobService implements DistributedJobService {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()
                     .transactionalEvent((context) -> {
-                        JobStarving starvingEvent =
-                            new JobStarving(job);
-                        context
-                            .append(starvingEvent);
-                        CommonDomainRegistry.getJobRepository()
-                            .notifyAdmin(job.getJobId());
+                        JobStarving starvingEvent = new JobStarving(job);
+                        context.append(starvingEvent);
+                        CommonDomainRegistry.getJobRepository().notifyAdmin(job.getJobId());
                     });
             }
         }
@@ -158,8 +153,10 @@ public class RedisDistributedJobService implements DistributedJobService {
                 return;
             }
             if (job.getType().equals(JobType.CLUSTER)) {
+                log.debug("job is per cluster");
                 boolean b = tryDistributedJob(jobName, job.getJobId(), jobFn, transactional);
                 if (!b) {
+                    log.info("job skipped due to lock acquire failed");
                     //when thread cannot get lock, updating job is not allowed to avoid concurrent update issue
                     Integer failureCountOrDefault =
                         jobInstanceFailureCountMap.getOrDefault(jobName, 0);
@@ -172,15 +169,23 @@ public class RedisDistributedJobService implements DistributedJobService {
                     jobInstanceNotificationMap.remove(jobName);
                 }
             } else {
+                log.debug("job is per instance");
                 //if job is per instance
-                JobDetail template = JobDetail.cloneJobFrom(job, instanceId);
-                Optional<JobDetail> instanceJob =
+                Long instanceId =
+                    ((SnowflakeUniqueIdService) CommonDomainRegistry.getUniqueIdGeneratorService()).getInstanceId();
+                log.debug("job instance id {}", instanceId);
+                JobDetail clonedJob = JobDetail.cloneJobFrom(job, instanceId);
+                Optional<JobDetail> existJob = CommonDomainRegistry.getJobRepository()
+                    .getByName(clonedJob.getName());
+                if (existJob.isEmpty()) {
                     CommonDomainRegistry.getJobRepository()
-                        .getByName(template.getName());
-                if (instanceJob.isPresent() && instanceJob.get().isPaused()) {
+                        .add(clonedJob);
+                }
+                if (existJob.isPresent() && existJob.get().isPaused()) {
+                    log.debug("job is paused");
                     return;
                 }
-                JobDetail jobDetail = instanceJob.orElse(template);
+                JobDetail jobDetail = existJob.orElse(clonedJob);
                 jobWrapper(jobFn, transactional, jobDetail);
             }
             start.stop();
@@ -215,6 +220,11 @@ public class RedisDistributedJobService implements DistributedJobService {
                                       boolean transactional) {
         log.trace("before starting scheduler {} job", jobName);
         String key = getJobLockKey(jobName);
+        try {
+            Thread.sleep(new Random().nextInt(100));// for a better fairness
+        } catch (InterruptedException e) {
+            log.error("error during lock random sleep");
+        }
         RLock lock = redissonClient.getLock(key);
         //NOTE: "if (lock.tryLock())" guarantee atomic operation
         if (lock.tryLock()) {
@@ -242,6 +252,8 @@ public class RedisDistributedJobService implements DistributedJobService {
             !jobInstanceNotificationMap.getOrDefault(jobName, false)) {
             CommonDomainRegistry.getTransactionService().transactionalEvent(
                 (context) -> {
+                    Long instanceId =
+                        ((SnowflakeUniqueIdService) CommonDomainRegistry.getUniqueIdGeneratorService()).getInstanceId();
                     log.warn(
                         "job {} thread unable to acquire lock multiple times",
                         jobName);

@@ -8,6 +8,7 @@ export interface IBellNotification extends IIdBasedEntity {
     title: string,
     descriptions: string[],
     date: number
+    traceId: string
 }
 @Injectable({
     providedIn: 'root'

@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.github.publicdevop2019</groupId>
+    <groupId>com.mt.mt-auth</groupId>
     <artifactId>mt-common</artifactId>
-    <version>2.0.0</version>
+    <version>2.2.7</version>
     <packaging>jar</packaging>
     <name>mt-common</name>
     <url>https://github.com/publicdevop2019/mt-auth</url>
@@ -98,7 +98,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>ossrh</id>
+            <id>nexus</id>
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -133,29 +133,16 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
             <distributionManagement>
                 <snapshotRepository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+                    <id>nexus</id>
+                    <url>http://172.27.151.17:8081/repository/maven-snapshot</url>
                 </snapshotRepository>
                 <repository>
-                    <id>ossrh</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                    <id>nexus</id>
+                    <url>http://172.27.151.17:8081/repository/maven-releases</url>
                 </repository>
             </distributionManagement>
         </profile>

@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, switchMap, take } from 'rxjs/operators';
 import { Utility } from 'src/app/misc/utility';
-import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -83,7 +82,6 @@ export class MyApisComponent {
         delete: 'DELETE',
         expire: 'EXPIRE',
         expireReason: 'EXPIRE_REASON',
-        report: 'VIEW_REPORT',
       } : {
         id: 'ID',
         name: 'NAME',
@@ -120,9 +118,6 @@ export class MyApisComponent {
     }, () => {
       this.deviceSvc.notify(false)
     })
-  }
-  viewReport(id: string) {
-    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectIdFromUrl() } });
   }
   doSearch(config: ISearchEvent) {
     this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.url, config.value);

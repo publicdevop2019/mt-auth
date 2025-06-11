@@ -1,6 +1,8 @@
 package com.mt.access.resource;
 
+import com.mt.access.application.ApplicationServiceRegistry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,13 +25,15 @@ public class UtilityResource {
     }
 
     /**
-     * ribbon health check.
+     * readiness check.
      *
      * @return void
      */
-    @GetMapping(path = "health")
+    @GetMapping(path = "actuator/ready")
     public ResponseEntity<Void> healthCheck() {
-        log.trace("health check triggered");
-        return ResponseEntity.ok().build();
+        log.trace("ready check triggered");
+        boolean isReady = ApplicationServiceRegistry.getInstanceApplicationService().checkReady();
+        return isReady ? ResponseEntity.ok().build() :
+            ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
     }
 }

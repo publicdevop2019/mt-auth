@@ -109,7 +109,6 @@ import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
-import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserMessageComponent } from './pages/common/user-message/user-message.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
@@ -185,7 +184,6 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
     MySubscriptionsComponent,
     EnterReasonDialogComponent,
     EndpointComponent,
-    EndpointAnalysisComponent,
     UserMessageComponent,
     DashboardComponent,
     ClientCreateDialogComponent,

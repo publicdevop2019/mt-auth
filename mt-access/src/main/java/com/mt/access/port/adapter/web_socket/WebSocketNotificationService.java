@@ -31,7 +31,7 @@ public class WebSocketNotificationService implements WsPushNotificationService {
 
     @Scheduled(fixedRate = 25 * 1000)
     protected void autoRenew() {
-        log.trace("triggered scheduled task 4");
+        log.info("renewing ws connections");
         CommonDomainRegistry.getJobService()
             .execute(KEEP_WS_CONNECTION_JOB_NAME, (ignored) -> {
                 log.trace("start of renewing all ws connects");

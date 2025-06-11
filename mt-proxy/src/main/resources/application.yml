@@ -4,11 +4,12 @@ mt:
   redis:
     url:
     client-name: mt-proxy
+    timeout: 30000
   misc:
     domain:
-    instance-id:
     url:
       access:
+    service-in: true
 server:
   port: 8111
 spring:

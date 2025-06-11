@@ -43,11 +43,6 @@ import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.project.ProjectService;
 import com.mt.access.domain.model.proxy.ProxyService;
-import com.mt.access.domain.model.report.DataProcessTrackerRepository;
-import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
-import com.mt.access.domain.model.report.RawAccessRecordProcessService;
-import com.mt.access.domain.model.report.RawAccessRecordRepository;
-import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.ApiPermissionIdRepository;
@@ -55,6 +50,7 @@ import com.mt.access.domain.model.role.CommonPermissionIdRepository;
 import com.mt.access.domain.model.role.ExternalPermissionIdRepository;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
+import com.mt.access.domain.model.instance.InstanceService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
 import com.mt.access.domain.model.temporary_code.TemporaryCodeService;
@@ -175,17 +171,7 @@ public class DomainRegistry {
     @Getter
     private static CoolDownService coolDownService;
     @Getter
-    private static RawAccessRecordRepository rawAccessRecordRepository;
-    @Getter
     private static SubRequestRepository subRequestRepository;
-    @Getter
-    private static ReportGenerateService reportGenerateService;
-    @Getter
-    private static FormattedAccessRecordRepository formattedAccessRecordRepository;
-    @Getter
-    private static RawAccessRecordProcessService rawAccessRecordProcessService;
-    @Getter
-    private static DataProcessTrackerRepository dataProcessTrackerRepository;
     @Getter
     private static AuditRecordRepository auditRepository;
     @Getter
@@ -224,6 +210,13 @@ public class DomainRegistry {
     private static UserRelationRoleIdRepository userRelationRoleIdRepository;
     @Getter
     private static UserRelationTenantIdRepository userRelationTenantIdRepository;
+    @Getter
+    private static InstanceService instanceService;
+
+    @Autowired
+    public void setInstanceService(InstanceService services) {
+        DomainRegistry.instanceService = services;
+    }
 
     @Autowired
     public void setUserRelationRoleIdRepository(UserRelationRoleIdRepository services) {
@@ -356,36 +349,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setRawAccessRecordProcessService(
-        RawAccessRecordProcessService rawAccessRecordProcessService) {
-        DomainRegistry.rawAccessRecordProcessService = rawAccessRecordProcessService;
-    }
-
-    @Autowired
-    public void setDataProcessTrackerRepository(
-        DataProcessTrackerRepository dataProcessTrackerRepository) {
-        DomainRegistry.dataProcessTrackerRepository = dataProcessTrackerRepository;
-    }
-
-    @Autowired
-    public void setFormattedAccessRecordRepository(
-        FormattedAccessRecordRepository formattedAccessRecordRepository) {
-        DomainRegistry.formattedAccessRecordRepository = formattedAccessRecordRepository;
-    }
-
-    @Autowired
-    public void setReportGenerateService(ReportGenerateService reportGenerateService) {
-        DomainRegistry.reportGenerateService = reportGenerateService;
-    }
-
-    @Autowired
     public void setSubRequestRepository(SubRequestRepository subRequestRepository) {
         DomainRegistry.subRequestRepository = subRequestRepository;
-    }
-
-    @Autowired
-    public void setRawAccessRecordRepository(RawAccessRecordRepository rawAccessRecordRepository) {
-        DomainRegistry.rawAccessRecordRepository = rawAccessRecordRepository;
     }
 
     @Autowired

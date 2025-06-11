@@ -18,7 +18,7 @@ import { DeviceService } from 'src/app/services/device.service';
 export class NewProjectComponent {
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
-  showNotes: boolean = false
+  createSuccess: boolean = false
   createLoading: boolean = false
   nameErrorMsg: string = undefined
   public systemError: boolean = false;
@@ -48,7 +48,7 @@ export class NewProjectComponent {
         version: 0
       }
       this.count = 0;
-      this.showNotes = false;
+      this.createSuccess = false;
       this.systemError = false
       this.disableUserInteraction()
       this.deviceSvc.operationCancelled.subscribe((_ => {
@@ -60,8 +60,8 @@ export class NewProjectComponent {
             this.count++;
             if (next && next.status) {
               clearInterval(pull)
-              this.showNotes = true;
-              this.enableUserInteraction()
+              this.createLoading = false;
+              this.createSuccess = true;
             }
             if (this.count === 6) {
               clearInterval(pull);

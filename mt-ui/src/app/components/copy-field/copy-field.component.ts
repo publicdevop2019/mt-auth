@@ -9,6 +9,7 @@ import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interc
 export class CopyFieldComponent implements OnInit {
 
   @Input() inputValue: string = '';
+  @Input() iconSize: string = '24px';
   @Input() maxWidth: string = '150px';
   displayEdit = 'hidden';
   editView: false;
@@ -23,8 +24,9 @@ export class CopyFieldComponent implements OnInit {
   hideIcon() {
     this.displayEdit = 'hidden'
   }
-  doCopy() {
+  doCopy(event:MouseEvent) {
     this.updateClipboard(this.inputValue);
+    event.stopPropagation();
   }
   updateClipboard(newClip: string) {
     this.copyToClipboard(newClip)

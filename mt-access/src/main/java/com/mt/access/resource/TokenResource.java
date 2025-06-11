@@ -11,6 +11,7 @@ import com.mt.access.domain.model.token.TokenGrantType;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.infrastructure.Utility;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class TokenResource {
             clientId = split[0];
             clientSecret = decoded.split(":")[1];
         }
-        String ipAddress = HttpUtility.getClientIpAddress(servletRequest);
+        String ipAddress = Utility.getClientIpAddress(servletRequest);
         log.info("token acquire with ip {}", ipAddress);
         String grantType = parameters.get("grant_type");
         String scope =

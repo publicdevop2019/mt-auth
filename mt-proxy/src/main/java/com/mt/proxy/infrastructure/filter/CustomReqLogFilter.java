@@ -3,6 +3,7 @@ package com.mt.proxy.infrastructure.filter;
 import static com.mt.proxy.infrastructure.AppConstant.SPAN_ID_HTTP;
 import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_HTTP;
 
+import com.mt.proxy.domain.InstanceInfo;
 import com.mt.proxy.domain.UniqueIdGeneratorService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.infrastructure.LogService;
@@ -25,10 +26,16 @@ import reactor.core.publisher.Mono;
 public class CustomReqLogFilter implements WebFilter, Ordered {
     @Autowired
     UniqueIdGeneratorService idGeneratorService;
+    @Autowired
+    InstanceInfo instanceInfo;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+        if (instanceInfo.getId() == null) {
+            return chain
+                .filter(exchange.mutate().request(request).build());
+        }
         //always create new span id first
         String newTraceId;
         String newSpanId = idGeneratorService.idString();

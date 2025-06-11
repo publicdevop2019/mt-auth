@@ -16,6 +16,7 @@ export class UserMessageComponent{
     date: 'DATE',
     title: 'TITLE',
     message: 'MESSAGE',
+    traceId: 'TRACE_ID',
   }
   private url = Utility.getUserResource(RESOURCE_NAME.USER_BELL_NOTIFICATION)
   public tableSource: TableHelper<IBellNotification> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);

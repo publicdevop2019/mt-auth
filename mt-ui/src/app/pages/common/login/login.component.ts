@@ -25,10 +25,11 @@ import { environment } from 'src/environments/environment';
 export class LoginComponent {
   hide = true;
   context: 'LOGIN' | 'FORGET' = 'LOGIN'
-  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'MOBILE_CODE';
-  selectedLoginIndex = 0;
+  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'EMAIL_CODE';
+  selectedLoginIndex = 1;
   forgetContext: 'EMAIL' | 'MOBILE' = 'MOBILE';
   nextUrl: string = '/' + RouterWrapperService.HOME_URL;
+  DEFAULT_WAIT: number = environment.codeCooldown;
   mobileErrorMsg: string = undefined;
   mobileCodeErrorMsg: string = undefined;
   emailCodeErrorMsg: string = undefined;
@@ -43,25 +44,32 @@ export class LoginComponent {
 
   enableError: boolean = false;
   enableForgetError: boolean = false;
+  mobileCodeCooldown: boolean = false;
+  mobileCodeCountDown: number = this.DEFAULT_WAIT;
+  emailCodeCooldown: boolean = false;
+  emailCodeCountDown: number = this.DEFAULT_WAIT;
+  resetCodeCooldown: boolean = false;
+  resetCodeCountDown: number = this.DEFAULT_WAIT;
 
   codeChangeId = Utility.getChangeId();
   registerChangeId = Utility.getChangeId();
   tokenChangeId = Utility.getChangeId();
   resetChangeId = Utility.getChangeId();
   loginId = Utility.getChangeId();
+  DEFAULT_COUNTRY_CODE: string = '1'
   form = new FormGroup({
-    countryCode: new FormControl('86', []),
+    countryCode: new FormControl(this.DEFAULT_COUNTRY_CODE, []),
     mobileNumber: new FormControl('', []),
     mobileCode: new FormControl('', []),
     email: new FormControl('', []),
     emailCode: new FormControl('', []),
     pwdEmailOrUsername: new FormControl('', []),
     pwdMobileNumber: new FormControl('', []),
-    pwdCountryCode: new FormControl('86', []),
+    pwdCountryCode: new FormControl(this.DEFAULT_COUNTRY_CODE, []),
     pwd: new FormControl('', []),
   });
   forgetForm = new FormGroup({
-    countryCode: new FormControl('86', []),
+    countryCode: new FormControl(this.DEFAULT_COUNTRY_CODE, []),
     mobileNumber: new FormControl('', []),
     email: new FormControl('', []),
     token: new FormControl('', []),
@@ -86,19 +94,14 @@ export class LoginComponent {
         this.nextUrl = '/' + RouterWrapperService.AUTHORIZE_URL;
       }
     });
-    if(deviceSvc.isDemo()){
+    if (deviceSvc.isDemo()) {
       this.translate.get("DEMO_NOTIFICAIONT").subscribe(next => {
         this.snackBar.open(next, 'OK');
       })
     }
-    if (localStorage.getItem('home_notification') !== 'true') {
-      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
-        this.snackBar.open(next, 'OK');
-        this.snackBar._openedSnackBarRef.afterDismissed().subscribe(() => {
-          localStorage.setItem('home_notification', 'true')
-        })
-      })
-    }
+    this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+      this.snackBar.open(next, 'OK');
+    })
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
         Logger.debug('checking login')
@@ -116,9 +119,9 @@ export class LoginComponent {
     {
       label: 'COUNTRY_CANADA', value: '1'
     },
-    {
-      label: 'COUNTRY_CHINA', value: '86'
-    },
+    // {
+    //   label: 'COUNTRY_CHINA', value: '86'
+    // },
   ]
   loginOrRegister() {
     this.enableError = true;
@@ -159,17 +162,42 @@ export class LoginComponent {
       hasEmailOrMobile = this.validateEmail()
     } else if (this.loginContext === 'MOBILE_CODE') {
       hasEmailOrMobile = this.validateMobile()
+
     }
     if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
       let payload: IVerificationCodeRequest
       if (this.loginContext === 'EMAIL_CODE') {
         payload = { email: this.form.get('email').value }
+        this.emailCodeCooldown = true;
+        this.emailCodeCountDown = this.DEFAULT_WAIT;
+        const interval = setInterval(() => {
+          this.emailCodeCountDown--;
+          if (this.emailCodeCountDown === 0) {
+            this.emailCodeCooldown = false;
+            clearInterval(interval);
+          }
+        }, 1000);
       } else {
         payload = { mobileNumber: this.form.get('mobileNumber').value, countryCode: this.form.get('countryCode').value }
+        this.mobileCodeCooldown = true;
+        this.mobileCodeCountDown = this.DEFAULT_WAIT;
+        const interval = setInterval(() => {
+          this.mobileCodeCountDown--;
+          if (this.mobileCodeCountDown === 0) {
+            this.mobileCodeCooldown = false;
+            clearInterval(interval);
+          }
+        }, 1000);
       }
       this.httpProxy.getCode(payload, this.codeChangeId).subscribe(next => {
         this.openDialog('CODE_SEND_MSG');
+      }, error => { }, () => {
+        if (this.loginContext === 'EMAIL_CODE') {
+          this.emailCodeCooldown = true;
+        } else {
+
+        }
       })
     }
   }
@@ -189,6 +217,15 @@ export class LoginComponent {
         payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value }
       }
       this.httpProxy.currentUserAuthInfo = undefined;
+      this.resetCodeCooldown = true;
+      this.resetCodeCountDown = this.DEFAULT_WAIT;
+      const interval = setInterval(() => {
+        this.resetCodeCountDown--;
+        if (this.resetCodeCountDown === 0) {
+          this.resetCodeCooldown = false;
+          clearInterval(interval);
+        }
+      }, 1000);
       this.httpProxy.forgetPwd(payload, this.tokenChangeId).subscribe(next => {
         this.openDialog('TOKEN_SEND_MSG');
       })

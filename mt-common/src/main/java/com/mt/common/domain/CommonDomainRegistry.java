@@ -9,13 +9,14 @@ import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.local_transaction.TransactionService;
 import com.mt.common.domain.model.logging.LogService;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
+import com.mt.common.domain.model.instance.InstanceRepository;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("commonDomainRegistry")
 public class CommonDomainRegistry {
     @Getter
     private static UniqueIdGeneratorService uniqueIdGeneratorService;
@@ -25,6 +26,8 @@ public class CommonDomainRegistry {
     private static SagaEventStreamService eventStreamService;
     @Getter
     private static ChangeRecordRepository changeRecordRepository;
+    @Getter
+    private static InstanceRepository instanceRepository;
     @Getter
     private static DomainEventRepository domainEventRepository;
     @Getter
@@ -86,6 +89,11 @@ public class CommonDomainRegistry {
     @Autowired
     public void setUniqueIdGeneratorService(UniqueIdGeneratorService uniqueIdGeneratorService) {
         CommonDomainRegistry.uniqueIdGeneratorService = uniqueIdGeneratorService;
+    }
+
+    @Autowired
+    public void setInstanceRepository(InstanceRepository instanceRepository) {
+        CommonDomainRegistry.instanceRepository = instanceRepository;
     }
 
 }

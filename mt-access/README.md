@@ -11,8 +11,6 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 ```
 --mt.redis.url=redis://localhost:6381
 --mt.rabbitmq.url=localhost:5673
---mt.misc.instance-id=0
---mt.misc.url.proxy=http://localhost:8111
 --mt.misc.mgmt-email=your@email.com
 --mt.jwt.password=localdev
 --spring.datasource.url=jdbc:mysql://localhost:3306/auth_dev?useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
@@ -24,6 +22,5 @@ keytool -genkeypair -alias svcAsyKey -keyalg RSA -keysize 2048 -keystore svcAsyK
 
 # Environment
 
-- Ubuntu 18.04 64bit
 - Java: java version "11.0.14" 2022-01-18 LTS
 - Maven: maven:3.6.3-jdk-11

@@ -9,7 +9,6 @@ import com.mt.access.domain.model.notification.event.SendBellNotification;
 import com.mt.access.domain.model.notification.event.SendEmailNotification;
 import com.mt.access.domain.model.notification.event.SendSmsNotification;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
-import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
@@ -168,13 +167,6 @@ public class NotificationEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     protected void rejectedMsgReceivedListener() {
         ListenerHelper.listen(new RejectedMsgReceived(),
-            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    protected void rawAccessRecordProcessingWarningListener() {
-        ListenerHelper.listen(new RawAccessRecordProcessingWarning(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }

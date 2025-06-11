@@ -16,6 +16,7 @@ export class MessageCenterComponent {
     date: 'DATE',
     title: 'TITLE',
     message: 'MESSAGE',
+    traceId: 'TRACE_ID',
   }
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_BELL_NOTIFICATION)
   public tableSource: TableHelper<IBellNotification> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);

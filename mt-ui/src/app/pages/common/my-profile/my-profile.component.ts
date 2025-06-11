@@ -35,13 +35,14 @@ export class MyProfileComponent implements OnInit, OnDestroy {
   subs: Subscription = new Subscription();
   changeId = Utility.getChangeId()
   private hasSubmitted: boolean = false;
+  DEFAULT_COUNTRY_CODE: string = '1'
   mobileNums: IOption[] = [
     {
       label: 'COUNTRY_CANADA', value: '1'
     },
-    {
-      label: 'COUNTRY_CHINA', value: '86'
-    },
+    // {
+    //   label: 'COUNTRY_CHINA', value: '86'
+    // },
   ]
   constructor(
     public authSvc: AuthService,
@@ -88,7 +89,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.profileFg.patchValue({
         language: next.language,
         mobileNumber: next.mobileNumber,
-        mobileCountryCode: next.countryCode || '86',
+        mobileCountryCode: next.countryCode || this.DEFAULT_COUNTRY_CODE,
         username: next.username || '',
         email: next.email,
       })

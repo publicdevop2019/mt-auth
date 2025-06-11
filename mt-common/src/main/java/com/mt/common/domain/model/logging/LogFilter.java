@@ -2,6 +2,7 @@ package com.mt.common.domain.model.logging;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
+import com.mt.common.infrastructure.Utility;
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.GenericFilter;
@@ -36,13 +37,7 @@ public class LogFilter extends GenericFilter {
 
         String spanId = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
         MDC.put(AppInfo.SPAN_ID_LOG, spanId);
-        String clientIp;
-        String ipFromHeader = httpRequest.getHeader(AppInfo.X_FORWARDED_FOR);
-        if (ipFromHeader != null && ipFromHeader.length() > 0) {
-            clientIp = ipFromHeader;
-        } else {
-            clientIp = servletRequest.getRemoteAddr();
-        }
+        String clientIp = Utility.getClientIpAddress(httpRequest);
         log.info("http client ip {} url: {}", clientIp,
             ((HttpServletRequest) servletRequest).getRequestURI());
         try {

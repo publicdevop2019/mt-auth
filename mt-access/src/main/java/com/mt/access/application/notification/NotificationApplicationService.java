@@ -11,7 +11,6 @@ import com.mt.access.domain.model.notification.event.SendBellNotification;
 import com.mt.access.domain.model.notification.event.SendEmailNotification;
 import com.mt.access.domain.model.notification.event.SendSmsNotification;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
-import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -31,15 +30,12 @@ import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Checker;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class NotificationApplicationService {
     private static final String NOTIFICATION = "Notification";
-    @Value("${mt.misc.instance-id}")
-    private Long instanceId;
 
     public SumPagedRep<Notification> mgmtQueryBell(String queryParam, String pageParam,
                                                    String skipCount) {
@@ -109,7 +105,7 @@ public class NotificationApplicationService {
                 DomainRegistry.getNotificationRepository()
                     .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;
-            }, NOTIFICATION + "_" + instanceId);
+            }, NOTIFICATION + "_" + DomainRegistry.getInstanceService().getInstanceId());
 
 
     }
@@ -277,11 +273,6 @@ public class NotificationApplicationService {
             Notification notification = new Notification(event);
             storeBellNotification(event.getId().toString(), notification);
         }
-    }
-
-    public void handle(RawAccessRecordProcessingWarning event) {
-        Notification notification = new Notification(event);
-        storeBellNotification(event.getId().toString(), notification);
     }
 
     private void storeBellNotification(String uniqueId, Notification notification) {

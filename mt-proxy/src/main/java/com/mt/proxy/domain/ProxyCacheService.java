@@ -4,8 +4,6 @@ import com.mt.proxy.infrastructure.LogService;
 import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +12,9 @@ import org.springframework.stereotype.Service;
 public class ProxyCacheService {
     public static final String CACHE_LOG_PREFIX = "cache-sync";
     @Autowired
-    LogService logService;
+    private LogService logService;
+    @Autowired
+    private InstanceInfo instanceInfo;
     private volatile Long reloadRequestedAt = 0L;
     private volatile Long completedReloadRequestAt = 0L;
     private volatile boolean reloadInProgressLock = false;
@@ -23,14 +23,39 @@ public class ProxyCacheService {
         reloadRequestedAt = Instant.now().toEpochMilli();
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void onAppStartReload() {
-        reloadRequestedAt = Instant.now().toEpochMilli();
-        reload();
+    public void initialReload() {
+        if (Boolean.TRUE.equals(instanceInfo.getEndpointsLoaded()) &&
+            Boolean.TRUE.equals(instanceInfo.getRoutesLoaded())) {
+            return;
+        }
+        synchronized (ProxyCacheService.class) {
+            if (Boolean.TRUE.equals(instanceInfo.getEndpointsLoaded()) &&
+                Boolean.TRUE.equals(instanceInfo.getRoutesLoaded())) {
+                return;
+            }
+            reloadRequestedAt = Instant.now().toEpochMilli();
+            reloadWithInterval();
+            instanceInfo.setEndpointsLoaded(true);
+            instanceInfo.setRoutesLoaded(true);
+        }
     }
 
+    /**
+     * prevent frequent reload
+     */
     @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
-    public void reload() {
+    public void scheduledReload() {
+        if (instanceInfo.ready()) {
+            reloadWithInterval();
+        } else {
+            log.debug("skipped scheduler due to instance not ready");
+        }
+    }
+
+    /**
+     * prevent frequent reload
+     */
+    public void reloadWithInterval() {
         logService.initTrace();
         log.info("{} start cache refresh check", CACHE_LOG_PREFIX);
         if (reloadInProgressLock) {
@@ -51,7 +76,7 @@ public class ProxyCacheService {
             completedReloadRequestAt = nextCompletedReloadRequestAt;
             log.info("{} refresh cached endpoints end", CACHE_LOG_PREFIX);
         } catch (Exception ex) {
-            log.error("{} exception during proxy refresh", CACHE_LOG_PREFIX, ex);
+            log.warn("{} exception during proxy refresh", CACHE_LOG_PREFIX, ex);
         } finally {
             reloadInProgressLock = false;
         }

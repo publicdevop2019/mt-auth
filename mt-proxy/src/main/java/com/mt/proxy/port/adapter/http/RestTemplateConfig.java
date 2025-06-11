@@ -12,6 +12,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpRequest;
@@ -28,7 +29,7 @@ public class RestTemplateConfig {
     private static final int MAX_CONN_PER_ROUTE = 10;
     private static final int MAX_CONN_TOTAL = 100;
 
-    @Bean
+    @Bean("restTemplate")
     public RestTemplate getRestTemplate(HttpComponentsClientHttpRequestFactory factory,
                                         OutgoingReqInterceptor requestInterceptor) {
         RestTemplate restTemplate = new RestTemplate();

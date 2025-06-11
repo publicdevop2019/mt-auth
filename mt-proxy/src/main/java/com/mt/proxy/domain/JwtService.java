@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -33,16 +31,26 @@ public class JwtService {
     private HttpUtility httpHelper;
     @Autowired
     private LogService logService;
+    @Autowired
+    private InstanceInfo instanceInfo;
 
-    @EventListener(ApplicationReadyEvent.class)
     public void loadKeys() {
-        logService.initTrace();
-        JWKSet jwkSet = DomainRegistry.getRetrieveJwtPublicKeyService().loadKeys();
-        JWK jwk = jwkSet.getKeys().get(0);
-        try {
-            publicKey = jwk.toRSAKey().toRSAPublicKey();
-        } catch (JOSEException e) {
-            e.printStackTrace();
+        if (Boolean.TRUE.equals(instanceInfo.getJwtPublicCertLoaded())) {
+            return;
+        }
+        synchronized (JwtService.class) {
+            if (Boolean.TRUE.equals(instanceInfo.getJwtPublicCertLoaded())) {
+                return;
+            }
+            logService.initTrace();
+            JWKSet jwkSet = DomainRegistry.getRetrieveJwtPublicKeyService().loadKeys();
+            JWK jwk = jwkSet.getKeys().get(0);
+            try {
+                publicKey = jwk.toRSAKey().toRSAPublicKey();
+            } catch (JOSEException e) {
+                log.warn("error during public key load", e);
+            }
+            instanceInfo.setJwtPublicCertLoaded(true);
         }
     }
 

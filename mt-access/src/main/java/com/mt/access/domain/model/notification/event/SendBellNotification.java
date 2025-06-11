@@ -20,11 +20,11 @@ public class SendBellNotification extends DomainEvent {
     private String title;
     private LinkedHashSet<String> descriptions;
     private UserId userId;
+    private String traceId;
 
     {
         setTopic(SEND_BELL_NOTIFICATION_EVENT);
         setName(name);
-
     }
 
     public SendBellNotification(Notification notification) {
@@ -33,6 +33,7 @@ public class SendBellNotification extends DomainEvent {
         this.descriptions = notification.getDescriptions();
         title = notification.getTitle();
         userId = notification.getUserId();
+        traceId = notification.getTraceId();
     }
 
     public String value() {

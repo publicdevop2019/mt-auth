@@ -10,9 +10,8 @@ public class ListenerHelper {
         listen(event, consumer, 1);
     }
 
-    public static <T extends DomainEvent> void listen(T event, Consumer<T> consumer,
-                                                      Integer concurrent) {
-        IntStream.range(0, concurrent).forEach((ignore) -> {
+    public static <T extends DomainEvent> void listen(T event, Consumer<T> consumer, Integer con) {
+        IntStream.range(0, con).forEach((ignore) -> {
             Class<? extends DomainEvent> aClass = event.getClass();
             CommonDomainRegistry.getEventStreamService()
                 .of(event.getTopic(), (Class<T>) aClass, consumer);

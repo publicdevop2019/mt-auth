@@ -5,7 +5,6 @@ import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { Utility } from '../misc/utility';
-import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IProjectUiPermission } from './project.service';
@@ -374,9 +373,6 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/expire`, { expireReason: reason }, { headers: headerConfig })
-    }
-    viewEndpointReport(projectId: string, id: string, type: string) {
-        return this._httpClient.get<IAnalysisResult>(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:${type}`)
     }
     adddUserRole(projectId: string, userId: string, roleIds: string[], changeId: string) {
         let headerConfig = new HttpHeaders();

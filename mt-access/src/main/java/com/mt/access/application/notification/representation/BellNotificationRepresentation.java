@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class BellNotificationRepresentation {
     private Long date;
     private String title;
+    private String traceId;
     private String id;
     private Set<String> descriptions;
 
@@ -19,6 +20,7 @@ public class BellNotificationRepresentation {
         id = notification.getDomainId().getDomainId();
         descriptions = notification.getDescriptions();
         title = notification.getTitle();
+        traceId = notification.getTraceId();
     }
 
     public BellNotificationRepresentation(Notification notification) {
@@ -26,6 +28,7 @@ public class BellNotificationRepresentation {
         id = notification.getNotificationId().getDomainId();
         descriptions = notification.getDescriptions();
         title = notification.getTitle();
+        traceId = notification.getTraceId();
     }
 
 }

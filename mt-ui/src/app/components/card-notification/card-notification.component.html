@@ -14,13 +14,20 @@
         <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center;">
                 <div style="margin-right: 16px;">
-                    <div style="height: 36px; width: 36px; border-radius: 50%; background-color: #673ab7; color: white; line-height: 36px; text-align: center;">
+                    <div
+                        style="height: 36px; width: 36px; border-radius: 50%; background-color: #673ab7; color: white; line-height: 36px; text-align: center;">
                         S
                     </div>
                 </div>
                 <div>
                     <div style="font-weight: 700;font-size: 14px; margin-bottom: 2px;">{{value.title | translate}}</div>
-                    <div style="justify-content: space-between; align-items: center; font-size: 12px; flex:1; color: rgba(0,0,0,.54);">
+                    <div
+                        style="justify-content: space-between; align-items: center; font-size: 12px; flex:1; color: rgba(0,0,0,.54);">
+                        <div class="max-length" style="margin-bottom: 4px; display: flex; flex-direction: row; align-items: center;">
+                            <span style="margin-right: 8px;">{{'TRACE_ID'|translate}}</span><span>
+                                <app-copy-field [inputValue]="value.traceId" [iconSize]="'12px'" ></app-copy-field>
+                            </span>
+                        </div>
                         <ng-container *ngIf="value.title==='SYSTEM_VALIDATION_FAILED'">
                             <div class="max-length">{{value.descriptions[0]|translate}}</div>
                         </ng-container>
@@ -65,7 +72,8 @@
                             <div class="max-length" matTooltip="{{value.descriptions[0]}}">
                                 {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[0]}}</span>
                             </div>
-                            <div *ngIf="value.descriptions[1]" class="max-length" matTooltip="{{value.descriptions[1]}}">
+                            <div *ngIf="value.descriptions[1]" class="max-length"
+                                matTooltip="{{value.descriptions[1]}}">
                                 {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[1]}}</span>
                             </div>
                             <div *ngIf="value.descriptions[2]" class="max-length">

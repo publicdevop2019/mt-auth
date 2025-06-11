@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -18,8 +19,9 @@ import org.springframework.web.client.RestTemplate;
 @Component
 @Slf4j
 public class HttpUtility {
-    @Autowired
     @Getter
+    @Autowired
+    @Qualifier("restTemplate")
     private RestTemplate restTemplate;
     @Getter
     @Value("${mt.misc.url.access}")
