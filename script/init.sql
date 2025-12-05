@@ -1,6 +1,6 @@
--- MySQL dump 10.13  Distrib 8.0.33, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 9.5.0, for macos15.4 (arm64)
 --
--- Host: localhost    Database: auth_dev
+-- Host: localhost    Database: auth_temp
 -- ------------------------------------------------------
 -- Server version	8.0.33
 
