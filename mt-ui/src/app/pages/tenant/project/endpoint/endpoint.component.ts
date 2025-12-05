@@ -4,7 +4,7 @@ import { take } from 'rxjs/operators';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointClient, IEndpointCreate, IOption } from 'src/app/misc/interface';
+import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointClient, IEndpointCreate, IOption, IRouter } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -19,12 +19,12 @@ import { environment } from 'src/environments/environment';
 })
 export class EndpointComponent {
   private projectId = this.router.getProjectIdFromUrl()
-  private clientUrl = Utility.getUrl([Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS), "dropdown"])
+  private routerUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ROUTER)
   private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   changeId: string = Utility.getChangeId();
   allowError: boolean = false;
 
-  resourceIdErrorMsg: string = undefined
+  routerIdErrorMsg: string = undefined
   websocketErrorMsg: string = undefined
   nameErrorMsg: string = undefined
   pathErrorMsg: string = undefined
@@ -45,7 +45,7 @@ export class EndpointComponent {
     description: new FormControl(''),
     type: new FormControl(''),
     isWebsocket: new FormControl(''),
-    resourceId: new FormControl(''),
+    routerId: new FormControl(''),
     path: new FormControl(''),
     method: new FormControl({ value: '', disabled: true }),
     csrf: new FormControl(''),
@@ -56,8 +56,8 @@ export class EndpointComponent {
     replenishRate: new FormControl(''),
     burstCapacity: new FormControl(''),
   });
-  resourceIdPageNum = 0;
-  resourceIdPageSize = 50;
+  routerIdPageNum = 0;
+  routerIdPageSize = 50;
   corsPageNum = 0;
   corsPageSize = 10;
   cachePageNum = 0;
@@ -110,8 +110,7 @@ export class EndpointComponent {
         this.resume();
       })
     }
-    this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
-      this.resourceIdPageNum, this.resourceIdPageSize, `resourceIndicator:1`)
+    this.httpProxySvc.readEntityByQuery<IRouter>(this.routerUrl, this.routerIdPageNum, this.routerIdPageSize)
       .subscribe(next => {
         this.options = Utility.mergeUnique(this.options, next.data.map(e => <IEndpointClient>{ label: e.name, value: e.id, path: e.path }));
       })
@@ -185,7 +184,7 @@ export class EndpointComponent {
   resume(): void {
     if (this.context === 'EDIT') {
       const var0: Observable<any>[] = [];
-      var0.push(this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl, 0, 1, 'id:' + this.data.resourceId))
+      var0.push(this.httpProxySvc.readEntityByQuery<IClient>(this.routerUrl, 0, 1, 'id:' + this.data.routerId))
       if (this.data.corsProfileId) {
         var0.push(this.httpProxySvc.readEntityByQuery(this.corsUrl, 0, 1, 'id:' + this.data.corsProfileId))
       }
@@ -247,7 +246,7 @@ export class EndpointComponent {
       id: this.fg.get('id').value,
       description: this.fg.get('description').value ? this.fg.get('description').value : null,
       name: this.fg.get('name').value,
-      resourceId: this.fg.get('resourceId').value,
+      routerId: this.fg.get('routerId').value,
       path: this.fg.get('path').value,
       method: isWs ? "GET" : this.fg.get('method').value,
       secured: secured,
@@ -287,8 +286,8 @@ export class EndpointComponent {
     this.fg.get('name').markAsDirty()
     this.nameErrorMsg = var0.errorMsg
 
-    const var1 = Validator.exist(this.fg.get('resourceId').value)
-    this.resourceIdErrorMsg = var1.errorMsg
+    const var1 = Validator.exist(this.fg.get('routerId').value)
+    this.routerIdErrorMsg = var1.errorMsg
 
     const var2 = Validator.exist(this.fg.get('isWebsocket').value)
     this.websocketErrorMsg = var2.errorMsg
@@ -351,7 +350,7 @@ export class EndpointComponent {
     }
   }
   finaleUrl() {
-    const path = this.options.find(e => e.value === this.fg.get('resourceId').value)?.path
+    const path = this.options.find(e => e.value === this.fg.get('routerId').value)?.path
     return Utility.getUrl([environment.serverUri, path, this.fg.get('path').value])
   }
 }

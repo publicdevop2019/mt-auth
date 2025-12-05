@@ -119,6 +119,8 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 import { SearchNewComponent } from './components/user-search/user-search.component';
 import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
+import { MyRoutersComponent } from './pages/tenant/project/my-routers/my-routers.component';
+import { RouterComponent } from './pages/tenant/project/router/router.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -194,6 +196,8 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
     ImageUploadComponent,
     SearchNewComponent,
     AddRoleDialogComponent,
+    MyRoutersComponent,
+    RouterComponent
   ],
   imports: [
     BrowserAnimationsModule,

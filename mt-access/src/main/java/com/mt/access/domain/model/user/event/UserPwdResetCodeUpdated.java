@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.user.event;
 
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.user.PwdResetCode;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
@@ -18,6 +19,7 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
     private String countryCode;
     private String mobileNumber;
     private String code;
+    private SupportedLocale locale;
 
     {
         setName(name);
@@ -26,18 +28,20 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
     }
 
     public UserPwdResetCodeUpdated(UserId userId, UserEmail email,
-                                   PwdResetCode pwdResetToken) {
+                                   PwdResetCode pwdResetToken, SupportedLocale locale) {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);
+        this.locale = locale;
     }
 
     public UserPwdResetCodeUpdated(UserId userId, UserMobile mobile,
-                                   PwdResetCode pwdResetToken) {
+                                   PwdResetCode pwdResetToken, SupportedLocale locale) {
         super(userId);
         countryCode = mobile.getCountryCode();
         mobileNumber = mobile.getMobileNumber();
         setCode(pwdResetToken);
+        this.locale = locale;
     }
 
     public void setEmail(UserEmail userEmail) {

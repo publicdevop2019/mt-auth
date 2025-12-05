@@ -38,11 +38,11 @@ export class MyProfileComponent implements OnInit, OnDestroy {
   DEFAULT_COUNTRY_CODE: string = '1'
   mobileNums: IOption[] = [
     {
+      label: 'COUNTRY_CHINA', value: '86'
+    },
+    {
       label: 'COUNTRY_CANADA', value: '1'
     },
-    // {
-    //   label: 'COUNTRY_CHINA', value: '86'
-    // },
   ]
   constructor(
     public authSvc: AuthService,

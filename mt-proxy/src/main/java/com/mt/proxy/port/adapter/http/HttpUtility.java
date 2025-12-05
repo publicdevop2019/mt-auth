@@ -1,6 +1,8 @@
 package com.mt.proxy.port.adapter.http;
 
 import com.mt.proxy.domain.SumPagedRep;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -46,15 +48,17 @@ public class HttpUtility {
         if (exchange.getStatusCode().is2xxSuccessful()) {
             SumPagedRep<T> body = exchange.getBody();
             if (body == null) {
-                throw new IllegalStateException(
-                    "unable to load data from remote: " + urlWithoutPagination);
+                log.error("unable to load data from remote: " + urlWithoutPagination);
+                throw new DefinedRuntimeException("unable to load data from remote address", "2009",
+                    HttpResponseCode.INTERNAL_SERVER_ERROR);
             }
             if (body.getData().size() == 0) {
                 if (allowEmpty) {
                     return Collections.emptySet();
                 }
-                throw new IllegalStateException(
-                    "data from remote: " + urlWithoutPagination + " is empty");
+                log.error("data from remote: " + urlWithoutPagination + " is empty");
+                throw new DefinedRuntimeException("unable to load data from remote address", "2009",
+                    HttpResponseCode.INTERNAL_SERVER_ERROR);
             }
             data = new LinkedHashSet<>(body.getData());
             double l = (double) body.getTotalItemCount() / body.getData().size();
@@ -67,15 +71,16 @@ public class HttpUtility {
                         parameterizedTypeReference);
                 SumPagedRep<T> body2 = exchange2.getBody();
                 if (body2 == null || body2.getData().size() == 0) {
-                    throw new IllegalStateException(
-                        "unable to load data from remote");
+                    throw new DefinedRuntimeException("unable to load data from remote address",
+                        "2009",
+                        HttpResponseCode.INTERNAL_SERVER_ERROR);
                 }
                 data.addAll(body2.getData());
             }
         } else {
             log.error("error during load data {}", exchange.getBody());
-            throw new IllegalStateException(
-                "error during load data, check log for more details");
+            throw new DefinedRuntimeException("unable to load data from remote address", "2009",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
         return data;
     }

@@ -8,10 +8,10 @@ public class EndpointCardRepresentation {
     private String id;
     private String name;
     private String description;
-    private String resourceId;
-    private String resourceName;
     private String path;
     private String method;
+    private String routerId;
+    private String routerName;
     private Integer version;
     private Boolean websocket;
     private Boolean csrfEnabled;
@@ -31,8 +31,8 @@ public class EndpointCardRepresentation {
         this.cacheProfileId =
             endpoint.getCacheProfileId() != null ? endpoint.getCacheProfileId().getDomainId() :
                 null;
+        this.routerId = endpoint.getRouterId().getDomainId();
         this.websocket = endpoint.getWebsocket();
-        this.resourceId = endpoint.getClientId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();

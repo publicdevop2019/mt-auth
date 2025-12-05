@@ -19,7 +19,7 @@ export interface ISearchConfig {
   searchValue: string,
   searchLabel: string,
   key?: string,//to resolve catalog and attributes when resume unable to know which one to resume
-  resourceUrl?: string,
+  sourceUrl?: string,
   type: 'text' | 'dropdown' | 'boolean' | 'range' | 'custom' | 'dynamic'
   multiple?: {
     delimiter: '$' | '.'
@@ -70,7 +70,7 @@ export class SearchComponent implements OnDestroy, OnChanges {
       if (entry.isIntersecting) {
         this.loading = true;
         const config = this.searchLevel1.value as ISearchConfig;
-        this.getByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
+        this.getByQuery<IClient>(config.sourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
           next => {
             this.loading = false;
             if (next.data.length === 0) {

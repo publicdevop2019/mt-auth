@@ -251,7 +251,8 @@ public class CustomFilter implements WebFilter, Ordered {
                         try {
                             responseBody = getResponseBody(dataBuffers);
                         } catch (IOException e) {
-                            log.error("error during read response", e);
+                            LogService.reactiveLog(exchange.getRequest(),
+                                () -> log.error("error during read response", e));
                             originalResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
                             return bufferFactory.wrap(responseBody);
                         }
@@ -259,7 +260,7 @@ public class CustomFilter implements WebFilter, Ordered {
                         byte[] sanitizedBody =
                             SanitizeService
                                 .sanitizeResp(responseBody, originalResponse.getHeaders());
-                        byte[] zippedBody = GzipService.updateGzip(sanitizedBody, originalResponse);
+                        byte[] zippedBody = GzipService.updateGzip(exchange.getRequest(), sanitizedBody, originalResponse);
                         updateEtag(zippedBody, exchange);
                         return bufferFactory.wrap(zippedBody);
                     }));
@@ -360,10 +361,10 @@ public class CustomFilter implements WebFilter, Ordered {
                     String token = parameters.get(REFRESH_TOKEN);
                     if (token != null) {
                         if (!DomainRegistry.getJwtService().verifyBearer(token)) {
-                            context.tokenRevoked();
+                            context.invalidRefreshToken();
                         }
                         if (DomainRegistry.getRevokeTokenService().revoked(token)) {
-                            context.invalidRefreshToken();
+                            context.tokenRevoked();
                         }
                     }
                 } else {
@@ -402,9 +403,9 @@ public class CustomFilter implements WebFilter, Ordered {
         String path = exchange.getRequest().getPath().toString();
         String method = exchange.getRequest().getMethodValue();
         RateLimitResult rateLimitResult = DomainRegistry.getRateLimitService()
-            .withinRateLimit(path, method,
+            .withinRateLimit(exchange.getRequest(), path, method,
                 exchange.getRequest().getHeaders(), exchange.getRequest().getRemoteAddress());
-        if (rateLimitResult.getAllowed() == null || !rateLimitResult.getAllowed()) {
+        if (!rateLimitResult.isAllowed()) {
             response.getHeaders()
                 .set(AppConstant.X_RATE_LIMIT, "0");
             context.rateLimitReached();

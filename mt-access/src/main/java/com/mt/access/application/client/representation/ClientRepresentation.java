@@ -17,10 +17,7 @@ public class ClientRepresentation {
     private String name;
     private String projectId;
 
-    private String path;
-
     private String description;
-    private String externalUrl;
 
     private Set<GrantType> grantTypeEnums;
 
@@ -30,30 +27,20 @@ public class ClientRepresentation {
 
     private Integer refreshTokenValiditySeconds;
 
-    private Set<String> resourceIds;
-
-    private Boolean resourceIndicator;
-
     private Integer version;
     private String clientSecret;
 
     private Boolean hasSecret;
 
-    public ClientRepresentation(Client client, Set<ClientId> resources, Set<RedirectUrl> urls,
+    public ClientRepresentation(Client client, Set<RedirectUrl> urls,
                                 Set<GrantType> grantTypes) {
         id = client.getClientId().getDomainId();
         name = client.getName();
-        path = client.getPath();
         description = client.getDescription();
         grantTypeEnums = grantTypes;
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         registeredRedirectUri = Utility.mapToSet(urls, RedirectUrl::getValue);
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
-        resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
-        resourceIndicator = client.getAccessible();
-        if (client.getExternalUrl() != null) {
-            externalUrl = client.getExternalUrl().getValue();
-        }
         version = client.getVersion();
         clientSecret = client.getSecret();
         projectId = client.getProjectId().getDomainId();

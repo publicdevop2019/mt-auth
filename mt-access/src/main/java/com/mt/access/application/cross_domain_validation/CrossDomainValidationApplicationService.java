@@ -15,11 +15,11 @@ public class CrossDomainValidationApplicationService {
 
     @Scheduled(cron = "0 */5 * ? * *")
     public void validate() {
-        log.trace("triggered scheduled task 1");
+        CommonDomainRegistry.getLogService().init();
         CommonDomainRegistry.getJobService()
             .execute(DATA_VALIDATION_JOB_NAME,
                 (context) -> DomainRegistry.getCrossDomainValidationService().validate(context),
-                true, 1);
+                true);
     }
 
     public void reset() {

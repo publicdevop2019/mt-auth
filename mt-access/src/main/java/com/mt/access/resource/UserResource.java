@@ -35,9 +35,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class UserResource {
-    private static final String CONTENT_TYPE = "content-type";
-    private static final String LOCATION = "Location";
-
     @GetMapping(path = "mgmt/users")
     public ResponseEntity<SumPagedRep<UserCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,

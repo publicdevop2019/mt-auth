@@ -2,6 +2,8 @@ package com.mt.proxy.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -21,8 +23,9 @@ public class CheckSumService {
             byte[] thedigest = md.digest(serialize.getBytes(StandardCharsets.UTF_8));
             return DatatypeConverter.printHexBinary(thedigest);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException("unable to get sum value");
+            log.error("unable to get sum value", e);
+            throw new DefinedRuntimeException("unable to get sum value", "2003",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -31,10 +34,9 @@ public class CheckSumService {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             log.error("error during object mapper serialize", e);
-            throw new UnableToSerializeException();
+            throw new DefinedRuntimeException("error during object mapper serialize", "2005",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public static class UnableToSerializeException extends RuntimeException {
-    }
 }

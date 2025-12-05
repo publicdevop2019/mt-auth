@@ -4,9 +4,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
@@ -14,6 +12,9 @@ import com.mt.access.domain.model.cross_domain_validation.ValidationResult;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
+import com.mt.access.domain.model.endpoint.Router;
+import com.mt.access.domain.model.endpoint.RouterId;
+import com.mt.access.domain.model.endpoint.RouterQuery;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
@@ -70,7 +71,7 @@ public class CrossDomainValidationService {
         boolean b9 = false;
         if (b) {
             log.debug("check client and endpoint");
-            b1 = validateClientAndEndpoint(context);
+            b1 = validateRouterAndEndpoint(context);
             if (b1) {
                 log.debug("check client and project");
                 b2 = validateClientAndProject(context);
@@ -382,21 +383,21 @@ public class CrossDomainValidationService {
         return true;
     }
 
-    private boolean validateClientAndEndpoint(TransactionContext context) {
-        //all endpoints must have valid clientId
-        Set<ClientId> usedClientIds = DomainRegistry.getEndpointRepository().getClientIds();
-        Set<Client> storedClients = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                new ClientQuery(usedClientIds));
-        if (storedClients.size() != usedClientIds.size()) {
-            Set<ClientId> storedClientIds =
-                storedClients.stream().map(Client::getClientId).collect(Collectors.toSet());
+    private boolean validateRouterAndEndpoint(TransactionContext context) {
+        //all endpoints must have valid routerId
+        Set<RouterId> usedRouterIds = DomainRegistry.getEndpointRepository().getRouterIds();
+        Set<Router> storedClients = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getRouterRepository().query(e),
+                new RouterQuery(usedRouterIds));
+        if (storedClients.size() != usedRouterIds.size()) {
+            Set<RouterId> storedRouterIds =
+                storedClients.stream().map(Router::getRouterId).collect(Collectors.toSet());
             ValidationFailed event =
-                new ValidationFailed("ALL_ENDPOINTS_MUST_HAVE_VALID_CLIENT_ID");
+                new ValidationFailed("ALL_ENDPOINTS_MUST_HAVE_VALID_ROUTER_ID");
             context
                 .append(event);
             Set<String> missing =
-                usedClientIds.stream().filter(e -> !storedClientIds.contains(e))
+                usedRouterIds.stream().filter(e -> !storedRouterIds.contains(e))
                     .map(DomainId::getDomainId).limit(5)
                     .collect(Collectors.toSet());
             event.addMessage(convertToReadable(missing));

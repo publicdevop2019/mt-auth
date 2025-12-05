@@ -45,14 +45,14 @@ public class IdempotentService {
             idempotentAnalytics.stop();
             if (forwardChange.isPresent()) {
                 if (Checker.isTrue(forwardChange.get().getEmptyOpt())) {
-                    log.debug("change already empty cancelled");
+                    log.info("change already empty cancelled");
                 } else {
-                    log.debug("change already exist");
+                    log.info("change already exist");
                 }
                 reply.apply(forwardChange.get());
             } else {
                 //new change
-                log.debug("making change with id {} aggregate {}", changeId, aggregate);
+                log.info("making change with id {} aggregate {}", changeId, aggregate);
                 AtomicReference<ChangeRecord> changeRecord = new AtomicReference<>();
                 CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                     ChangeRecord changeRecord1 =
@@ -73,7 +73,7 @@ public class IdempotentService {
                 CommonDomainRegistry.getChangeRecordRepository().internalQuery(changeId, aggregate);
             if (backwardChange.isPresent()) {
                 idempotentAnalytics.stop();
-                log.debug("change already cancelled");
+                log.info("change already cancelled");
             } else {
                 Optional<ChangeRecord> forwardChange =
                     CommonDomainRegistry.getChangeRecordRepository()
@@ -85,13 +85,13 @@ public class IdempotentService {
                     ChangeRecord changeRecord;
                     if (forwardChange.isPresent()) {
                         //cancel an existing forward change
-                        log.debug("cancelling change");
+                        log.info("cancelling change");
                         changeRecord =
                             CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                                 .saveChange(changeId, aggregate);
                     } else {
                         //cancel none existing forward change
-                        log.debug("hanging change found, do empty actions");
+                        log.info("hanging change found, do empty actions");
                         changeRecord =
                             CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                                 .saveEmptyChange(changeId, aggregate);
@@ -130,10 +130,10 @@ public class IdempotentService {
                 changeId, aggregateName);
         analytics.stop();
         if (changeRecord.isPresent()) {
-            log.debug("change already exist, return saved result");
+            log.info("change already exist, return saved result");
             return changeRecord.get().getReturnValue();
         } else {
-            log.debug("making change");
+            log.info("making change");
             return CommonDomainRegistry.getTransactionService()
                 .returnedTransactionalEvent((context) -> {
                     ChangeRecord record =

@@ -54,14 +54,14 @@ export class MyApisComponent {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT', 'CLIENT_MGMT').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         //prepare search
         this.searchConfigs = [...this.initSearchConfig, {
-          searchLabel: 'PARENT_CLIENT',
-          searchValue: 'resourceId',
+          searchLabel: 'MY_ROUTER',
+          searchValue: 'routerId',
           type: 'dynamic',
-          resourceUrl: Utility.getTenantUrl(b.projectId, APP_CONSTANT.TENANT_RESOURCE_CLIENT_DROPDOWN),
+          sourceUrl: Utility.getUrl(["/",APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'projects', this.projectId, RESOURCE_NAME.ROUTER]),
           multiple: {
             delimiter: '.'
           },
@@ -75,7 +75,7 @@ export class MyApisComponent {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         name: 'NAME',
-        resourceId: 'PARENT_CLIENT',
+        routerId: 'MY_ROUTER',
         path: 'URL',
         method: 'METHOD',
         edit: 'EDIT',
@@ -85,7 +85,7 @@ export class MyApisComponent {
       } : {
         id: 'ID',
         name: 'NAME',
-        resourceId: 'PARENT_CLIENT',
+        routerId: 'MY_ROUTER',
         path: 'URL',
         method: 'METHOD',
       }
@@ -103,7 +103,7 @@ export class MyApisComponent {
     this.route.navProjectEndpointDetail(id)
   }
   getOption(row: IEndpoint) {
-    return <IOption>{ label: row.resourceName, value: row.resourceId }
+    return <IOption>{ label: row.routerName, value: row.routerId }
   }
   getHttpOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

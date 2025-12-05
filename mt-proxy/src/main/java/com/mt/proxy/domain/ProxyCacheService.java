@@ -72,7 +72,7 @@ public class ProxyCacheService {
         log.info("{} start refresh cached endpoints", CACHE_LOG_PREFIX);
         try {
             DomainRegistry.getEndpointService().refreshCache();
-            DomainRegistry.getRegisteredApplicationService().refreshCache();
+            DomainRegistry.getRouterService().refreshCache();
             completedReloadRequestAt = nextCompletedReloadRequestAt;
             log.info("{} refresh cached endpoints end", CACHE_LOG_PREFIX);
         } catch (Exception ex) {

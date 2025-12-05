@@ -105,6 +105,9 @@ th {
   width: 25px;
   cursor: pointer;
 }
+.table-icon-header {
+  width: 25px;
+}
 
 th.mat-sort-header-sorted {
   color: black;

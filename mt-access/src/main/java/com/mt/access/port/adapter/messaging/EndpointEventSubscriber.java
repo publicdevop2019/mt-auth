@@ -3,7 +3,6 @@ package com.mt.access.port.adapter.messaging;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
-import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +13,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class EndpointEventSubscriber {
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener1() {
-        ListenerHelper.listen(new ClientDeleted(),
-            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
-                .handle(event));
-    }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener17() {

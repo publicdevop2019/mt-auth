@@ -134,13 +134,10 @@ public class TokenGrantService {
                 HttpResponseCode.BAD_REQUEST);
         }
         Client client = DomainRegistry.getClientRepository().get(clientId);
-        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        Set<ClientId> extResources =
-            DomainRegistry.getClientExternalResourceRepository().query(client);
         Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
         Set<GrantType> grantTypes = DomainRegistry.getClientGrantTypeRepository().query(client);
         TokenGrantClient tokenGrantClient =
-            new TokenGrantClient(client, resources, extResources, urls, grantTypes);
+            new TokenGrantClient(client, urls, grantTypes);
         if (!tokenGrantClient.getRegisteredRedirectUri().contains(redirectUri)) {
             throw new DefinedRuntimeException(
                 "unknown redirect url", "1008", HttpResponseCode.BAD_REQUEST);
@@ -300,11 +297,8 @@ public class TokenGrantService {
                     HttpResponseCode.BAD_REQUEST);
             }
         }
-        Set<ClientId> resources = DomainRegistry.getClientResourceRepository().query(client);
-        Set<ClientId> extResources =
-            DomainRegistry.getClientExternalResourceRepository().query(client);
         Set<RedirectUrl> urls = DomainRegistry.getClientRedirectUrlRepository().query(client);
-        context.setClient(new TokenGrantClient(client, resources, extResources, urls, grantTypes));
+        context.setClient(new TokenGrantClient(client, urls, grantTypes));
     }
 
 
@@ -316,16 +310,14 @@ public class TokenGrantService {
         log.debug("user id {}", userId.getDomainId());
         User user = DomainRegistry.getUserRepository().get(userId);
         if (user.hasNoMfaOptions()) {
-            log.debug("mfa not found, record current login information");
-            context.setRecordLoginRequired(true);
+            log.debug("mfa not found");
             context.setLoginResult(LoginResult.allow());
             return;
         }
         boolean mfaRequired =
             DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
         if (!mfaRequired) {
-            log.debug("mfa not required, record current login information");
-            context.setRecordLoginRequired(true);
+            log.debug("mfa not required");
             context.setLoginResult(LoginResult.allow());
         } else {
             if (mfaCode != null) {

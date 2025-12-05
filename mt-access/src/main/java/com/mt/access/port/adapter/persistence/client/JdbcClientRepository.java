@@ -5,7 +5,6 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientType;
-import com.mt.access.domain.model.client.ExternalUrl;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -30,8 +29,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcClientRepository implements ClientRepository {
 
-    public static final String RESOURCE_SQL =
-        "SELECT c.* FROM resources_map mt LEFT JOIN client c ON mt.id = c.id WHERE mt.domain_id IN (%s)";
     private static final String DYNAMIC_DATA_QUERY_SQL =
         "SELECT * FROM client c WHERE %s ORDER BY c.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
@@ -46,20 +43,17 @@ public class JdbcClientRepository implements ClientRepository {
         "modified_at, " +
         "modified_by, " +
         "version, " +
-        "accessible_, " +
         "domain_id, " +
         "description, " +
         "name, " +
-        "path, " +
         "type, " +
         "project_id, " +
         "role_id, " +
         "secret, " +
         "access_token_validity_seconds, " +
-        "refresh_token_validity_seconds, " +
-        "external_url" +
+        "refresh_token_validity_seconds" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
     private static final String DELETE_BY_ID_SQL = "DELETE FROM client c WHERE c.id = ?";
     private static final String FIND_ALL_PROJECT_ID_SQL =
@@ -68,20 +62,15 @@ public class JdbcClientRepository implements ClientRepository {
     private static final String COUNT_TOTAL_SQL = "SELECT COUNT(*) AS count FROM client";
     private static final String COUNT_PROJECT_TOTAL_SQL =
         "SELECT COUNT(*) AS count FROM client c WHERE c.project_id = ?";
-    private static final String COUNT_RESOURCE_SQL =
-        "SELECT COUNT(DISTINCT rm.id) AS count FROM resources_map rm LEFT JOIN client c ON rm.id = c.id WHERE rm.domain_id IN (%s)";
     private static final String UPDATE_SQL = "UPDATE client c SET " +
         "c.modified_at = ? ," +
         "c.modified_by = ?, " +
         "c.version = ?, " +
-        "c.accessible_ = ?, " +
         "c.description = ?, " +
         "c.name = ?, " +
-        "c.path = ?, " +
         "c.secret = ?, " +
         "c.access_token_validity_seconds = ?, " +
-        "c.refresh_token_validity_seconds = ?, " +
-        "c.external_url = ? " +
+        "c.refresh_token_validity_seconds = ? " +
         "WHERE c.id = ? AND c.version = ? ";
 
 
@@ -105,18 +94,15 @@ public class JdbcClientRepository implements ClientRepository {
                 client.getModifiedAt(),
                 client.getModifiedBy(),
                 0,
-                client.getAccessible(),
                 client.getClientId().getDomainId(),
                 client.getDescription(),
                 client.getName(),
-                client.getPath(),
                 client.getType().name(),
                 client.getProjectId().getDomainId(),
                 client.getRoleId().getDomainId(),
                 client.getSecret(),
                 client.getTokenDetail().getAccessTokenValiditySeconds(),
-                client.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Checker.notNull(client.getExternalUrl()) ? client.getExternalUrl().getValue() : null
+                client.getTokenDetail().getRefreshTokenValiditySeconds()
             );
     }
 
@@ -131,19 +117,11 @@ public class JdbcClientRepository implements ClientRepository {
 
     @Override
     public SumPagedRep<Client> query(ClientQuery query) {
-        if (query.getResources() != null) {
-            return resourceSearch(query);
-        }
         List<String> whereClause = new ArrayList<>();
         if (Checker.notNullOrEmpty(query.getClientIds())) {
             String inClause = DatabaseUtility.getInClause(query.getClientIds().size());
             String byDomainIds = String.format("c.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
-        }
-        if (Checker.notNull(query.getResourceFlag())) {
-            String accessible =
-                query.getResourceFlag() ? "c.accessible_ = 1" : "c.accessible_ = 0";
-            whereClause.add(accessible);
         }
         if (Checker.notNull(query.getName())) {
             String name = "c.name LIKE ?";
@@ -270,75 +248,15 @@ public class JdbcClientRepository implements ClientRepository {
                 updated.getModifiedAt(),
                 updated.getModifiedBy(),
                 updated.getVersion() + 1,
-                updated.getAccessible(),
                 updated.getDescription(),
                 updated.getName(),
-                updated.getPath(),
                 updated.getSecret(),
                 updated.getTokenDetail().getAccessTokenValiditySeconds(),
                 updated.getTokenDetail().getRefreshTokenValiditySeconds(),
-                Checker.isNull(updated.getExternalUrl()) ? null :
-                    updated.getExternalUrl().getValue(),
                 updated.getId(),
                 updated.getVersion()
             );
         DatabaseUtility.checkUpdate(update);
-    }
-
-    private SumPagedRep<Client> resourceSearch(ClientQuery query) {
-        Set<String> resourceIds =
-            query.getResources().stream().map(DomainId::getDomainId).collect(
-                Collectors.toSet());
-        Set<String> projectIds;
-        if (query.getProjectIds() != null) {
-            projectIds =
-                query.getProjectIds().stream().map(DomainId::getDomainId).collect(
-                    Collectors.toSet());
-        } else {
-            projectIds = Collections.emptySet();
-        }
-        return commonOrMappingSearch(resourceIds,
-            query.getPageConfig(), projectIds);
-    }
-
-    private SumPagedRep<Client> commonOrMappingSearch(Set<String> mapping,
-                                                      PageConfig pageConfig,
-                                                      Set<String> projectIds) {
-        List<Object> args = new ArrayList<>();
-        args.addAll(mapping);
-        String finalCountQuery = COUNT_RESOURCE_SQL +
-            (projectIds.isEmpty() ? "" : " AND c.project_id IN (%s)");
-        String inClause = DatabaseUtility.getInClause(mapping.size());
-        String countFormat = String.format(finalCountQuery, inClause);
-        String countResult = countFormat;
-        if (!projectIds.isEmpty()) {
-            String inClause2 = DatabaseUtility.getInClause(projectIds.size());
-            countResult = String.format(countFormat, inClause2);
-            args.addAll(projectIds);
-        }
-        Long count = CommonDomainRegistry.getJdbcTemplate()
-            .query(
-                countResult,
-                new DatabaseUtility.ExtractCount(),
-                args.toArray()
-            );
-        String finalDataQuery = RESOURCE_SQL +
-            (projectIds.isEmpty() ? "" : " AND c.project_id IN (%s)") +
-            " GROUP BY mt.id LIMIT ? OFFSET ?";
-        String dataFormat = String.format(finalDataQuery, inClause);
-        String dataResult = dataFormat;
-        if (!projectIds.isEmpty()) {
-            String inClause2 = DatabaseUtility.getInClause(projectIds.size());
-            dataResult = String.format(dataFormat, inClause2);
-        }
-        args.add(pageConfig.getPageSize());
-        args.add(pageConfig.getOffset());
-        List<Client> data = CommonDomainRegistry.getJdbcTemplate()
-            .query(dataResult,
-                new RowMapper(),
-                args.toArray()
-            );
-        return new SumPagedRep<>(data, count);
     }
 
     private static class RowMapper implements ResultSetExtractor<List<Client>> {
@@ -362,19 +280,15 @@ public class JdbcClientRepository implements ClientRepository {
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        DatabaseUtility.getNullableBoolean(rs, "accessible_"),
                         new ClientId(rs.getString("domain_id")),
                         rs.getString("description"),
                         rs.getString("name"),
-                        rs.getString("path"),
                         ClientType.valueOf(rs.getString("type")),
                         new ProjectId(rs.getString("project_id")),
                         new RoleId(rs.getString("role_id")),
                         rs.getString("secret"),
                         DatabaseUtility.getNullableInteger(rs, "access_token_validity_seconds"),
-                        DatabaseUtility.getNullableInteger(rs, "refresh_token_validity_seconds"),
-                        Checker.notNull(rs.getString("external_url")) ?
-                            new ExternalUrl(rs.getString("external_url")) : null
+                        DatabaseUtility.getNullableInteger(rs, "refresh_token_validity_seconds")
                     );
                     list.add(client);
                     currentId = dbId;

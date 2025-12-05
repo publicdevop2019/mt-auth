@@ -60,23 +60,6 @@
                         </mat-form-field>
                     </div>
                 </div>
-                <mat-divider *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'"></mat-divider>
-                <div class="basic-info" *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
-                    <div class="basic-info-title">{{'ROUTE_PROPERTIES'|translate}}</div>
-                    <div class="basic-info-content">
-                        <mat-form-field>
-                            <mat-label>{{'ENTER_PATH'| translate}}<span class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="path">
-                            <mat-error>{{pathErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>{{'ENTER_EXTERNAL_URL'| translate}}<span
-                                    class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="externalUrl">
-                            <mat-error>{{externalUrlErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                    </div>
-                </div>
                 <mat-divider></mat-divider>
                 <div class="basic-info">
                     <div class="basic-info-title">{{'TOKEN_PROPERTIES'|translate}}</div>
@@ -129,19 +112,6 @@
                                 </mat-option>
                             </mat-select>
                             <mat-error>{{grantTypeErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                        <div style="margin-bottom: 8px;" *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
-                            <mat-checkbox formControlName="resourceIndicator">
-                                {{'SET_AS_RESOURCE'|translate}}
-                            </mat-checkbox>
-                        </div>
-                        <mat-form-field>
-                            <mat-label>{{'PLEASE_SELECT_RESOUCE_ID(S)'|translate}}</mat-label>
-                            <mat-select formControlName="resourceId" multiple>
-                                <mat-option *ngFor="let option of options" [value]="option.value">
-                                    {{option.label}}
-                                </mat-option>
-                            </mat-select>
                         </mat-form-field>
                     </div>
                 </div>

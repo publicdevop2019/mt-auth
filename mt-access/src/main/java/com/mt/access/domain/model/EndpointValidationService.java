@@ -2,15 +2,13 @@ package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.Router;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Checker;
-import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,11 +21,10 @@ public class EndpointValidationService {
         }
     }
 
-    public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
-        hasValidClient(endpoint);
+    public void validate(Endpoint endpoint) {
+        hasValidRouterId(endpoint);
         hasValidCacheProfileId(endpoint);
         hasValidCorsProfileId(endpoint);
-        sharedClientMustBeAccessible(endpoint, handler);
     }
 
     private void hasValidCorsProfileId(Endpoint endpoint) {
@@ -38,18 +35,12 @@ public class EndpointValidationService {
         }
     }
 
-    private void sharedClientMustBeAccessible(Endpoint endpoint,
-                                              ValidationNotificationHandler handler) {
-        if (endpoint.getShared()) {
-            ClientId clientId = endpoint.getClientId();
-            Client client = DomainRegistry.getClientRepository().get(clientId);
-            if (!client.getAccessible()) {
-                handler.handleError("shared endpoint client must be accessible: "
-                    +
-                    endpoint.getClientId().getDomainId());
-            }
+    private void hasValidRouterId(Endpoint endpoint) {
+        if (endpoint.getRouterId() != null) {
+            Router router = DomainRegistry.getRouterRepository()
+                .get(endpoint.getRouterId());
+            compareProjectId(endpoint.getProjectId(), router.getProjectId());
         }
-
     }
 
     private void hasValidCacheProfileId(Endpoint endpoint) {
@@ -58,10 +49,5 @@ public class EndpointValidationService {
                 .get(endpoint.getCacheProfileId());
             compareProjectId(endpoint.getProjectId(), cacheProfile.getProjectId());
         }
-    }
-
-    private void hasValidClient(Endpoint endpoint) {
-        Client client = DomainRegistry.getClientRepository().get(endpoint.getClientId());
-        compareProjectId(endpoint.getProjectId(), client.getProjectId());
     }
 }

@@ -1,16 +1,19 @@
 package com.mt.proxy.domain;
 
+import com.mt.proxy.infrastructure.LogService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 
 @Slf4j
 public class GzipService {
-    public static byte[] updateGzip(byte[] responseBody, ServerHttpResponse originalResponse) {
+    public static byte[] updateGzip(ServerHttpRequest request, byte[] responseBody,
+                                    ServerHttpResponse originalResponse) {
         if (originalResponse.getHeaders().getContentType() != null
             && originalResponse.getHeaders().getContentType()
             .equals(MediaType.APPLICATION_JSON)
@@ -21,10 +24,13 @@ public class GzipService {
                 try {
                     compressed = compress(responseBody);
                 } catch (IOException e) {
-                    log.error("error during compress", e);
+                    LogService.reactiveLog(request, () -> log.error("error during compress", e));
                 }
-                log.debug("gzip response length before {} after {}",
-                    responseBody.length, compressed.length);
+                ;
+                byte[] finalCompressed = compressed;
+                LogService.reactiveLog(request,
+                    () -> log.debug("gzip response length before {} after {}",
+                        responseBody.length, finalCompressed.length));
                 originalResponse.getHeaders().setContentLength(compressed.length);
                 originalResponse.getHeaders()
                     .set(HttpHeaders.CONTENT_ENCODING, "gzip");

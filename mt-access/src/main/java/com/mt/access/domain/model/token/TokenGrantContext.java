@@ -16,7 +16,6 @@ import lombok.Data;
 @Data
 public class TokenGrantContext {
     private Boolean newUserRequired;
-    private Boolean recordLoginRequired;
     private MfaDeliverMethod deliveryMethod;
     private User mfaUser;
     private Boolean triggerMfaRequired;

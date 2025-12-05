@@ -67,15 +67,6 @@ public class TokenApplicationService {
                                 .triggerDefaultMfa(context.getClientId(), context.getMfaUser(),
                                     txContext));
                 }
-                if (Checker.isTrue(context.getRecordLoginRequired())) {
-                    UserLoginRequest userLoginRequest =
-                        new UserLoginRequest(ipAddress, context.getLoginUser().getUserId(),
-                            agentInfo);
-                    CommonDomainRegistry.getTransactionService()
-                        .transactionalEvent(
-                            (txContext) -> DomainRegistry.getUserService()
-                                .updateLastLogin(userLoginRequest, context.getParsedScope()));
-                }
                 if (Checker.isFalse(context.getLoginResult().getAllowed())) {
                     return context;
                 }
@@ -83,6 +74,15 @@ public class TokenApplicationService {
         }
         CommonDomainRegistry.getTransactionService()
             .transactionalEvent((txContext) -> DomainRegistry.getTokenService().grant(context));
+        if (Checker.isTrue(context.getGrantType().equals(TokenGrantType.PASSWORD))) {
+            UserLoginRequest userLoginRequest =
+                new UserLoginRequest(ipAddress, context.getLoginUser().getUserId(),
+                    agentInfo);
+            CommonDomainRegistry.getTransactionService()
+                .transactionalEvent(
+                    (txContext) -> DomainRegistry.getUserService()
+                        .updateLastLogin(userLoginRequest, context.getParsedScope()));
+        }
         return context;
     }
 }

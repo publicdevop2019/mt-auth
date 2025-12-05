@@ -35,12 +35,12 @@ export class MyClientsComponent {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'CLIENT_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         name: 'NAME',
-        type: 'TYPES',
+        type: 'TYPE',
         edit: 'EDIT',
         delete: 'DELETE',
       } : {
         name: 'NAME',
-        type: 'TYPES',
+        type: 'TYPE',
       }
       this.tableSource.loadPage(0)
     })

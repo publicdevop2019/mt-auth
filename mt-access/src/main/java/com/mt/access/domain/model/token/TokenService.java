@@ -112,7 +112,6 @@ public class TokenService {
                 projectId,
                 clientDetails.getAccessTokenValiditySeconds(),
                 clientDetails.getRefreshTokenValiditySeconds(),
-                clientDetails.getResourceIds(),
                 scope,
                 clientId,
                 null,
@@ -162,7 +161,6 @@ public class TokenService {
                 projectId,
                 clientDetails.getAccessTokenValiditySeconds(),
                 clientDetails.getRefreshTokenValiditySeconds(),
-                clientDetails.getResourceIds(),
                 scope,
                 clientId,
                 userId,
@@ -215,7 +213,6 @@ public class TokenService {
             client.getProjectId(),
             client.getAccessTokenValiditySeconds(),
             0,
-            client.getResourceIds(),
             authorizeInfo.getScope(),
             authorizeInfo.getClientId(),
             authorizeInfo.getUserId(),
@@ -268,7 +265,6 @@ public class TokenService {
             projectId1,
             client.getAccessTokenValiditySeconds(),
             client.getRefreshTokenValiditySeconds(),
-            client.getResourceIds(),
             scope,
             clientId1,
             userId,
@@ -283,7 +279,6 @@ public class TokenService {
         ProjectId projectId,
         int accessTokenSec,
         int refreshTokenSec,
-        Collection<String> resourceIds,
         Collection<String> scope,
         ClientId clientId,
         UserId userId,
@@ -303,7 +298,7 @@ public class TokenService {
         String jwtId = UUID.randomUUID().toString();
 
         String jwtString = createJwtString(
-            userId, resourceIds, iat, exp,
+            userId, iat, exp,
             projectId, jwtId, null,
             scope,
             clientId,
@@ -330,7 +325,7 @@ public class TokenService {
             String refreshJwtId = UUID.randomUUID().toString();
 
             String refreshJwtString = createJwtString(
-                userId, resourceIds, iat, refreshExp,
+                userId, iat, refreshExp,
                 projectId, refreshJwtId, jwtId,
                 scope,
                 clientId,
@@ -345,7 +340,6 @@ public class TokenService {
 
     private String createJwtString(
         @Nullable UserId userId,
-        Collection<String> aud,
         Date iat,
         Date exp,
         @Nullable ProjectId projectId,
@@ -366,10 +360,8 @@ public class TokenService {
                 .build(),
             new JWTClaimsSet.Builder()
                 .claim(USER_ID, userId == null ? null : userId.getDomainId())
-                .claim("user_name",
-                    userId == null ? null :
-                        userId.getDomainId())//required to identify user token or client token
-                .audience(new ArrayList<>(aud))
+                //required to identify user token or client token
+                .claim("user_name", userId == null ? null : userId.getDomainId())
                 .issueTime(iat)
                 .expirationTime(exp)
                 .claim(PROJECT_ID, projectId == null ? null : projectId.getDomainId())

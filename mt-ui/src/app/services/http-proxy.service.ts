@@ -8,7 +8,8 @@ import { Utility } from '../misc/utility';
 import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand, IAuthorizeClientDetail } from '../misc/interface';
+import { IAuthorizeCode, IAuthorizeParty, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand, IAuthorizeClientDetail, IChangePasswordRequest } from '../misc/interface';
+import { Logger } from '../misc/logger';
 export interface IPatch {
     op: string,
     path: string,
@@ -160,7 +161,7 @@ export class HttpProxyService {
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) })
             .pipe(switchMap(token => this._forgetPwd(this._getToken(token), fg, changeId)))
     };
-    resetPwd(fg: IForgetPasswordRequest, changeId: string): Observable<any> {
+    resetPwd(fg: IChangePasswordRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
@@ -409,9 +410,11 @@ export class HttpProxyService {
     private _getCode(token: string, payload: IVerificationCodeRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
-        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/verification-code', payload, { headers: headers })
+        Logger.debug('payload.lang: ' + payload.lang)
+        const param = payload.lang === 'enUS' ? 'en' : 'zh'
+        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/verification-code?lang=' + param, payload, { headers: headers })
     }
-    private _resetPwd(token: string, registerFG: IForgetPasswordRequest, changeId: string): Observable<any> {
+    private _resetPwd(token: string, registerFG: IChangePasswordRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
         return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users/resetPwd', registerFG, { headers: headers })
@@ -419,7 +422,8 @@ export class HttpProxyService {
     private _forgetPwd(token: string, registerFG: IForgetPasswordRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
-        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users/forgetPwd', registerFG, { headers: headers })
+        const param = registerFG.lang === 'enUS' ? 'en' : 'zh'
+        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users/forgetPwd?lang=' + param, registerFG, { headers: headers })
     }
 
 

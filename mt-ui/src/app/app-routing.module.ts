@@ -44,6 +44,8 @@ import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-reque
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
+import { MyRoutersComponent } from './pages/tenant/project/my-routers/my-routers.component';
+import { RouterComponent } from './pages/tenant/project/router/router.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -88,10 +90,14 @@ const routes: Routes = [
       { path: 'projects/:id/cache-configs/:configId', component: CacheComponent },
       { path: 'projects/:id/cache-configs/template', component: CacheComponent },
       { path: 'projects/:id/cors-configs/:configId', component: CorsComponent },
+      { path: 'projects/:id/cors-configs/template', component: CorsComponent },
+      { path: 'projects/:id/routers/:routerId', component: RouterComponent },
+      { path: 'projects/:id/routers/template', component: RouterComponent },
       { path: 'projects/:id/users/:userId', component: UserComponent },
 
       { path: 'projects/:id/insights', component: MyProjectComponent },
       { path: 'projects/:id/clients', component: MyClientsComponent },
+      { path: 'projects/:id/routers', component: MyRoutersComponent },
       { path: 'projects/:id/endpoints', component: MyApisComponent },
       { path: 'projects/:id/cache-configs', component: MyCacheComponent },
       { path: 'projects/:id/cors-configs', component: MyCorsComponent },

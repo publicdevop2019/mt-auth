@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.notification.event;
 
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
@@ -17,6 +18,7 @@ public class SendSmsNotification extends DomainEvent {
     private String mobileNumber;
     private String countryCode;
     private String code;
+    private SupportedLocale locale;
 
     {
         setTopic(SEND_SMS_NOTIFICATION_EVENT);
@@ -29,6 +31,7 @@ public class SendSmsNotification extends DomainEvent {
         mobileNumber = event.getMobileNumber();
         countryCode = event.getCountryCode();
         code = event.getCode().getValue();
+        locale = event.getLocale();
     }
 
     public SendSmsNotification(VerificationCodeUpdated event, Notification notification) {
@@ -36,6 +39,7 @@ public class SendSmsNotification extends DomainEvent {
         mobileNumber = event.getMobileNumber();
         countryCode = event.getCountryCode();
         code = event.getCode();
+        locale = event.getLocale();
     }
 
     public SendSmsNotification(UserPwdResetCodeUpdated event, Notification notification) {
@@ -43,5 +47,6 @@ public class SendSmsNotification extends DomainEvent {
         mobileNumber = event.getMobileNumber();
         countryCode = event.getCountryCode();
         code = event.getCode();
+        locale = event.getLocale();
     }
 }

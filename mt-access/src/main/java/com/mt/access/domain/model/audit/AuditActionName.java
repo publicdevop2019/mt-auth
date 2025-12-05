@@ -13,6 +13,9 @@ public class AuditActionName {
     public static final String CREATE_TENANT_ENDPOINT = "CREATE_TENANT_ENDPOINT";
     public static final String UPDATE_TENANT_ENDPOINT = "UPDATE_TENANT_ENDPOINT";
     public static final String DELETE_TENANT_ENDPOINT = "DELETE_TENANT_ENDPOINT";
+    public static final String CREATE_TENANT_ROUTER = "CREATE_TENANT_ROUTER";
+    public static final String UPDATE_TENANT_ROUTER = "UPDATE_TENANT_ROUTER";
+    public static final String DELETE_TENANT_ROUTER = "DELETE_TENANT_ROUTER";
     public static final String DELETE_TENANT_PERMISSION = "DELETE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PERMISSION = "CREATE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PROJECT = "CREATE_TENANT_PROJECT";

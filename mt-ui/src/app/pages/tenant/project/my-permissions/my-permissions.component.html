@@ -17,16 +17,15 @@
                 <div style="font-size: 12px; color: red; margin-top: -8px;">{{nameErrorMsg|translate}}
                 </div>
             </div>
-            <div style="width: 250px;  " class="mobile-view">
+            <app-paginated-select class="mobile-view" [fg]="fg" [label]="'SELECT_API'|translate" [key]="'apiId'"
+                multiple="true" [loadElements]="getEndpoints()" style="width: 250px;  ">
+            </app-paginated-select>
+            <div style="width: 250px;">
                 <mat-form-field>
                     <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
                     <input matInput formControlName="description">
                 </mat-form-field>
             </div>
-
-            <app-paginated-select [fg]="fg" [label]="'SELECT_API'|translate" [key]="'apiId'" multiple="true"
-                [loadElements]="getEndpoints()" style="width: 250px;  ">
-            </app-paginated-select>
         </div>
         <button mat-raised-button color="primary"
             *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'PERMISSION_MGMT')) |async "

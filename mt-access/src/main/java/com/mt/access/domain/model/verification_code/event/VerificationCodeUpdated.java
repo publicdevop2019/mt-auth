@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.verification_code.event;
 
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
 import com.mt.access.domain.model.verification_code.VerificationCode;
@@ -18,24 +19,28 @@ public class VerificationCodeUpdated extends DomainEvent {
     private String countryCode;
     private String mobileNumber;
     private String code;
-
+    private SupportedLocale locale;
     {
         setName(name);
         setTopic(VERIFICATION_CODE_UPDATED);
     }
 
     public VerificationCodeUpdated(RegistrationEmail registrationEmail,
-                                   VerificationCode code) {
+                                   VerificationCode code,
+                                   SupportedLocale locale
+    ) {
         super(registrationEmail);
         setEmail(registrationEmail);
         setCode(code);
+        this.locale = locale;
     }
 
-    public VerificationCodeUpdated(RegistrationMobile mobile, VerificationCode code) {
+    public VerificationCodeUpdated(RegistrationMobile mobile, VerificationCode code,SupportedLocale locale) {
         super(mobile);
         setCountryCode(mobile.getCountryCode());
         setMobileNumber(mobile.getMobileNumber());
         setCode(code);
+        this.locale = locale;
     }
 
     private void setCountryCode(String countryCode) {

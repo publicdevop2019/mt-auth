@@ -85,10 +85,6 @@ public class JwtService {
         return currentMilli <= expSec * 1000;
     }
 
-    public Set<String> getResourceIds(String jwtRaw) throws ParseException {
-        return getClaims(jwtRaw, "aud");
-    }
-
     public Set<String> getScopes(String jwtRaw) throws ParseException {
         return getClaims(jwtRaw, "scope");
     }

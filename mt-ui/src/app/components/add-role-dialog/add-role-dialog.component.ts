@@ -4,10 +4,11 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { IRole } from 'src/app/pages/tenant/project/my-roles/my-roles.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
-import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { RESERVED_NAMES, RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
 import { IOption, IQueryProvider } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-add-role-dialog',
@@ -30,7 +31,12 @@ export class AddRoleDialogComponent {
   getRoles(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.url, num, size, "types:USER", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.url, num, size, "types:USER", by, order, header).pipe(map(e => {
+          return {
+            totalItemCount: e.totalItemCount,
+            data: e.data.filter(ee => ee.name !== RESERVED_NAMES.PROJECT_USER)
+          }
+        }))
       }
     } as IQueryProvider
   }

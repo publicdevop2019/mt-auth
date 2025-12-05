@@ -15,10 +15,10 @@ public class ProxyApplicationService {
 
     @Scheduled(cron = "0 * * ? * *")
     protected void checkSum() {
-        log.trace("triggered scheduled task 2");
+        CommonDomainRegistry.getLogService().init();
         CommonDomainRegistry.getJobService()
             .execute(PROXY_VALIDATION_JOB_NAME,
-                (context) -> DomainRegistry.getProxyService().checkSum(context), true, 3);
+                (context) -> DomainRegistry.getProxyService().checkSum(context), true);
     }
 
     public CheckSumRepresentation checkSumValue() {

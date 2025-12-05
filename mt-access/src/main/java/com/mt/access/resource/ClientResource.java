@@ -12,13 +12,9 @@ import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientAutoApproveRepresentation;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
-import com.mt.access.application.client.representation.ClientDropdownRepresentation;
 import com.mt.access.application.client.representation.ClientMgmtCardRepresentation;
-import com.mt.access.application.client.representation.ClientProxyRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.infrastructure.Utility;
 import javax.servlet.http.HttpServletRequest;
@@ -73,22 +69,6 @@ public class ClientResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping(path = "projects/{projectId}/clients/dropdown")
-    public ResponseEntity<SumPagedRep<ClientDropdownRepresentation>> tenantDropdownQuery(
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-        @PathVariable String projectId
-    ) {
-        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
-        queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<ClientDropdownRepresentation> clients =
-            ApplicationServiceRegistry.getClientApplicationService()
-                .tenantDropdownQuery(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(clients);
-    }
-
     @GetMapping(path = "mgmt/clients")
     public ResponseEntity<SumPagedRep<?>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -103,20 +83,6 @@ public class ClientResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping(path = "mgmt/clients/dropdown")
-    public ResponseEntity<SumPagedRep<?>> mgmtDropdownQuery(
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUserJwt(jwt);
-        SumPagedRep<ClientDropdownRepresentation> rep =
-            ApplicationServiceRegistry.getClientApplicationService()
-                .mgmtDropdownQuery(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(rep);
-    }
-
     @GetMapping("mgmt/clients/{id}")
     public ResponseEntity<ClientRepresentation> mgmtGet(
         @PathVariable String id,
@@ -127,17 +93,6 @@ public class ClientResource {
         ClientRepresentation clientRepresentation =
             ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);
         return ResponseEntity.ok(clientRepresentation);
-    }
-
-    //for internal proxy to create router
-    @GetMapping(path = "clients/proxy")
-    public ResponseEntity<SumPagedRep<ClientProxyRepresentation>> proxyQuery(
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
-    ) {
-        SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
-            .proxyQuery(pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientProxyRepresentation::new));
     }
 
     @GetMapping("projects/{projectId}/clients/{id}")

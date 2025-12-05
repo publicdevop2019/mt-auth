@@ -2,6 +2,7 @@ package com.mt.access.resource;
 
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
+import static com.mt.common.CommonConstant.HTTP_PARAM_LANG;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UserAddEmailCommand;
@@ -14,6 +15,7 @@ import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.common.domain.model.jwt.JwtUtility;
@@ -62,10 +64,13 @@ public class UserProfileResource {
     public ResponseEntity<Void> forgetPwd(
         @RequestBody UserForgetPasswordCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam(HTTP_PARAM_LANG) String lang
     ) {
         ClientId clientId = new ClientId(JwtUtility.getClientId(jwt));
         command.setClientId(clientId);
+        SupportedLocale local = SupportedLocale.parseUILang(lang);
+        command.setLocale(local);
         ApplicationServiceRegistry.getUserApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -1,6 +1,8 @@
 package com.mt.access.domain.model.notification.event;
 
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
@@ -17,9 +19,11 @@ public class SendEmailNotification extends DomainEvent {
     public static final String SEND_EMAIL_NOTIFICATION_EVENT =
         "send_email_notification_event";
     public static final String name = "SEND_EMAIL_NOTIFICATION_EVENT";
+    public static final String FILE_SUFFIX = ".html";
     private String templateUrl;
     private String subject;
     private String email;
+    private SupportedLocale locale;
     private Map<String, String> params;
 
     {
@@ -38,8 +42,10 @@ public class SendEmailNotification extends DomainEvent {
         stringStringHashMap.put("token", event.getCode());
         params = stringStringHashMap;
         email = event.getEmail();
-        templateUrl = "PasswordResetTemplate.ftl";
-        subject = "Your password reset token";
+        templateUrl = "PasswordReset_" + event.getLocale().fileSuffix + FILE_SUFFIX;
+        subject = DomainRegistry.getI18nService()
+            .getI18nValue("email_pwd_reset_token_subject", event.getLocale());
+        locale = event.getLocale();
     }
 
     public SendEmailNotification(VerificationCodeUpdated event,
@@ -50,8 +56,10 @@ public class SendEmailNotification extends DomainEvent {
         stringStringHashMap.put("code", event.getCode());
         email = event.getEmail();
         params = stringStringHashMap;
-        templateUrl = "VerificationCodeTemplate.ftl";
-        subject = "Your verification code";
+        templateUrl = "VerificationCode_" + event.getLocale().fileSuffix + FILE_SUFFIX;
+        subject = DomainRegistry.getI18nService()
+            .getI18nValue("email_login_verification_subject", event.getLocale());
+        locale = event.getLocale();
     }
 
     public SendEmailNotification(UserMfaNotification event,
@@ -62,15 +70,17 @@ public class SendEmailNotification extends DomainEvent {
         stringStringHashMap.put("code", event.getCode().getValue());
         email = event.getEmail();
         params = stringStringHashMap;
-        templateUrl = "VerificationCodeTemplate.ftl";
-        subject = "Your verification code";
+        templateUrl = "VerificationCode_" + event.getLocale().fileSuffix + FILE_SUFFIX;
+        subject = DomainRegistry.getI18nService()
+            .getI18nValue("email_login_verification_subject", event.getLocale());
+        locale = event.getLocale();
     }
 
     public SendEmailNotification(CrossDomainValidationFailureCheck event,
                                  Notification notification) {
         this(notification);
         email = event.getEmail();
-        templateUrl = "AdminNotification.ftl";
-        subject = "Application validation failed";
+        templateUrl = "AdminNotification" + FILE_SUFFIX;
+        subject = "Application Validation Failed";
     }
 }

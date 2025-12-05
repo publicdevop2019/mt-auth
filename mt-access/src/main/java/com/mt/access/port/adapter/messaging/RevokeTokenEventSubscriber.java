@@ -3,11 +3,8 @@ package com.mt.access.port.adapter.messaging;
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.client.event.ClientGrantTypeChanged;
-import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
-import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
 import com.mt.access.domain.model.user.event.UserAuthorityChanged;
@@ -26,13 +23,6 @@ import org.springframework.stereotype.Component;
 public class RevokeTokenEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
-    private void listener2() {
-        ListenerHelper.listen(new ClientResourceCleanUpCompleted(),
-            (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handle(event));
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
     private void listener3() {
         ListenerHelper.listen(new UserAuthorityChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
@@ -49,13 +39,6 @@ public class RevokeTokenEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener6() {
         ListenerHelper.listen(new UserPasswordChanged(),
-            (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handle(event));
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener7() {
-        ListenerHelper.listen(new ClientAccessibilityRemoved(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handle(event));
     }
@@ -82,14 +65,6 @@ public class RevokeTokenEventSubscriber {
                 (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                     .handle(event), 1, CLIENT_DELETED);
     }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener12() {
-        ListenerHelper.listen(new ClientResourcesChanged(),
-            (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handle(event));
-    }
-
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener14() {

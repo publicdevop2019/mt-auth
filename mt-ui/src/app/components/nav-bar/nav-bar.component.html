@@ -193,6 +193,11 @@
                         </mat-expansion-panel-header>
                         <mat-nav-list style="padding-top: 0px;">
                             <mat-list-item mat-list-item
+                                [routerLink]="'projects/'+projectSvc.viewProject.id+'/routers'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
+                                {{'MY_ROUTER'| translate}}
+                            </mat-list-item>
+                            <mat-list-item mat-list-item
                                 [routerLink]="'projects/'+projectSvc.viewProject.id+'/endpoints'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
                                 {{'MY_API'| translate}}

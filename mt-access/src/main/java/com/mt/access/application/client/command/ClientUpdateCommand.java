@@ -10,13 +10,9 @@ public class ClientUpdateCommand {
     private String projectId;
     private String description;
     private String name;
-    private String path;
-    private String externalUrl;
     private Set<GrantType> grantTypeEnums;
     private Integer accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private Integer refreshTokenValiditySeconds;
-    private Set<String> resourceIds;
-    private Boolean resourceIndicator;
     private Integer version;
 }

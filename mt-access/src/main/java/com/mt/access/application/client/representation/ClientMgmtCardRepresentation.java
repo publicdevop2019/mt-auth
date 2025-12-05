@@ -1,7 +1,6 @@
 package com.mt.access.application.client.representation;
 
 import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.RedirectUrl;
@@ -30,18 +29,12 @@ public class ClientMgmtCardRepresentation {
 
     private Integer refreshTokenValiditySeconds;
 
-    private Set<ResourceClientInfo> resources;
-
-    private Set<String> resourceIds;
-
-    private Boolean resourceIndicator;
-
     private Boolean autoApprove;
 
     private Integer version;
 
-    public ClientMgmtCardRepresentation(Client client, Set<ClientId> resources,
-                                        Set<RedirectUrl> urls, Set<GrantType> grantTypes) {
+    public ClientMgmtCardRepresentation(Client client, Set<RedirectUrl> urls,
+                                        Set<GrantType> grantTypes) {
         id = client.getClientId().getDomainId();
         name = client.getName();
         grantTypeEnums = grantTypes;
@@ -51,19 +44,6 @@ public class ClientMgmtCardRepresentation {
         if (client.getTokenDetail() != null) {
             refreshTokenValiditySeconds = client.getTokenDetail().getRefreshTokenValiditySeconds();
         }
-        resourceIds = Utility.mapToSet(resources, ClientId::getDomainId);
-        resourceIndicator = client.getAccessible();
         type = client.getType();
-    }
-
-    @Data
-    public static class ResourceClientInfo {
-        private String name;
-        private String id;
-
-        public ResourceClientInfo(String name, String id) {
-            this.name = name;
-            this.id = id;
-        }
     }
 }

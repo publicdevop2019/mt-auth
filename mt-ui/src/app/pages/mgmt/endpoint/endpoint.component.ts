@@ -19,7 +19,7 @@ export class MgmtEndpointComponent {
     description: new FormControl(''),
     type: new FormControl(''),
     isWebsocket: new FormControl(''),
-    resourceName: new FormControl(''),
+    routerName: new FormControl(''),
     path: new FormControl(''),
     method: new FormControl({ value: '', disabled: true }),
     csrf: new FormControl(''),

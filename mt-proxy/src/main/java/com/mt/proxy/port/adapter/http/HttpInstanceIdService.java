@@ -3,6 +3,8 @@ package com.mt.proxy.port.adapter.http;
 import com.mt.proxy.domain.Instance;
 import com.mt.proxy.domain.InstanceIdService;
 import com.mt.proxy.domain.InstanceInfo;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import lombok.Data;
@@ -46,7 +48,8 @@ public class HttpInstanceIdService implements InstanceIdService {
                 ip = InetAddress.getLocalHost();
             } catch (UnknownHostException e) {
                 log.error("unable to resolve host info", e);
-                throw new InstanceIdInitException();
+                throw new DefinedRuntimeException("unable to resolve host info","2002",
+                    HttpResponseCode.INTERNAL_SERVER_ERROR);
             }
             command.setUrl("http://" + ip.getHostAddress() + ":" + port);
             HttpEntity<InstanceCreateCommand> request1 =
@@ -67,7 +70,8 @@ public class HttpInstanceIdService implements InstanceIdService {
                 instanceInfo.setId(exchange.getBody().getId());
             } else {
                 log.error("unable to init instance id");
-                throw new InstanceIdInitException();
+                throw new DefinedRuntimeException("unable to init instance id", "2006",
+                    HttpResponseCode.INTERNAL_SERVER_ERROR);
             }
         }
     }
@@ -134,6 +138,4 @@ public class HttpInstanceIdService implements InstanceIdService {
         private Integer id;
     }
 
-    private static class InstanceIdInitException extends RuntimeException {
-    }
 }

@@ -23,22 +23,16 @@ public class TokenGrantClient {
     private Set<GrantType> grantTypes;
     private Integer accessTokenValiditySeconds;
     private Integer refreshTokenValiditySeconds;
-    private Set<String> resourceIds;
     private Set<String> registeredRedirectUri;
 
-    public TokenGrantClient(Client client, Set<ClientId> resources, Set<ClientId> extResources,
-                            Set<RedirectUrl> redirectUrls, Set<GrantType> grantTypes) {
+    public TokenGrantClient(Client client, Set<RedirectUrl> redirectUrls,
+                            Set<GrantType> grantTypes) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());
         setGrantTypes(grantTypes);
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds(grantTypes));
-        Set<String> collect = Utility.mapToSet(resources, ClientId::getDomainId);
-        Set<String> collect2 =
-            Utility.mapToSet(extResources, ClientId::getDomainId);
-        collect2.addAll(collect);
-        setResourceIds(collect2);
         setRegisteredRedirectUri(Utility.mapToSet(redirectUrls, RedirectUrl::getValue));
     }
 
@@ -48,10 +42,6 @@ public class TokenGrantClient {
 
     public String getClientId() {
         return clientId.getDomainId();
-    }
-
-    public Set<String> getResourceIds() {
-        return resourceIds;
     }
 
     public Set<String> getAuthorizedGrantTypes() {

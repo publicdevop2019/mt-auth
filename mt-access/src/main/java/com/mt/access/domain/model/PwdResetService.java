@@ -2,6 +2,7 @@ package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.user.PwdResetCode;
 import com.mt.access.domain.model.user.User;
@@ -16,7 +17,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PwdResetService {
-    public void forgetPwd(ClientId clientId, UserEmail email, TransactionContext context) {
+    public void forgetPwd(ClientId clientId, UserEmail email, SupportedLocale locale,
+                          TransactionContext context) {
         UserId userId = DomainRegistry.getUserRepository().getUserId(email);
         DomainRegistry.getCoolDownService()
             .hasCoolDown(userId.getDomainId(), OperationType.PWD_RESET);
@@ -29,10 +31,11 @@ public class PwdResetService {
                 email.getEmail()
             );
         context
-            .append(new UserPwdResetCodeUpdated(userId, email, code));
+            .append(new UserPwdResetCodeUpdated(userId, email, code, locale));
     }
 
-    public void forgetPwd(ClientId clientId, UserMobile mobile, TransactionContext context) {
+    public void forgetPwd(ClientId clientId, UserMobile mobile, SupportedLocale locale,
+                          TransactionContext context) {
         UserId userId = DomainRegistry.getUserRepository().getUserId(mobile);
         DomainRegistry.getCoolDownService()
             .hasCoolDown(userId.getDomainId(), OperationType.PWD_RESET);
@@ -45,7 +48,7 @@ public class PwdResetService {
                 mobile.getValue()
             );
         context
-            .append(new UserPwdResetCodeUpdated(userId, mobile, code));
+            .append(new UserPwdResetCodeUpdated(userId, mobile, code, locale));
     }
 
     public void resetPassword(UserEmail email, UserPassword newPassword, PwdResetCode code,

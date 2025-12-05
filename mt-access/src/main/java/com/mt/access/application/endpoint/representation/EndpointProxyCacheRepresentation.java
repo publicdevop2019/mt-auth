@@ -6,15 +6,15 @@ import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.endpoint.Router;
+import com.mt.access.domain.model.endpoint.RouterId;
+import com.mt.access.domain.model.endpoint.RouterQuery;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -37,7 +37,7 @@ public class EndpointProxyCacheRepresentation
     implements Serializable, Comparable<EndpointProxyCacheRepresentation> {
     private String id;
     private String description;
-    private String resourceId;
+    private String routerId;
     private String projectId;
     private String path;
     private String method;
@@ -49,7 +49,7 @@ public class EndpointProxyCacheRepresentation
     @JsonIgnore
     private transient CorsProfileId corsProfileId;
     @JsonIgnore
-    private transient ClientId clientId;
+    private transient RouterId rawRouterId;
     @JsonIgnore
     private transient CacheProfileId cacheProfileId;
     private String permissionId;
@@ -59,15 +59,15 @@ public class EndpointProxyCacheRepresentation
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
         this.websocket = endpoint.getWebsocket();
-        this.resourceId = endpoint.getClientId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
+        this.rawRouterId = endpoint.getRouterId();
+        this.routerId = endpoint.getRouterId().getDomainId();
         this.secured = endpoint.getSecured();
         this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
-        this.clientId = endpoint.getClientId();
         //add owner project
         this.subscriptions = new HashSet<>();
         if (Checker.isFalse(endpoint.getWebsocket())) {
@@ -81,8 +81,8 @@ public class EndpointProxyCacheRepresentation
 
     public static void updateDetail(List<EndpointProxyCacheRepresentation> original) {
         if (!original.isEmpty()) {
-            Set<ClientId> clients =
-                original.stream().map(EndpointProxyCacheRepresentation::getClientId)
+            Set<RouterId> routerIds =
+                original.stream().map(EndpointProxyCacheRepresentation::getRawRouterId)
                     .collect(Collectors.toSet());
             Set<CacheProfileId> cache =
                 original.stream().map(EndpointProxyCacheRepresentation::getCacheProfileId)
@@ -94,8 +94,8 @@ public class EndpointProxyCacheRepresentation
                 original.stream().map(e -> new EndpointId(e.id)).collect(Collectors.toSet());
             Set<CorsProfile> corsFetched = null;
             Set<CacheProfile> cacheFetched = null;
-            Set<Client> clientFetched = null;
             Set<SubRequest> suReqFetched = null;
+            Set<Router> routerFetched = null;
             if (cors.size() > 0) {
                 corsFetched = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getCorsProfileRepository().query(query),
@@ -106,20 +106,20 @@ public class EndpointProxyCacheRepresentation
                     (query) -> DomainRegistry.getCacheProfileRepository()
                         .query(query), CacheProfileQuery.internalQuery(cache));
             }
-            if (clients.size() > 0) {
-                clientFetched = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().query(query),
-                    new ClientQuery(clients));
-            }
             if (epIds.size() > 0) {
                 suReqFetched = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getSubRequestRepository().getSubscription(query),
                     new SubRequestQuery(epIds));
             }
+            if (routerIds.size() > 0) {
+                routerFetched = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getRouterRepository().query(query),
+                    new RouterQuery(routerIds));
+            }
             Set<CacheProfile> finalCacheFetched = cacheFetched;
             Set<CorsProfile> finalCorsFetched = corsFetched;
-            Set<Client> finalClientFetched = clientFetched;
             Set<SubRequest> finalSuReqFetched = suReqFetched;
+            Set<Router> finalRouterFetched = routerFetched;
             original.forEach(rep -> {
                 if (finalCacheFetched != null) {
                     finalCacheFetched.stream()
@@ -140,9 +140,9 @@ public class EndpointProxyCacheRepresentation
                             rep.corsConfig = new CorsConfig(e, origins, allowed, exposed);
                         });
                 }
-                if (finalClientFetched != null) {
-                    finalClientFetched.stream()
-                        .filter(e -> e.getClientId().equals(rep.clientId))
+                if (finalRouterFetched != null) {
+                    finalRouterFetched.stream()
+                        .filter(e -> e.getRouterId().equals(rep.rawRouterId))
                         .findFirst().ifPresent(e -> {
                             if (e.getPath() != null) {
                                 rep.setPath("/" + e.getPath() + "/" + rep.getPath());

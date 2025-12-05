@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -28,11 +30,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RedisDistributedJobService implements DistributedJobService {
-    private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
-        new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Boolean> jobInstanceNotificationMap =
-        new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Integer> jobIgnoreCount =
+    private final ConcurrentHashMap<String, AtomicInteger> instanceFailureCount =
         new ConcurrentHashMap<>();
     @Autowired
     @Qualifier("job")
@@ -89,8 +87,7 @@ public class RedisDistributedJobService implements DistributedJobService {
                 return;
             }
             current.setNotifiedAdmin(true);
-            context
-                .append(domainEvent);
+            context.append(domainEvent);
         }
 
     }
@@ -117,22 +114,20 @@ public class RedisDistributedJobService implements DistributedJobService {
     }
 
     /**
-     * execute job which do not write to database, e.g. sending data to MQ
+     * execute job
      *
-     * @param jobName job name
-     * @param jobFn   job function
+     * @param jobName       job name
+     * @param jobFn         job function
+     * @param transactional whether write to db or not
      */
     @Override
-    public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional,
-                        int ignoreCount) {
-        CommonDomainRegistry.getLogService().initTrace();
-        Integer orDefault = jobIgnoreCount.getOrDefault(jobName, ignoreCount);
-        if (orDefault != 0) {
-            jobIgnoreCount.put(jobName, --orDefault);
-            return;
-        }
+    public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional) {
+        CommonDomainRegistry.getLogService().initIfAbsent();
+        log.trace("trigger scheduled job {}", jobName);
+        String traceId = CommonDomainRegistry.getLogService().getTraceId();
         taskExecutor.execute(() -> {
-            CommonDomainRegistry.getLogService().initTrace();
+            CommonDomainRegistry.getLogService().setTraceId(traceId);
+            CommonDomainRegistry.getLogService().initSpanId();
             Analytics start = Analytics.start(Analytics.Type.JOB_EXECUTION);
             Timer.Sample sample = Timer.start(meterRegistry);
 
@@ -157,15 +152,13 @@ public class RedisDistributedJobService implements DistributedJobService {
                 boolean b = tryDistributedJob(jobName, job.getJobId(), jobFn, transactional);
                 if (!b) {
                     //when thread cannot get lock, updating job is not allowed to avoid concurrent update issue
-                    Integer failureCountOrDefault =
-                        jobInstanceFailureCountMap.getOrDefault(jobName, 0);
-                    failureCountOrDefault++;
-                    jobInstanceFailureCountMap.put(jobName, failureCountOrDefault);
-                    checkThreadStarving(jobName, job, failureCountOrDefault);
+                    //make sure atomic & thread safe
+                    this.instanceFailureCount.putIfAbsent(jobName, new AtomicInteger(0));
+                    int count = this.instanceFailureCount.get(jobName).getAndIncrement();
+                    checkThreadStarving(jobName, job, count);
                     checkJobStarving(jobName, job);
-                } else {
-                    jobInstanceFailureCountMap.remove(jobName);
-                    jobInstanceNotificationMap.remove(jobName);
+                }else{
+                    instanceFailureCount.remove(jobName);
                 }
             } else {
                 log.debug("job is per instance");
@@ -246,9 +239,8 @@ public class RedisDistributedJobService implements DistributedJobService {
         return false;
     }
 
-    private void checkThreadStarving(String jobName, JobDetail job, Integer failureCountOrDefault) {
-        if (failureCountOrDefault > job.getMaxLockAcquireFailureAllowed() &&
-            !jobInstanceNotificationMap.getOrDefault(jobName, false)) {
+    private void checkThreadStarving(String jobName, JobDetail job, Integer failedCount) {
+        if (failedCount > job.getMaxLockAcquireFailureAllowed()) {
             CommonDomainRegistry.getTransactionService().transactionalEvent(
                 (context) -> {
                     Long instanceId =
@@ -261,7 +253,7 @@ public class RedisDistributedJobService implements DistributedJobService {
                     context
                         .append(starvingEvent);
                 });
-            jobInstanceNotificationMap.put(jobName, true);
+            instanceFailureCount.remove(jobName);
         }
     }
 

@@ -2,6 +2,7 @@ package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.verification_code.RegistrationEmail;
 import com.mt.access.domain.model.verification_code.RegistrationMobile;
@@ -19,6 +20,7 @@ public class VerificationCodeService {
     public void sendCode(
         ClientId clientId,
         RegistrationEmail email,
+        SupportedLocale locale,
         TransactionContext context
     ) {
         DomainRegistry.getCoolDownService()
@@ -28,12 +30,13 @@ public class VerificationCodeService {
             .issueCode(clientId, verificationCode.getValue(), VerificationCode.OPERATION_TYPE,
                 email.getDomainId());
         context
-            .append(new VerificationCodeUpdated(email, verificationCode));
+            .append(new VerificationCodeUpdated(email, verificationCode, locale));
     }
 
     public void sendCode(
         ClientId clientId,
         RegistrationMobile mobile,
+        SupportedLocale locale,
         TransactionContext context
     ) {
         DomainRegistry.getCoolDownService()
@@ -43,7 +46,7 @@ public class VerificationCodeService {
             .issueCode(clientId, verificationCode.getValue(), VerificationCode.OPERATION_TYPE,
                 mobile.getDomainId());
         context
-            .append(new VerificationCodeUpdated(mobile, verificationCode));
+            .append(new VerificationCodeUpdated(mobile, verificationCode, locale));
     }
 
     public void validateCreate(String countryCode, String mobileNumber, String email) {

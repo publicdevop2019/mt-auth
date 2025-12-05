@@ -7,7 +7,7 @@
         </div>
         <ng-container *ngIf="context !== 'FORGET'">
             <form [formGroup]="form">
-                <mat-tab-group (selectedTabChange)="handleTabChange($event)" [selectedIndex]="selectedLoginIndex">
+                <mat-tab-group (selectedTabChange)="handleTabChange($event)">
                     <mat-tab (click)="loginContext='MOBILE_CODE'" label="{{'LOGIN_VIA_MOBILE_CODE'|translate}}">
                         <div style="display: flex; flex-direction: column; margin-top: 24px;">
                             <div style="display: flex; flex-direction: row;">

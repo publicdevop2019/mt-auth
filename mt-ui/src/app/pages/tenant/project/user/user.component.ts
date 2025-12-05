@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Utility } from 'src/app/misc/utility';
 import { IProjectUser } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
-import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { RESERVED_NAMES, RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { MatTableDataSource } from '@angular/material/table';
@@ -68,5 +68,8 @@ export class UserComponent {
       this.data = next;
       this.dataSource = new MatTableDataSource(this.data.roleDetails || []);
     });
+  }
+  notDefaultRole(row: IRoleTable) {
+    return row.name !== RESERVED_NAMES.PROJECT_USER
   }
 }

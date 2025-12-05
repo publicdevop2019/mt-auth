@@ -1,11 +1,8 @@
 package com.mt.access.domain.model.client;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
-import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
-import com.mt.access.domain.model.client.event.ClientPathChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
 import com.mt.access.domain.model.project.ProjectId;
@@ -23,8 +20,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -40,7 +35,6 @@ public class Client extends Auditable {
     private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
     private static final String MT_UI_LOGIN_ID = "0C8AZZ16LZB4";
     private static final Set<ClientId> reservedClientIds = new HashSet<>();
-    private static final Pattern PATH_REGEX = Pattern.compile("^[a-z\\-/]*$");
 
     static {
         reservedClientIds.add(new ClientId(MT_ACCESS_ID));
@@ -64,12 +58,6 @@ public class Client extends Auditable {
     private String name;
 
     @Getter
-    private String path;
-
-    @Getter
-    private ExternalUrl externalUrl;
-
-    @Getter
     private String secret;
 
     @Getter
@@ -79,27 +67,22 @@ public class Client extends Auditable {
     private ClientType type;
 
     @Getter
-    private Boolean accessible;
-
-    @Getter
     private TokenDetail tokenDetail;
 
-    public Client(ClientId clientId, ProjectId projectId, String name, String path,
-                  @Nullable String secret, String description, Boolean accessible,
+    public Client(ClientId clientId, ProjectId projectId, String name,
+                  @Nullable String secret, String description,
                   TokenDetail tokenDetail, ClientType type,
-                  ExternalUrl externalUrl, TransactionContext context) {
+                  TransactionContext context
+    ) {
         super();
         setClientId(clientId);
         setProjectId(projectId);
         setDescription(description);
-        setAccessible(accessible, context);
         setName(name);
-        setPath(path, context);
         initType(type);
         initSecret(secret);
         setTokenDetail(tokenDetail, context);
         setRoleId();
-        setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
         //TOOD try rm above comment
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
@@ -114,14 +97,13 @@ public class Client extends Auditable {
     }
 
     public static Client fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
-                                         String modifiedBy, Integer version,
-                                         Boolean accessible, ClientId domainId,
-                                         String description, String name, String path,
+                                         String modifiedBy, Integer version, ClientId domainId,
+                                         String description, String name,
                                          ClientType type, ProjectId projectId, RoleId roleId,
                                          String secret,
                                          Integer accessTokenValiditySeconds,
-                                         Integer refreshTokenValiditySeconds,
-                                         ExternalUrl externalUrl) {
+                                         Integer refreshTokenValiditySeconds
+    ) {
         Client client = new Client();
         client.setId(id);
         client.setCreatedAt(createdAt);
@@ -129,33 +111,16 @@ public class Client extends Auditable {
         client.setModifiedAt(modifiedAt);
         client.setModifiedBy(modifiedBy);
         client.setVersion(version);
-        client.accessible = accessible;
         client.setDescription(description);
         client.setName(name);
-        client.path = path;
         client.setClientId(domainId);
         client.setProjectId(projectId);
         client.type = type;
         client.roleId = roleId;
         client.secret = secret;
-        client.externalUrl = externalUrl;
         client.tokenDetail =
             new TokenDetail(accessTokenValiditySeconds, refreshTokenValiditySeconds);
         return client;
-    }
-
-    private void setExternalUrl(ExternalUrl externalUrl, TransactionContext context) {
-        if (this.externalUrl == null && externalUrl == null) {
-            return;
-        } else if (this.externalUrl == null || externalUrl == null) {
-            context.append(new ClientPathChanged(clientId));
-        } else {
-            if (!externalUrl.equals(this.externalUrl)) {
-                context
-                    .append(new ClientPathChanged(clientId));
-            }
-        }
-        this.externalUrl = externalUrl;
     }
 
     private void setRoleId() {
@@ -173,54 +138,6 @@ public class Client extends Auditable {
                 HttpResponseCode.BAD_REQUEST);
         }
         this.type = type;
-    }
-
-    private void setPath(String path, TransactionContext context) {
-        if (this.path == null && path == null) {
-            return;
-        } else if (this.path == null || path == null) {
-            context.append(new ClientPathChanged(clientId));
-        } else {
-            if (!path.equals(this.path)) {
-                context
-                    .append(new ClientPathChanged(clientId));
-            }
-        }
-        if (Checker.notNull(path)) {
-            Validator.lessThanOrEqualTo(path, 50);
-            Validator.greaterThanOrEqualTo(path, 5);
-            Matcher matcher = PATH_REGEX.matcher(path);//alpha - / only
-            boolean result = false;
-            if (matcher.find()) {
-                if (!path.startsWith("/") && !path.endsWith("/")) { //avoid /test/
-                    if (!path.endsWith("-") && !path.startsWith("-")) { //avoid -test-
-                        if (path.contains("/")) {
-                            boolean valid = true;
-                            for (String s : path.split("/")) {
-                                if (s.startsWith("-") || s.endsWith("-")) {
-                                    valid = false;
-                                    break;
-                                }
-                                if (s.isBlank()) {
-                                    valid = false;
-                                    break;
-                                }
-                            }
-                            if (valid) {
-                                result = true;
-                            }
-                        } else {
-                            result = true;
-                        }
-                    }
-                }
-            }
-            if (!result) {
-                throw new DefinedRuntimeException("invalid path format", "1084",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-        }
-        this.path = path;
     }
 
     private void setName(String name) {
@@ -246,28 +163,15 @@ public class Client extends Auditable {
         this.tokenDetail = tokenDetail;
     }
 
-    private void setAccessible(Boolean accessible, TransactionContext context) {
-        if (Checker.notNull(id)) {
-            if (Checker.isTrue(getAccessible()) && Checker.isFalse(accessible)) {
-                context
-                    .append(new ClientAccessibilityRemoved(clientId));
-            }
-        }
-        this.accessible = accessible;
-    }
-
-
-    public Client update(String name, String secret, String path, String description,
-                         Boolean accessible, TokenDetail tokenDetail, ExternalUrl externalUrl,
-                         TransactionContext context) {
+    public Client update(
+        String name, String secret, String description,
+        TokenDetail tokenDetail, TransactionContext context
+    ) {
         Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        updated.setPath(path, context);
-        updated.setAccessible(accessible, context);
         updated.updateSecret(secret, context);
         updated.setTokenDetail(tokenDetail, context);
         updated.setName(name);
         updated.setDescription(description);
-        updated.setExternalUrl(externalUrl, context);
         updated.validate(new HttpValidationNotificationHandler());
         updated.setModifiedAt(Instant.now().toEpochMilli());
         updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
@@ -316,21 +220,13 @@ public class Client extends Auditable {
         return !Checker.equals(this.tokenDetail, tokenDetail);
     }
 
-    private void removeAllReferenced(TransactionContext context) {
-        context.append(new ClientDeleted(clientId));
-        if (Checker.isTrue(getAccessible())) {
-            context
-                .append(new ClientAsResourceDeleted(clientId));
-        }
-    }
-
     public void remove(TransactionContext context) {
         if (reservedClientIds.contains(this.clientId)) {
             throw new DefinedRuntimeException("client cannot be deleted", "1009",
                 HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getClientRepository().remove(this);
-        removeAllReferenced(context);
+        context.append(new ClientDeleted(clientId));
     }
 
     public boolean sameAs(Client o) {
@@ -339,12 +235,9 @@ public class Client extends Auditable {
                 Objects.equals(roleId, o.roleId) &&
                 Objects.equals(clientId, o.clientId) &&
                 Objects.equals(name, o.name) &&
-                Objects.equals(path, o.path) &&
-                Objects.equals(externalUrl, o.externalUrl) &&
                 Objects.equals(secret, o.secret) &&
                 Objects.equals(description, o.description) &&
                 Objects.equals(type, o.type) &&
-                Objects.equals(accessible, o.accessible) &&
                 Objects.equals(tokenDetail, o.tokenDetail);
     }
 

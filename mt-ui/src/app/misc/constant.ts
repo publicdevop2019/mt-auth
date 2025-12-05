@@ -16,6 +16,9 @@ export const HTTP_METHODS = [
     { label: 'HTTP_DELETE', value: "DELETE" },
     { label: 'HTTP_PATCH', value: "PATCH" },
 ]
+export const RESERVED_NAMES = {
+    PROJECT_USER: 'PROJECT_USER'
+}
 export const CONST_GRANT_TYPE: IOption[] = [
     { label: 'CLIENT_CREDENTIALS', value: "CLIENT_CREDENTIALS" },
     { label: 'PASSWORD', value: "PASSWORD" },
@@ -32,8 +35,7 @@ export const CONST_HTTP_METHOD: IOption[] = [
 export const TABLE_SETTING_KEY = 'displayColumns'
 export const APP_CONSTANT = {
     MT_AUTH_ACCESS_PATH: 'auth-svc',
-    MGMT_RESOURCE_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown?query=resourceIndicator:1',
-    TENANT_RESOURCE_CLIENT_DROPDOWN: '/clients/dropdown?query=resourceIndicator:1',
+    MGMT_RESOURCE_ROUTER_DROPDOWN: '/auth-svc/mgmt/routers',
 }
 export enum grantTypeEnums {
     refresh_token = 'REFRESH_TOKEN',
@@ -48,6 +50,7 @@ export enum CLIENT_TYPE {
 export const RESOURCE_NAME = {
     CACHE: 'cache',
     CORS: 'cors',
+    ROUTER: 'routers',
     ADMINS: 'admins',
     PERMISSIONS: 'permissions',
     ROLES: 'roles',

@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.endpoint;
 
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -40,7 +39,7 @@ public interface EndpointRepository {
 
     Set<CorsProfileId> getCorsProfileIds();
 
-    Set<ClientId> getClientIds();
+    Set<RouterId> getRouterIds();
 
     long countTotal();
 
@@ -50,5 +49,5 @@ public interface EndpointRepository {
 
     long countProjectTotal(ProjectId projectId);
 
-    boolean checkDuplicate(ClientId clientId, String path, String method);
+    boolean checkDuplicate(RouterId routerId, String path, String method);
 }

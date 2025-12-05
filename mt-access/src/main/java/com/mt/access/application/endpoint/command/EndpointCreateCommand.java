@@ -13,7 +13,7 @@ public class EndpointCreateCommand {
     private Boolean shared;
     private String corsProfileId;
     private String cacheProfileId;
-    private String resourceId;
+    private String routerId;
     private String path;
     private Boolean external;
     private Integer replenishRate;

@@ -2,6 +2,8 @@ package com.mt.proxy.port.adapter.http;
 
 import com.mt.proxy.domain.JwtService;
 import com.mt.proxy.domain.RetrieveJwtPublicKeyService;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +31,8 @@ public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyServ
             return JWKSet.parse(exchange.getBody());
         } catch (ParseException e) {
             log.error("error during parse jwk", e);
-            throw new UnableRetrieveJwkException();
+            throw new DefinedRuntimeException("error during parse jwk", "2004",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private static class UnableRetrieveJwkException extends RuntimeException {
     }
 }

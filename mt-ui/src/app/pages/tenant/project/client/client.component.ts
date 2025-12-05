@@ -34,14 +34,11 @@ export class ClientComponent {
   changeId: string = Utility.getChangeId();
   data: IClient;
   context: 'NEW' | 'EDIT' = 'NEW';
-  options: IOption[] = []
   resourceNum: number = 0
   resourceSize: number = 50
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
     projectId: new FormControl({ value: '', disabled: true }),
-    path: new FormControl(''),
-    externalUrl: new FormControl(''),
     clientSecret: new FormControl(''),
     name: new FormControl(''),
     description: new FormControl(''),
@@ -49,10 +46,8 @@ export class ClientComponent {
     grantType: new FormControl([]),
     registeredRedirectUri: new FormControl(''),
     refreshToken: new FormControl(''),
-    resourceIndicator: new FormControl(''),
     accessTokenValiditySeconds: new FormControl(''),
     refreshTokenValiditySeconds: new FormControl(''),
-    resourceId: new FormControl([]),
   });
   constructor(
     public projectSvc: ProjectService,
@@ -83,35 +78,12 @@ export class ClientComponent {
         this.fg.get('accessTokenValiditySeconds').setValue(120)
         this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
         this.fg.get('clientSecret').setValue(Utility.getChangeId())
-        if (createData.type === 'BACKEND_APP') {
-          this.fg.get('resourceIndicator').setValue(true)
-          this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '') + '-svc')
-          this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
-
-        }
       }
     } else {
       this.context = 'EDIT'
       this.httpProxySvc.readEntityById<IClient>(this.url, clientId).subscribe(next => {
         this.data = next;
-        const var0: Observable<any>[] = [];
-        if (this.data.resourceIds && this.data.resourceIds.length > 0) {
-          var0.push(this.httpProxySvc.readEntityByQuery(this.url, 0, this.data.resourceIds.length, 'id:' + this.data.resourceIds.join('.')))
-        }
-        if (var0.length === 0) {
-          this.resume()
-        } else {
-          combineLatest(var0).pipe(take(1))
-            .subscribe(next => {
-              let count = -1;
-              if (this.data.resourceIds && this.data.resourceIds.length > 0) {
-                count++;
-                const nextOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-                this.options = nextOptions;
-              }
-              this.resume()
-            })
-        }
+        this.resume()
       })
     }
     this.fg.valueChanges.subscribe(() => {
@@ -119,18 +91,6 @@ export class ClientComponent {
         this.validateUpdateForm()
       }
     })
-    this.httpProxySvc.readEntityByQuery<IClient>(this.url, this.resourceNum, this.resourceSize, `resourceIndicator:1`, undefined, undefined, undefined)
-      .subscribe(next => {
-        if (this.data) {
-          next.data = next.data.filter(e => e.id !== this.data.id);
-        }
-        this.options = next.data.map(e => {
-          return {
-            label: e.name,
-            value: e.id
-          }
-        })
-      })
     this.fg.get('grantType').valueChanges.subscribe((next) => {
       Logger.debug("next {}", next)
       if ((next as string[]).includes('PASSWORD')) {
@@ -179,8 +139,6 @@ export class ClientComponent {
     const value = {
       id: this.data.id,
       projectId: this.data.projectId,
-      path: this.data.path ? this.data.path : '',
-      externalUrl: this.data.externalUrl ? this.data.externalUrl : '',
       clientSecret: this.data.clientSecret,
       name: this.data.name,
       description: this.data.description || '',
@@ -188,10 +146,8 @@ export class ClientComponent {
       grantType: grantType,
       registeredRedirectUri: this.data.registeredRedirectUri ? this.data.registeredRedirectUri.join(',') : '',
       refreshToken: this.data.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),
-      resourceIndicator: this.data.resourceIndicator,
       accessTokenValiditySeconds: this.data.accessTokenValiditySeconds,
       refreshTokenValiditySeconds: this.data.refreshTokenValiditySeconds,
-      resourceId: this.data.resourceIds,
     }
     this.fg.patchValue(value)
   }
@@ -215,7 +171,6 @@ export class ClientComponent {
         type: CLIENT_TYPE.frontend_app,
         accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
         refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
-        resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
         registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
         version: this.data && this.data.version,
         projectId: formGroup.get('projectId').value
@@ -224,16 +179,12 @@ export class ClientComponent {
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
-      path: formGroup.get('path').value ? formGroup.get('path').value : undefined,
-      externalUrl: formGroup.get('externalUrl').value ? formGroup.get('externalUrl').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       clientSecret: formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
       type: CLIENT_TYPE.backend_app,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
       refreshTokenValiditySeconds: grants.includes(grantTypeEnums.refresh_token) && formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
-      resourceIndicator: !!formGroup.get('resourceIndicator').value,
-      resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
       registeredRedirectUri: grants.includes(grantTypeEnums.authorization_code) && formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
       version: this.data && this.data.version,
       projectId: formGroup.get('projectId').value

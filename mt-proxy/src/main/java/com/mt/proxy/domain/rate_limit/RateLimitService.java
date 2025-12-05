@@ -3,6 +3,7 @@ package com.mt.proxy.domain.rate_limit;
 import com.mt.proxy.domain.DomainRegistry;
 import com.mt.proxy.domain.Endpoint;
 import com.mt.proxy.domain.Utility;
+import com.mt.proxy.infrastructure.LogService;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.time.Instant;
@@ -14,6 +15,7 @@ import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.LongCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -49,7 +51,7 @@ public class RateLimitService {
     @Autowired
     private RedissonClient redissonClient;
 
-    public RateLimitResult withinRateLimit(String path, String method,
+    public RateLimitResult withinRateLimit(ServerHttpRequest request, String path, String method,
                                            HttpHeaders headers, InetSocketAddress address) {
         boolean webSocket = Utility.isWebSocket(headers);
         if (webSocket) {
@@ -96,17 +98,18 @@ public class RateLimitService {
             subscription =
                 endpoint.getSelfSubscription();
         }
-        return checkLimit(tokenKey, subscription);
+        return checkLimit(request, tokenKey, subscription);
     }
 
-    private RateLimitResult checkLimit(String tokenKey, Endpoint.Subscription subscription) {
+    private RateLimitResult checkLimit(ServerHttpRequest request, String tokenKey,
+                                       Endpoint.Subscription subscription) {
         RateLimitResult result;
         try {
             RScript script = redissonClient.getScript(LongCodec.INSTANCE);
             Integer replenishRate = subscription.getReplenishRate();
             Integer burstCapacity = subscription.getBurstCapacity();
             long epochSecond = Instant.now().getEpochSecond();
-            List<Long> execute = script.eval(
+            List<Long> luaResult = script.eval(
                 RScript.Mode.READ_WRITE,
                 LUA_SCRIPT,
                 RScript.ReturnType.MULTI,
@@ -115,13 +118,13 @@ public class RateLimitService {
                 burstCapacity,
                 epochSecond
             );
-            if (execute == null) {
-                log.error("redis script return null");
+            if (luaResult == null) {
+                LogService.reactiveLog(request, () -> log.error("redis script return null"));
                 return RateLimitResult.deny();
             }
-            result = RateLimitResult.parse(execute);
+            result = RateLimitResult.parse(luaResult, request);
         } catch (Exception ex) {
-            log.error("error during redis script", ex);
+            LogService.reactiveLog(request, () -> log.error("error during redis script", ex));
             result = RateLimitResult.error();
         }
         return result;

@@ -1,6 +1,6 @@
 package com.mt.proxy.infrastructure.filter;
 
-import com.mt.proxy.domain.RegisteredApplication;
+import com.mt.proxy.domain.Router;
 import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,9 +28,9 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
     @Autowired
     private RouteDefinitionWriter routeDefinitionWriter;
 
-    public void refreshRoutes(Set<RegisteredApplication> registeredApplicationSet) {
-        Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null)
-            .map(RegisteredApplication::getId).collect(Collectors.toSet());
+    public void refreshRoutes(Set<Router> routerSet) {
+        Set<String> collect = routerSet.stream().filter(e -> e.getPath() != null)
+            .map(Router::getId).collect(Collectors.toSet());
         AtomicInteger count = new AtomicInteger();
         collect.forEach(e -> {
             routeDefinitionWriter.delete(Mono.just(e)).subscribe(null, (error) -> {
@@ -40,7 +40,7 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
         if (log.isDebugEnabled()) {
             log.debug("ignore not found ex when delete routes, count {}", count);
         }
-        registeredApplicationSet.stream().filter(app -> app.getBasePath() != null).forEach(app -> {
+        routerSet.stream().filter(app -> app.getPath() != null).forEach(app -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(app.getId());
             URI uri = URI.create(app.getExternalUrl());
@@ -48,13 +48,13 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setName("Path");
             Map<String, String> predicateParams = new HashMap<>(8);
-            predicateParams.put("pattern", "/" + app.getBasePath() + "/**");
+            predicateParams.put("pattern", "/" + app.getPath() + "/**");
             predicate.setArgs(predicateParams);
             definition.setPredicates(Collections.singletonList(predicate));
             FilterDefinition filter = new FilterDefinition();
             filter.setName("RewritePath");
             Map<String, String> filterParams = new HashMap<>(8);
-            filterParams.put("regexp", "/" + app.getBasePath() + "(?<segment>/?.*)");
+            filterParams.put("regexp", "/" + app.getPath() + "(?<segment>/?.*)");
             if (uri.getPath() != null) {
                 filterParams.put("replacement", uri.getPath() + "/${segment}");
             } else {

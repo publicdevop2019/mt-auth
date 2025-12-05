@@ -19,8 +19,8 @@
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="resourceId">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['resourceId']|translate}} </th>
+                <ng-container matColumnDef="routerId">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['routerId']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-page-select-single [readOnly]="true" [inputValue]="getOption(row)">
                         </app-editable-page-select-single>

@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.user.event;
 
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.User;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -19,6 +20,7 @@ public class UserMfaNotification extends DomainEvent {
     private MfaDeliverMethod deliverMethod;
 
     private MfaCode code;
+    private SupportedLocale locale;
 
     {
         setTopic(USER_MFA_NOTIFICATION);
@@ -36,6 +38,7 @@ public class UserMfaNotification extends DomainEvent {
             countryCode = user.getMobile().getCountryCode();
             deliverMethod = MfaDeliverMethod.MOBILE;
         }
+        this.locale = SupportedLocale.parseUserLang(user.getLanguage());
     }
 
     public UserMfaNotification(User user, MfaCode code, MfaDeliverMethod method) {
@@ -49,5 +52,6 @@ public class UserMfaNotification extends DomainEvent {
             countryCode = user.getMobile().getCountryCode();
             deliverMethod = MfaDeliverMethod.MOBILE;
         }
+        this.locale = SupportedLocale.parseUserLang(user.getLanguage());
     }
 }

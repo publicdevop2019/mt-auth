@@ -5,15 +5,13 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.Router;
+import com.mt.access.domain.model.endpoint.RouterId;
 import com.mt.common.infrastructure.Utility;
-import java.util.Optional;
 import java.util.Set;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +22,6 @@ public class EndpointMgmtRepresentation {
     private String id;
     private String name;
     private String description;
-    private String resourceId;
-    private String resourceName;
     private String projectId;
     private String path;
     private String method;
@@ -34,10 +30,12 @@ public class EndpointMgmtRepresentation {
     private Boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
+    private String routerId;
+    private String routerName;
     @JsonIgnore
     private transient CorsProfileId corsProfileId;
     @JsonIgnore
-    private transient ClientId clientId;
+    private transient RouterId rawRouterId;
     @JsonIgnore
     private transient CacheProfileId cacheProfileId;
 
@@ -46,7 +44,6 @@ public class EndpointMgmtRepresentation {
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();
         this.websocket = endpoint.getWebsocket();
-        this.resourceId = endpoint.getClientId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
@@ -54,11 +51,8 @@ public class EndpointMgmtRepresentation {
         this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
-        this.clientId = endpoint.getClientId();
-
-        Optional<Client> clientFetched =
-            DomainRegistry.getClientRepository().query(new ClientQuery(clientId))
-                .findFirst();
+        this.rawRouterId = endpoint.getRouterId();
+        this.routerId = endpoint.getRouterId().getDomainId();
         if (cacheProfileId != null) {
             CacheProfile cacheFetched =
                 DomainRegistry.getCacheProfileRepository()
@@ -76,8 +70,10 @@ public class EndpointMgmtRepresentation {
             Set<Origin> origins = DomainRegistry.getCorsOriginRepository().query(corsProfile);
             this.corsConfig = new CorsConfig(corsProfile, origins, allowed, exposed);
         }
-        this.resourceName = clientFetched.get().getName();
-        this.path = "/" + clientFetched.get().getPath() + "/" + this.path;
+        Router router = DomainRegistry.getRouterRepository().get(rawRouterId);
+        this.path = "/" + router.getPath() + "/" + this.path;
+        this.routerName = router.getName();
+
     }
 
     @Data

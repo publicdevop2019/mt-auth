@@ -1,7 +1,8 @@
 package com.mt.access.application.endpoint.representation;
 
-import com.mt.access.domain.model.client.ClientId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.RouterId;
 import com.mt.access.domain.model.project.ProjectId;
 import lombok.Data;
 
@@ -12,17 +13,21 @@ public class EndpointSharedCardRepresentation {
     private String description;
     private String path;
     private String method;
+    private String routerId;
     private Integer version;
     private Boolean websocket;
     private Boolean shared;
     private Boolean secured;
     private String projectId;
     private String projectName;
+    @JsonIgnore
+    private transient RouterId rawRouterId;
+    @JsonIgnore
     private transient ProjectId originalProjectId;
-    private transient ClientId clientId;
 
     public EndpointSharedCardRepresentation(Endpoint endpoint) {
-        this.clientId = endpoint.getClientId();
+        this.rawRouterId = endpoint.getRouterId();
+        this.routerId = endpoint.getRouterId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();
         this.originalProjectId = endpoint.getProjectId();
         this.id = endpoint.getEndpointId().getDomainId();

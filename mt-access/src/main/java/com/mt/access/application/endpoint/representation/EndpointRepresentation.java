@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 public class EndpointRepresentation {
     private String id;
-    private String resourceId;
     private String description;
     private String name;
     private String path;
+    private String routerId;
     private String method;
     private String createdBy;
     private Long createdAt;
@@ -31,13 +31,13 @@ public class EndpointRepresentation {
 
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
+        this.routerId = endpoint.getRouterId().getDomainId();
         this.websocket = endpoint.getWebsocket();
         this.shared = endpoint.getShared();
         this.external = endpoint.getExternal();
         this.burstCapacity = endpoint.getBurstCapacity();
         this.replenishRate = endpoint.getReplenishRate();
         this.secured = endpoint.getSecured();
-        this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();
         this.path = endpoint.getPath();

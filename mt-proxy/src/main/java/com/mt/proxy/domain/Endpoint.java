@@ -23,7 +23,7 @@ import lombok.ToString;
 public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String id;
     private String description;
-    private String resourceId;
+    private String routerId;
     private String projectId;
     private String path;
     private String method;

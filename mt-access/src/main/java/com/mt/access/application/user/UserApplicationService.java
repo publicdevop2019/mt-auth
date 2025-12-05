@@ -19,6 +19,7 @@ import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.i18n.SupportedLocale;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.CurrentPassword;
@@ -118,30 +119,32 @@ public class UserApplicationService {
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         if (Checker.notNull(command.getEmail())) {
             UserEmail email = new UserEmail(command.getEmail());
-            forgetPasswordEmail(command.getClientId(), email, changeId);
+            forgetPasswordEmail(command.getClientId(), email, command.getLocale(),changeId);
         } else {
             UserMobile mobile =
                 new UserMobile(command.getCountryCode(), command.getMobileNumber());
-            forgetPasswordMobile(command.getClientId(), mobile, changeId);
+            forgetPasswordMobile(command.getClientId(), mobile, command.getLocale(),changeId);
         }
     }
 
-    private void forgetPasswordMobile(ClientId clientId, UserMobile mobile, String changeId) {
+    private void forgetPasswordMobile(ClientId clientId, UserMobile mobile, SupportedLocale locale,
+                                      String changeId) {
         DomainRegistry.getAuditService()
             .logExternalUserAction(log, mobile.getValue(), USER_FORGET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                DomainRegistry.getPwdResetService().forgetPwd(clientId, mobile, context);
+                DomainRegistry.getPwdResetService().forgetPwd(clientId, mobile,locale, context);
                 return null;
             }, USER);
     }
 
-    private void forgetPasswordEmail(ClientId clientId, UserEmail email, String changeId) {
+    private void forgetPasswordEmail(ClientId clientId, UserEmail email, SupportedLocale locale,
+                                     String changeId) {
         DomainRegistry.getAuditService()
             .logExternalUserAction(log, email.getEmail(), USER_FORGET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                DomainRegistry.getPwdResetService().forgetPwd(clientId, email, context);
+                DomainRegistry.getPwdResetService().forgetPwd(clientId, email,locale, context);
                 return null;
             }, USER);
     }

@@ -31,13 +31,13 @@ public class WebSocketNotificationService implements WsPushNotificationService {
 
     @Scheduled(fixedRate = 25 * 1000)
     protected void autoRenew() {
-        log.info("renewing ws connections");
+        CommonDomainRegistry.getLogService().init();
         CommonDomainRegistry.getJobService()
             .execute(KEEP_WS_CONNECTION_JOB_NAME, (ignored) -> {
                 log.trace("start of renewing all ws connects");
                 mgmtWsHandler.broadcastToAll("_renew");
                 userWsHandler.broadcastToAll("_renew");
                 log.trace("end of renewing all ws connects");
-            }, false, 0);
+            }, false);
     }
 }

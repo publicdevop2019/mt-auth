@@ -13,13 +13,9 @@ public class ClientCreateCommand {
     private String projectId;
     private String description;
     private String name;
-    private String path;
-    private String externalUrl;
     private Set<GrantType> grantTypeEnums;
     private ClientType type;
     private Integer accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private Integer refreshTokenValiditySeconds;
-    private Set<String> resourceIds;
-    private Boolean resourceIndicator;
 }

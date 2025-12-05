@@ -6,6 +6,7 @@ import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
 import com.mt.access.application.cross_domain_validation.CrossDomainValidationApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
+import com.mt.access.application.endpoint.RouterApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
@@ -46,6 +47,8 @@ public class ApplicationServiceRegistry {
     @Getter
     private static EndpointApplicationService endpointApplicationService;
     @Getter
+    private static RouterApplicationService routerApplicationService;
+    @Getter
     private static CorsProfileApplicationService corsProfileApplicationService;
     @Getter
     private static RevokeTokenApplicationService revokeTokenApplicationService;
@@ -74,6 +77,10 @@ public class ApplicationServiceRegistry {
     @Getter
     private static InstanceApplicationService instanceApplicationService;
 
+    @Autowired
+    public void setRouterApplicationService(RouterApplicationService service) {
+        ApplicationServiceRegistry.routerApplicationService = service;
+    }
     @Autowired
     public void setInstanceApplicationService(InstanceApplicationService service) {
         ApplicationServiceRegistry.instanceApplicationService = service;

@@ -22,7 +22,7 @@ public class TransactionContext {
     }
 
     public void append(DomainEvent domainEvent) {
-        log.info("new event {}", domainEvent.getName());
+        log.debug("new event {}", domainEvent.getName());
         if (!TransactionSynchronizationManager.isActualTransactionActive()) {
             throw new DefinedRuntimeException("no transaction detected", "0063",
                 HttpResponseCode.INTERNAL_SERVER_ERROR);

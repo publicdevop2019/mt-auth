@@ -3,6 +3,8 @@ package com.mt.proxy.port.adapter.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.proxy.domain.RevokeToken;
 import com.mt.proxy.domain.RevokeTokenRepository;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import java.io.IOException;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +30,12 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
                 return Optional.of(mapper.readValue(cache, RevokeToken.class));
             } catch (IOException e) {
                 log.error("error during deserialize revoke token", e);
-                throw new RevokeTokenDeserializeException();
+                throw new DefinedRuntimeException("deserialize revoke token failed", "2001",
+                    HttpResponseCode.INTERNAL_SERVER_ERROR);
             }
         } else {
             return Optional.empty();
         }
     }
 
-    public static class RevokeTokenDeserializeException extends RuntimeException {
-    }
 }

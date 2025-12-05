@@ -250,6 +250,9 @@ public class Permission extends Auditable {
                 new PermissionId("0Y8HHJ47NBDV"), new PermissionId("0Y8HHJ47NBDN"),
                 new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8M4UTZLTLI"),
                 new PermissionId("0Y8HHJ47NBDL"),
+                //router apis
+                new PermissionId("0Y914D2QKG0G"), new PermissionId("0Y914D2QKG0H"),
+                new PermissionId("0Y914D2QKG0I"), new PermissionId("0Y914D2QKG0J"),
                 //cors apis
                 new PermissionId("0Y8OK4YM1LAW"), new PermissionId("0Y8OK4YXLDEC"),
                 new PermissionId("0Y8OK4YFSUFS"), new PermissionId("0Y8OK4YRZ3MC"),

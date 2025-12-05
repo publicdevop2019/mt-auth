@@ -7,7 +7,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { IIdBasedEntity, IRoleLinkedPermission } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
-import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { RESERVED_NAMES, RESOURCE_NAME } from 'src/app/misc/constant';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { take } from 'rxjs/operators';
@@ -68,8 +68,8 @@ export class MyRolesComponent {
       this.tableSource.columnConfig = this.columnList;
     })
   }
-  editable(row: IRole) {
-    return row.roleType !== 'CLIENT_ROOT' && row.roleType !== 'PROJECT'
+  notDefaultRole(row: IRole) {
+    return row.name !== RESERVED_NAMES.PROJECT_USER
   }
   createNewRole() {
     const dialogRef = this.dialog.open(RoleCreateDialogComponent, { data: {} });

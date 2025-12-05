@@ -27,13 +27,19 @@ export interface ICorsProfile extends IIdBasedEntity {
     exposedHeaders: string[];
     maxAge: number;
 }
+export interface IRouter extends IIdBasedEntity {
+    name: string
+    description?: string
+    path: string
+    externalUrl: string;
+}
 export interface IEndpointCreate {
     name: string;
     type: string;
 }
 export interface IEndpoint extends IIdBasedEntity {
-    resourceId: string;
-    resourceName?: string;
+    routerId: string;
+    routerName?: string;
     description?: string;
     name: string;
     path: string;
@@ -154,8 +160,17 @@ export interface IVerificationCodeRequest {
     countryCode?: string;
     mobileNumber?: string;
     email?: string;
+    lang: string;
 }
 export interface IForgetPasswordRequest {
+    email?: string;
+    mobileNumber?: string;
+    countryCode?: string;
+    token?: string;
+    newPassword?: string;
+    lang:string
+}
+export interface IChangePasswordRequest {
     email?: string;
     mobileNumber?: string;
     countryCode?: string;
@@ -171,10 +186,6 @@ export interface IClientCreate {
     type?: string
 }
 export interface IClient extends IIdName {
-    name: string;
-    path?: string;
-    externalUrl?: string;
-    id: string;
     clientSecret?: string;
     projectId: string;
     description?: string;
@@ -182,10 +193,7 @@ export interface IClient extends IIdName {
     type: CLIENT_TYPE;
     accessTokenValiditySeconds?: number;
     refreshTokenValiditySeconds?: number;
-    resourceIds?: string[]
-    resources?: { name: string, id: string }[]
     hasSecret?: boolean;
-    resourceIndicator?: boolean;
     registeredRedirectUri?: string[];
     version: number;
 }

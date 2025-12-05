@@ -9,7 +9,7 @@ import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
-import { IForgetPasswordRequest, IMfaResponse, IOption, IVerificationCodeRequest, ITokenResponse } from 'src/app/misc/interface';
+import { IForgetPasswordRequest, IMfaResponse, IOption, IVerificationCodeRequest, ITokenResponse, IChangePasswordRequest } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -25,8 +25,7 @@ import { environment } from 'src/environments/environment';
 export class LoginComponent {
   hide = true;
   context: 'LOGIN' | 'FORGET' = 'LOGIN'
-  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'EMAIL_CODE';
-  selectedLoginIndex = 1;
+  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'MOBILE_CODE';
   forgetContext: 'EMAIL' | 'MOBILE' = 'MOBILE';
   nextUrl: string = '/' + RouterWrapperService.HOME_URL;
   DEFAULT_WAIT: number = environment.codeCooldown;
@@ -56,7 +55,7 @@ export class LoginComponent {
   tokenChangeId = Utility.getChangeId();
   resetChangeId = Utility.getChangeId();
   loginId = Utility.getChangeId();
-  DEFAULT_COUNTRY_CODE: string = '1'
+  DEFAULT_COUNTRY_CODE: string = '86'
   form = new FormGroup({
     countryCode: new FormControl(this.DEFAULT_COUNTRY_CODE, []),
     mobileNumber: new FormControl('', []),
@@ -84,7 +83,7 @@ export class LoginComponent {
     public translate: TranslateService,
     public deviceSvc: DeviceService,
     public authSvc: AuthService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
   ) {
     this.httpProxy.refreshInprogress = false;
     this.deviceSvc.updateDocTitle('LOGIN_DOC_TITLE')
@@ -99,9 +98,11 @@ export class LoginComponent {
         this.snackBar.open(next, 'OK');
       })
     } else {
-      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
-        this.snackBar.open(next, 'OK');
-      })
+      if (environment.production) {
+        this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+          this.snackBar.open(next, 'OK');
+        })
+      }
     }
     this.form.valueChanges.subscribe(() => {
       if (this.enableError) {
@@ -118,11 +119,11 @@ export class LoginComponent {
   }
   mobileNums: IOption[] = [
     {
+      label: 'COUNTRY_CHINA', value: '86'
+    },
+    {
       label: 'COUNTRY_CANADA', value: '1'
     },
-    // {
-    //   label: 'COUNTRY_CHINA', value: '86'
-    // },
   ]
   loginOrRegister() {
     this.enableError = true;
@@ -169,7 +170,7 @@ export class LoginComponent {
       this.httpProxy.currentUserAuthInfo = undefined;
       let payload: IVerificationCodeRequest
       if (this.loginContext === 'EMAIL_CODE') {
-        payload = { email: this.form.get('email').value }
+        payload = { email: this.form.get('email').value, lang: this.langSvc.currentLanguage() }
         this.emailCodeCooldown = true;
         this.emailCodeCountDown = this.DEFAULT_WAIT;
         const interval = setInterval(() => {
@@ -180,7 +181,7 @@ export class LoginComponent {
           }
         }, 1000);
       } else {
-        payload = { mobileNumber: this.form.get('mobileNumber').value, countryCode: this.form.get('countryCode').value }
+        payload = { mobileNumber: this.form.get('mobileNumber').value, countryCode: this.form.get('countryCode').value, lang: this.langSvc.currentLanguage() }
         this.mobileCodeCooldown = true;
         this.mobileCodeCountDown = this.DEFAULT_WAIT;
         const interval = setInterval(() => {
@@ -197,7 +198,7 @@ export class LoginComponent {
         if (this.loginContext === 'EMAIL_CODE') {
           this.emailCodeCooldown = true;
         } else {
-
+          this.mobileCodeCooldown = true;
         }
       })
     }
@@ -213,9 +214,9 @@ export class LoginComponent {
       this.httpProxy.currentUserAuthInfo = undefined;
       let payload: IForgetPasswordRequest
       if (this.forgetContext === 'EMAIL') {
-        payload = { email: this.forgetForm.get('email').value }
+        payload = { email: this.forgetForm.get('email').value, lang: this.langSvc.currentLanguage() }
       } else {
-        payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value }
+        payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value, lang: this.langSvc.currentLanguage() }
       }
       this.httpProxy.currentUserAuthInfo = undefined;
       this.resetCodeCooldown = true;
@@ -235,7 +236,7 @@ export class LoginComponent {
   changePassword() {
     this.enableForgetError = true;
     if (this.validateForget()) {
-      let payload: IForgetPasswordRequest;
+      let payload: IChangePasswordRequest;
       if (this.forgetContext === 'EMAIL') {
         payload = {
           email: this.forgetForm.get('email').value,

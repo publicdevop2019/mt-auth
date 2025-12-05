@@ -17,7 +17,7 @@ export class SummaryEndpointComponent{
     id: 'ID',
     name: 'NAME',
     description: 'DESCRIPTION',
-    resourceId: 'PARENT_CLIENT',
+    routerId: 'MY_ROUTER',
     path: 'URL',
     method: 'METHOD',
     more: 'MORE',
@@ -39,9 +39,9 @@ export class SummaryEndpointComponent{
       source: CONST_HTTP_METHOD
     },
     {
-      searchLabel: 'PARENT_CLIENT',
-      searchValue: 'resourceId',
-      resourceUrl: APP_CONSTANT.MGMT_RESOURCE_CLIENT_DROPDOWN,
+      searchLabel: 'MY_ROUTER',
+      searchValue: 'routerId',
+      sourceUrl: APP_CONSTANT.MGMT_RESOURCE_ROUTER_DROPDOWN,
       type: 'dynamic',
       multiple: {
         delimiter: '.'
@@ -60,7 +60,7 @@ export class SummaryEndpointComponent{
     this.tableSource.loadPage(0)
   }
   getOption(row: IEndpoint) {
-    return <IOption>{ label: row.resourceName, value: row.resourceId }
+    return <IOption>{ label: row.routerName, value: row.routerId }
   }
   getHttpOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class NettyConfig implements WebServerFactoryCustomizer<NettyReactiveWebServerFactory> {
     // config max header size to 1MB
     private static final int MAX_HEADER_SIZE = 1024 * 1024;
-    private static final String DOMAIN_PREFIX_REGEX = "^0[A-Z][0-9A-Z]{10}$";
+    private static final String DOMAIN_PREFIX_REGEX = "^[0-9][A-Z][0-9A-Z]{10}$";
 
     @Override
     public void customize(NettyReactiveWebServerFactory factory) {

@@ -2,7 +2,6 @@ package com.mt.access.domain.model.endpoint;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
@@ -66,14 +65,15 @@ public class Endpoint extends Auditable {
     private CacheProfileId cacheProfileId;
 
     @Setter(AccessLevel.PRIVATE)
-    private ClientId clientId;
-    @Setter(AccessLevel.PRIVATE)
     private ProjectId projectId;
 
     private String path;
 
     @Setter(AccessLevel.PRIVATE)
     private EndpointId endpointId;
+
+    @Setter(AccessLevel.PRIVATE)
+    private RouterId routerId;
 
     private String method;
 
@@ -91,7 +91,7 @@ public class Endpoint extends Auditable {
     private String expireReason;
 
 
-    public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId,
+    public Endpoint(RouterId routerId, ProjectId projectId, CacheProfileId cacheProfileId,
                     String name, String description,
                     String path, EndpointId endpointId, String method,
                     Boolean secured, Boolean websocket, Boolean csrfEnabled,
@@ -101,8 +101,8 @@ public class Endpoint extends Auditable {
     ) {
         super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        setClientId(clientId);
         setProjectId(projectId);
+        setRouterId(routerId);
         setEndpointId(endpointId);
         setName(name);
         setDescription(description);
@@ -126,21 +126,22 @@ public class Endpoint extends Auditable {
     }
 
     public static Endpoint addNewEndpoint(
-        ClientId clientId, ProjectId projectId,
+        RouterId routerId,
+        ProjectId projectId,
         CacheProfileId cacheProfileId, String name, String description, String path,
         EndpointId endpointId, String method, Boolean secured,
         Boolean websocket, Boolean csrfEnabled, CorsProfileId corsProfileId, Boolean shared,
         Boolean external, Integer replenishRate,
         Integer burstCapacity, TransactionContext context
     ) {
-        return new Endpoint(clientId, projectId, cacheProfileId, name, description, path,
+        return new Endpoint(routerId, projectId, cacheProfileId, name, description, path,
             endpointId, method, secured, websocket, csrfEnabled, corsProfileId, shared, external,
             replenishRate, burstCapacity, context);
     }
 
     public static Endpoint fromDatabaseRow(Long id, Long createdAt, String createdBy,
                                            Long modifiedAt, String modifiedBy, Integer version,
-                                           CacheProfileId cacheProfileId, ClientId clientId,
+                                           CacheProfileId cacheProfileId, RouterId routerId,
                                            CorsProfileId corsProfileId, Boolean csrfEnabled,
                                            String description, EndpointId domainId,
                                            Boolean websocket, String method, String name,
@@ -157,7 +158,7 @@ public class Endpoint extends Auditable {
         endpoint.setModifiedBy(modifiedBy);
         endpoint.setVersion(version);
         endpoint.setCacheProfileId(cacheProfileId);
-        endpoint.setClientId(clientId);
+        endpoint.setRouterId(routerId);
         endpoint.setCorsProfileId(corsProfileId);
         endpoint.setCsrfEnabled(csrfEnabled);
         endpoint.setDescription(description);
@@ -195,16 +196,6 @@ public class Endpoint extends Auditable {
 
     public void remove(TransactionContext context) {
         canBeRemoved();
-        DomainRegistry.getEndpointRepository().remove(this);
-        context
-            .append(new EndpointCollectionModified());
-        if (secured) {
-            context
-                .append(new SecureEndpointRemoved(this));
-        }
-    }
-
-    public void removeAfterClientDelete(TransactionContext context) {
         DomainRegistry.getEndpointRepository().remove(this);
         context
             .append(new EndpointCollectionModified());
@@ -375,7 +366,7 @@ public class Endpoint extends Auditable {
     @Override
     public void validate(ValidationNotificationHandler handler) {
         DomainRegistry.getEndpointValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
+            .validate(this);
         (new EndpointValidator(this, handler)).validate();
     }
 
@@ -427,7 +418,7 @@ public class Endpoint extends Auditable {
             Objects.equals(corsProfileId, o.corsProfileId) &&
             Objects.equals(permissionId, o.permissionId) &&
             Objects.equals(cacheProfileId, o.cacheProfileId) &&
-            Objects.equals(clientId, o.clientId) &&
+            Objects.equals(routerId, o.routerId) &&
             Objects.equals(projectId, o.projectId) &&
             Objects.equals(path, o.path) &&
             Objects.equals(endpointId, o.endpointId) &&

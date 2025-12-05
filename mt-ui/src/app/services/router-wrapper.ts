@@ -36,6 +36,9 @@ export class RouterWrapperService {
     public getCorsConfigIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
+    public getRouterConfigIdFromUrl() {
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
+    }
     public getEndpointIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
@@ -104,17 +107,26 @@ export class RouterWrapperService {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs', 'template']);
     }
 
-    public navProjectCorsConfigsDashboard() {
-        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs']);
+    public navProjectRoutersDashboard() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'routers']);
     }
     public navProjectUserDashboard() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'users']);
     }
-    public navProjectCorsConfigsDetail(id: string, data: any) {
-        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', id], { state: data });
+    public navProjectRouterDetail(id: string, data: any) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'routers', id], { state: data });
     }
     public navProjectNewCorsConfigsDetail() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', 'template']);
+    }
+    public navProjectCorsConfigsDashboard() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs']);
+    }
+    public navProjectCorsConfigsDetail(id: string, data: any) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', id], { state: data });
+    }
+    public navProjectNewRouterDetail() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'routers', 'template']);
     }
 
     public navProjectNewClientsDetail(data: any) {

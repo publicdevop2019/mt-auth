@@ -51,7 +51,7 @@ public class MqListener {
                 channel.queueDeclare(queueName, true, false, true, null);
                 channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "endpoint_reload_requested");
                 channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "endpoint_collection_modified");
-                channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "client_path_changed");
+                channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "router_key_param_changed");
                 channel.queueBind(queueName, MT_GLOBAL_EXCHANGE, "sub_req_approved");
                 DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                     try {
@@ -65,7 +65,7 @@ public class MqListener {
                 channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
                 });
             } catch (IOException | TimeoutException e) {
-                log.warn("error during my init", e);
+                log.warn("error during mq init", e);
             }
             instanceInfo.setMqConnected(true);
         }

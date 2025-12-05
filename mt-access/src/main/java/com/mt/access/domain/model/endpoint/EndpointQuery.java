@@ -2,7 +2,6 @@ package com.mt.access.domain.model.endpoint;
 
 
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
@@ -13,8 +12,6 @@ import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -28,13 +25,13 @@ import lombok.ToString;
 @ToString
 public class EndpointQuery extends QueryCriteria {
     public static final String ID = "id";
-    public static final String RESOURCE_ID = "resourceId";
     public static final String PATH = "path";
     public static final String METHOD = "method";
     public static final String PERMISSION_IDS = "permissionId";
+    public static final String ROUTER_IDS = "routerId";
     private Set<EndpointId> endpointIds;
     private Set<PermissionId> permissionIds;
-    private Set<ClientId> clientIds;
+    private Set<RouterId> routerIds;
     private Set<ProjectId> projectIds;
     private Set<CorsProfileId> corsProfileIds;
     private String path;
@@ -52,12 +49,6 @@ public class EndpointQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public EndpointQuery(EndpointId endpointId) {
-        endpointIds = new HashSet<>(List.of(endpointId));
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-    }
-
     public EndpointQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 1000));
@@ -69,8 +60,8 @@ public class EndpointQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public EndpointQuery(ClientId clientId) {
-        clientIds = Collections.singleton(clientId);
+    public EndpointQuery(RouterId routerId) {
+        routerIds = Collections.singleton(routerId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
     }
@@ -98,13 +89,6 @@ public class EndpointQuery extends QueryCriteria {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-    }
-
-    public EndpointQuery(String queryParam, ProjectId projectId) {
-        updateQueryParam(queryParam);
-        projectIds = Collections.singleton(projectId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.countRequired());
     }
 
     public static EndpointQuery permissionQuery(Set<PermissionId> externalPermissions) {
@@ -152,14 +136,10 @@ public class EndpointQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-            ID, RESOURCE_ID, PATH, METHOD, AppConstant.QUERY_PROJECT_IDS, PERMISSION_IDS);
+            ID, PATH, METHOD, ROUTER_IDS, AppConstant.QUERY_PROJECT_IDS, PERMISSION_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             endpointIds =
                 Arrays.stream(e.split("\\.")).map(EndpointId::new).collect(Collectors.toSet());
-        });
-        Optional.ofNullable(stringStringMap.get(RESOURCE_ID)).ifPresent(e -> {
-            clientIds =
-                Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS)).ifPresent(e -> {
             projectIds =
@@ -168,6 +148,10 @@ public class EndpointQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(PERMISSION_IDS)).ifPresent(e -> {
             permissionIds =
                 Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet());
+        });
+        Optional.ofNullable(stringStringMap.get(ROUTER_IDS)).ifPresent(e -> {
+            routerIds =
+                Arrays.stream(e.split("\\.")).map(RouterId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(PATH)).ifPresent(e -> path = e);
         Optional.ofNullable(stringStringMap.get(METHOD)).ifPresent(e -> method = e);

@@ -15,7 +15,7 @@ public class DomainRegistry {
     @Getter
     private static RetrieveEndpointService retrieveEndpointService;
     @Getter
-    private static RetrieveRegisterApplicationService retrieveRegisterApplicationService;
+    private static RetrieveRouterService retrieveRouterService;
     @Getter
     private static JwtService jwtService;
     @Getter
@@ -33,7 +33,7 @@ public class DomainRegistry {
     @Getter
     private static CacheService cacheService;
     @Getter
-    private static RegisteredApplicationService registeredApplicationService;
+    private static RouterService routerService;
     @Getter
     private static RateLimitService rateLimitService;
     @Getter
@@ -45,9 +45,9 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setRetrieveRegisterApplicationService(
-        RetrieveRegisterApplicationService retrieveRegisterApplicationService) {
-        DomainRegistry.retrieveRegisterApplicationService = retrieveRegisterApplicationService;
+    public void setRetrieveRouterService(
+        RetrieveRouterService retrieveRouterService) {
+        DomainRegistry.retrieveRouterService = retrieveRouterService;
     }
 
     @Autowired
@@ -108,9 +108,9 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setRegisteredApplicationService(
-        RegisteredApplicationService registeredApplicationService) {
-        DomainRegistry.registeredApplicationService = registeredApplicationService;
+    public void setRouterService(
+        RouterService routerService) {
+        DomainRegistry.routerService = routerService;
     }
 
 

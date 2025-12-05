@@ -1,12 +1,12 @@
 package com.mt.access.domain;
 
 import com.mt.access.domain.model.CacheProfileValidationService;
-import com.mt.access.domain.model.ClientExternalResourceService;
 import com.mt.access.domain.model.ComputePermissionService;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
+import com.mt.access.domain.model.I18nService;
 import com.mt.access.domain.model.MfaService;
 import com.mt.access.domain.model.NewUserService;
 import com.mt.access.domain.model.PermissionCheckService;
@@ -19,11 +19,9 @@ import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheControlRepository;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
-import com.mt.access.domain.model.client.ClientExternalResourceRepository;
 import com.mt.access.domain.model.client.ClientGrantTypeRepository;
 import com.mt.access.domain.model.client.ClientRedirectUrlRepository;
 import com.mt.access.domain.model.client.ClientRepository;
-import com.mt.access.domain.model.client.ClientResourceRepository;
 import com.mt.access.domain.model.cors_profile.CorsAllowedHeaderRepository;
 import com.mt.access.domain.model.cors_profile.CorsExposedHeaderRepository;
 import com.mt.access.domain.model.cors_profile.CorsOriginRepository;
@@ -31,7 +29,9 @@ import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
+import com.mt.access.domain.model.endpoint.RouterRepository;
 import com.mt.access.domain.model.image.ImageRepository;
+import com.mt.access.domain.model.instance.InstanceService;
 import com.mt.access.domain.model.notification.EmailNotificationService;
 import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.SmsNotificationService;
@@ -50,7 +50,6 @@ import com.mt.access.domain.model.role.CommonPermissionIdRepository;
 import com.mt.access.domain.model.role.ExternalPermissionIdRepository;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
-import com.mt.access.domain.model.instance.InstanceService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.temporary_code.TemporaryCodeRepository;
 import com.mt.access.domain.model.temporary_code.TemporaryCodeService;
@@ -78,12 +77,6 @@ import org.springframework.stereotype.Service;
 public class DomainRegistry {
     @Getter
     private static ClientRepository clientRepository;
-    @Getter
-    private static ClientResourceRepository clientResourceRepository;
-    @Getter
-    private static ClientExternalResourceService clientExternalResourceService;
-    @Getter
-    private static ClientExternalResourceRepository clientExternalResourceRepository;
     @Getter
     private static ClientRedirectUrlRepository clientRedirectUrlRepository;
     @Getter
@@ -212,6 +205,19 @@ public class DomainRegistry {
     private static UserRelationTenantIdRepository userRelationTenantIdRepository;
     @Getter
     private static InstanceService instanceService;
+    @Getter
+    private static RouterRepository routerRepository;
+    @Getter
+    private static I18nService i18nService;
+
+    @Autowired
+    public void setI18nService(I18nService i18nService) {
+        DomainRegistry.i18nService = i18nService;
+    }
+    @Autowired
+    public void setRouterRepository(RouterRepository routerRepository) {
+        DomainRegistry.routerRepository = routerRepository;
+    }
 
     @Autowired
     public void setInstanceService(InstanceService services) {
@@ -281,21 +287,6 @@ public class DomainRegistry {
     @Autowired
     public void setClientRedirectUrlRepository(ClientRedirectUrlRepository services) {
         DomainRegistry.clientRedirectUrlRepository = services;
-    }
-
-    @Autowired
-    public void setClientExternalResourceRepository(ClientExternalResourceRepository services) {
-        DomainRegistry.clientExternalResourceRepository = services;
-    }
-
-    @Autowired
-    public void setClientExternalResourceService(ClientExternalResourceService services) {
-        DomainRegistry.clientExternalResourceService = services;
-    }
-
-    @Autowired
-    public void setClientResourceRepository(ClientResourceRepository repository) {
-        DomainRegistry.clientResourceRepository = repository;
     }
 
     @Autowired

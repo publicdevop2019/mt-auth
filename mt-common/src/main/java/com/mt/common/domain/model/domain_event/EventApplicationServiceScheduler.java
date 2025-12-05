@@ -17,7 +17,7 @@ public class EventApplicationServiceScheduler {
 
     @Scheduled(cron = "0 */5 * ? * *")
     public void checkNotSend() {
-        log.trace("start of scheduled task 6");
+        CommonDomainRegistry.getLogService().init();
         CommonDomainRegistry.getJobService()
             .execute(MISSED_EVENT_SCAN_JOB_NAME,
                 (ignored) -> {
@@ -37,7 +37,7 @@ public class EventApplicationServiceScheduler {
                         }
                         log.debug("end of publish not send event");
                     }
-                }, true, 1);
+                }, true);
     }
 
 }

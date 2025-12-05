@@ -50,9 +50,6 @@ export class Utility {
     static getUrl(input: string[]) {
         return input.join('/')
     }
-    static getTenantUrl(projectId: string, resourceUrl: string): string {
-        return "/" + APP_CONSTANT.MT_AUTH_ACCESS_PATH + '/projects/' + projectId + resourceUrl
-    }
     public static hasValue(input: any): boolean {
         return input !== null && input !== undefined && input !== '';
     }

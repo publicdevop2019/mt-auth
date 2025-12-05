@@ -26,15 +26,6 @@
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="resourceIndicator">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['resourceIndicator']|translate}}
-                    </th>
-                    <td mat-cell *matCellDef="let row">
-                        <app-editable-boolean [inputValue]="row.resourceIndicator" [readOnly]="true"
-                            (newValue)="doPatchBoolean(row.id,$event,'resourceIndicator')"></app-editable-boolean>
-                    </td>
-                </ng-container>
-
                 <ng-container matColumnDef="grantTypeEnums">
                     <th mat-header-cell *matHeaderCellDef> {{columnList['grantTypeEnums']|translate}} </th>
                     <td mat-cell *matCellDef="let row">

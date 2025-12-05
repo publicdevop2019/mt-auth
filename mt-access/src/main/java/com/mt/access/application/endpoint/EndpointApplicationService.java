@@ -18,16 +18,15 @@ import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
-import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
+import com.mt.access.domain.model.endpoint.Router;
+import com.mt.access.domain.model.endpoint.RouterId;
+import com.mt.access.domain.model.endpoint.RouterQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
@@ -51,42 +50,40 @@ public class EndpointApplicationService {
     private static final String ENDPOINT = "Endpoint";
 
     private static SumPagedRep<EndpointCardRepresentation> updateDetail(
-        SumPagedRep<Endpoint> rep2) {
+        SumPagedRep<Endpoint> resp) {
         SumPagedRep<EndpointCardRepresentation> rep =
-            new SumPagedRep<>(rep2, EndpointCardRepresentation::new);
-        Set<ClientId> collect =
-            rep.getData().stream().map(e -> new ClientId(e.getResourceId()))
+            new SumPagedRep<>(resp, EndpointCardRepresentation::new);
+        Set<RouterId> collect =
+            rep.getData().stream().map(e -> new RouterId(e.getRouterId()))
                 .collect(Collectors.toSet());
         if (!collect.isEmpty()) {
-            Set<Client> allByIds = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect));
+            Set<Router> allByIds = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getRouterRepository().query(e),
+                    new RouterQuery(collect));
             rep.getData().forEach(e -> allByIds.stream()
-                .filter(ee -> ee.getClientId().getDomainId().equals(e.getResourceId())).findFirst()
-                .ifPresent(ee -> {
-                    e.setResourceName(ee.getName());
-                }));
+                .filter(ee -> ee.getRouterId().getDomainId().equals(e.getRouterId())).findFirst()
+                .ifPresent(ee -> e.setRouterName(ee.getName())));
         }
         return rep;
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
         if (!original.isEmpty()) {
-            Set<ClientId> collect =
-                original.stream().map(EndpointSharedCardRepresentation::getClientId)
+            Set<RouterId> collect =
+                original.stream().map(EndpointSharedCardRepresentation::getRawRouterId)
                     .collect(Collectors.toSet());
             Set<ProjectId> collect2 =
                 original.stream().map(EndpointSharedCardRepresentation::getOriginalProjectId)
                     .collect(Collectors.toSet());
-            Set<Client> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect));
+            Set<Router> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getRouterRepository().query(e),
+                    new RouterQuery(collect));
             Set<Project> allByQuery2 = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect2));
             original.forEach(e -> {
-                Optional<Client> first =
-                    allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId()))
+                Optional<Router> first =
+                    allByQuery.stream().filter(ee -> ee.getRouterId().equals(e.getRawRouterId()))
                         .findFirst();
                 first.ifPresent(ee -> {
                     String path = ee.getPath();
@@ -94,9 +91,7 @@ public class EndpointApplicationService {
                 });
                 Optional<Project> first2 = allByQuery2.stream()
                     .filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
-                first2.ifPresent(ee -> {
-                    e.setProjectName(ee.getName());
-                });
+                first2.ifPresent(ee -> e.setProjectName(ee.getName()));
             });
         }
     }
@@ -183,10 +178,10 @@ public class EndpointApplicationService {
                                String changeId) {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId = new ProjectId(command.getProjectId());
-        ClientId clientId = new ClientId(command.getResourceId());
+        RouterId routerId = new RouterId(command.getRouterId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, API_MGMT);
         if (DomainRegistry.getEndpointRepository()
-            .checkDuplicate(clientId, command.getPath(), command.getMethod())) {
+            .checkDuplicate(routerId, command.getPath(), command.getMethod())) {
             throw new DefinedRuntimeException("duplicate endpoint", "1092",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -195,7 +190,7 @@ public class EndpointApplicationService {
             idempotent = CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (context) -> {
                     Endpoint endpoint = Endpoint.addNewEndpoint(
-                        clientId,
+                        routerId,
                         projectId,
                         command.getCacheProfileId() != null
                             ?
@@ -311,22 +306,6 @@ public class EndpointApplicationService {
                     DomainRegistry.getEndpointRepository().get(endpointId);
                 Endpoint expire = endpoint.expire(command.getExpireReason(), context);
                 DomainRegistry.getEndpointRepository().update(endpoint, expire);
-                return null;
-            }, ENDPOINT);
-    }
-
-    public void handle(ClientDeleted deserialize) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (context) -> {
-                Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getEndpointRepository().query(query),
-                    new EndpointQuery(new ClientId(deserialize.getDomainId().getDomainId())));
-                if (!allByQuery.isEmpty()) {
-                    allByQuery.forEach(e -> e.removeAfterClientDelete(context));
-                    DomainRegistry.getEndpointRepository().remove(allByQuery);
-                    context
-                        .append(new EndpointCollectionModified());
-                }
                 return null;
             }, ENDPOINT);
     }

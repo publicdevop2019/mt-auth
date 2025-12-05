@@ -17,10 +17,8 @@ export class SummaryClientComponent {
     name: 'NAME',
     id: 'ID',
     description: 'DESCRIPTION',
-    resourceIndicator: 'RESOURCE_INDICATOR',
     grantTypeEnums: 'GRANTTYPE_ENUMS',
     accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
-    resourceIds: 'RESOURCEIDS',
     more: 'MORE',
     token: 'REVOKE_TOKEN',
   }
@@ -53,24 +51,9 @@ export class SummaryClientComponent {
       source: CONST_GRANT_TYPE
     },
     {
-      searchLabel: 'RESOURCE_INDICATOR',
-      searchValue: 'resourceIndicator',
-      type: 'boolean',
-    },
-    {
       searchLabel: 'ACCESS_TOKEN_VALIDITY_SECONDS',
       searchValue: 'accessTokenValiditySeconds',
       type: 'range',
-    },
-    {
-      searchLabel: 'RESOURCEIDS',
-      searchValue: 'resourceIds',
-      type: 'dynamic',
-      resourceUrl: APP_CONSTANT.MGMT_RESOURCE_CLIENT_DROPDOWN,
-      multiple: {
-        delimiter: '.'
-      },
-      source: []
     }
   ]
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_CLIENTS)

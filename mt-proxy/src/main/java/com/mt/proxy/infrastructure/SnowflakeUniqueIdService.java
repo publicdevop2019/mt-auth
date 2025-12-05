@@ -2,6 +2,8 @@ package com.mt.proxy.infrastructure;
 
 import com.mt.proxy.domain.InstanceInfo;
 import com.mt.proxy.domain.UniqueIdGeneratorService;
+import com.mt.proxy.domain.exception.DefinedRuntimeException;
+import com.mt.proxy.domain.exception.HttpResponseCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,8 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
         validateInstanceId();
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
-            throw new RuntimeException("clock reverted");
+            throw new DefinedRuntimeException("clock reverted", "2007",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
         if (lastSuccessSecond == currentSecond) {
             long sequenceMaxValue = ~(-1L << SEQUENCE_ID_LENGTH);
@@ -53,7 +56,8 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
     private void validateInstanceId() {
         Integer instanceId = instanceInfo.getId();
         if (instanceId == null || instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new RuntimeException("invalid instance id");
+            throw new DefinedRuntimeException("invalid instance id", "2008",
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
     }
 

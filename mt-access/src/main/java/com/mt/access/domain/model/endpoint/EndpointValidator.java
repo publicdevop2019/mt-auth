@@ -9,8 +9,8 @@ public class EndpointValidator {
     private final Endpoint endpoint;
     private final ValidationNotificationHandler handler;
 
-    public EndpointValidator(Endpoint client, ValidationNotificationHandler handler) {
-        this.endpoint = client;
+    public EndpointValidator(Endpoint endpoint, ValidationNotificationHandler handler) {
+        this.endpoint = endpoint;
         this.handler = handler;
     }
 
@@ -65,7 +65,6 @@ public class EndpointValidator {
         Validator.notNull(endpoint.getEndpointId());
         Validator.notNull(endpoint.getProjectId());
         Validator.notNull(endpoint.getName());
-        Validator.notNull(endpoint.getClientId());
         Validator.notNull(endpoint.getShared());
         Validator.notNull(endpoint.getExternal());
         Validator.notNull(endpoint.getSecured());

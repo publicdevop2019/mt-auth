@@ -114,56 +114,6 @@ export class NavBarComponent implements OnInit {
   userPermissions = ['USER_MGMT']
   rolePermissions = ['ROLE_MGMT']
   adminPermissions = ['PROJECT_INFO_MGMT']
-  menuTenant: INavElement[] = [
-    {
-      link: 'my-project',
-      display: 'MY_PROJECT',
-      icon: 'leaderboard',
-      authName: ['PROJECT_INFO_MGMT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-client',
-      display: 'MY_CLIENTS',
-      icon: 'apps',
-      authName: ['CLIENT_MGMT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-permission',
-      display: 'MY_PERMISSION_DASHBOARD',
-      icon: 'policy',
-      authName: ['PERMISSION_MGMT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-role',
-      display: 'MY_ROLE_DASHBOARD',
-      icon: 'person',
-      authName: ['ROLE_MGMT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-user',
-      display: 'MY_USER_DASHBOARD',
-      icon: 'people',
-      authName: ['USER_MGMT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-admin',
-      display: 'MY_ADMIN_DASHBOARD',
-      icon: 'admin_panel_settings',
-      authName: ['PROJECT_INFO_MGMT'],
-      params: {
-      },
-    },
-  ];
   menuEp: INavElement[] = [
     {
       link: 'market',

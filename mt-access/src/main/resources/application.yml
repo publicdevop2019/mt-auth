@@ -24,7 +24,8 @@ mt:
       key-secret:
       url:
       sign-name:
-      template-code:
+      template-code-zhHans:
+      template-code-enUs:
     aws:
       key-id:
       key-secret:

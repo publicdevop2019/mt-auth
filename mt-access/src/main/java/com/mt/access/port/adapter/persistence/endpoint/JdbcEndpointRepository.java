@@ -1,12 +1,12 @@
 package com.mt.access.port.adapter.persistence.endpoint;
 
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
+import com.mt.access.domain.model.endpoint.RouterId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -37,8 +37,8 @@ public class JdbcEndpointRepository implements EndpointRepository {
         "modified_at, " +
         "modified_by, " +
         "version, " +
+        "router_id, " +
         "cache_profile_id, " +
-        "client_id, " +
         "cors_profile_id, " +
         "csrf_enabled, " +
         "description, " +
@@ -68,13 +68,13 @@ public class JdbcEndpointRepository implements EndpointRepository {
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM endpoint e WHERE %s";
     private static final String CHECK_DUPLICATE_SQL =
-        "SELECT COUNT(*) AS count FROM endpoint e WHERE e.client_id = ? AND e.path = ? AND e.method = ?";
+        "SELECT COUNT(*) AS count FROM endpoint e WHERE e.router_id = ? AND e.path = ? AND e.method = ?";
     private static final String FIND_ALL_CACHE_PROFILE_ID_SQL =
         "SELECT DISTINCT e.cache_profile_id FROM endpoint e WHERE e.cache_profile_id IS NOT NULL";
     private static final String FIND_ALL_CORS_PROFILE_ID_SQL =
         "SELECT DISTINCT e.cors_profile_id FROM endpoint e WHERE e.cors_profile_id IS NOT NULL";
-    private static final String FIND_ALL_CLIENT_ID_SQL =
-        "SELECT DISTINCT e.client_id FROM endpoint e";
+    private static final String FIND_ALL_ROUTER_ID_SQL =
+        "SELECT DISTINCT e.router_id FROM endpoint e";
     private static final String COUNT_PROJECT_TOTAL_SQL =
         "SELECT COUNT(*) AS count FROM endpoint e " +
             "WHERE e.project_id = ?";
@@ -93,7 +93,6 @@ public class JdbcEndpointRepository implements EndpointRepository {
         "e.cors_profile_id = ?, " +
         "e.csrf_enabled = ?, " +
         "e.description = ?, " +
-        "e.domain_id = ?, " +
         "e.websocket = ?, " +
         "e.method = ?, " +
         "e.name = ?, " +
@@ -130,7 +129,6 @@ public class JdbcEndpointRepository implements EndpointRepository {
                     update.getCorsProfileId().getDomainId(),
                 update.getCsrfEnabled(),
                 update.getDescription(),
-                update.getEndpointId().getDomainId(),
                 update.getWebsocket(),
                 update.getMethod(),
                 update.getName(),
@@ -154,9 +152,9 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 endpoint.getModifiedAt(),
                 endpoint.getModifiedBy(),
                 0,
+                endpoint.getRouterId().getDomainId(),
                 Checker.isNull(endpoint.getCacheProfileId()) ? null :
                     endpoint.getCacheProfileId().getDomainId(),
-                endpoint.getClientId().getDomainId(),
                 Checker.isNull(endpoint.getCorsProfileId()) ? null :
                     endpoint.getCorsProfileId().getDomainId(),
                 endpoint.getCsrfEnabled(),
@@ -204,11 +202,6 @@ public class JdbcEndpointRepository implements EndpointRepository {
             String byDomainIds = String.format("e.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getClientIds())) {
-            String inClause = DatabaseUtility.getInClause(query.getClientIds().size());
-            String byDomainIds = String.format("e.client_id IN (%s)", inClause);
-            whereClause.add(byDomainIds);
-        }
         if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byDomainIds = String.format("e.project_id IN (%s)", inClause);
@@ -227,6 +220,11 @@ public class JdbcEndpointRepository implements EndpointRepository {
         if (Checker.notNullOrEmpty(query.getCorsProfileIds())) {
             String inClause = DatabaseUtility.getInClause(query.getCorsProfileIds().size());
             String byDomainIds = String.format("e.cors_profile_id IN (%s)", inClause);
+            whereClause.add(byDomainIds);
+        }
+        if (Checker.notNullOrEmpty(query.getRouterIds())) {
+            String inClause = DatabaseUtility.getInClause(query.getRouterIds().size());
+            String byDomainIds = String.format("e.router_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
         if (Checker.notNull(query.getPath())) {
@@ -267,11 +265,6 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 query.getEndpointIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getClientIds())) {
-            args.addAll(
-                query.getClientIds().stream().map(DomainId::getDomainId)
-                    .collect(Collectors.toSet()));
-        }
         if (Checker.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
                 query.getProjectIds().stream().map(DomainId::getDomainId)
@@ -290,6 +283,11 @@ public class JdbcEndpointRepository implements EndpointRepository {
         if (Checker.notNullOrEmpty(query.getCorsProfileIds())) {
             args.addAll(
                 query.getCorsProfileIds().stream().map(DomainId::getDomainId)
+                    .collect(Collectors.toSet()));
+        }
+        if (Checker.notNullOrEmpty(query.getRouterIds())) {
+            args.addAll(
+                query.getRouterIds().stream().map(DomainId::getDomainId)
                     .collect(Collectors.toSet()));
         }
         if (Checker.notNull(query.getPath())) {
@@ -360,17 +358,17 @@ public class JdbcEndpointRepository implements EndpointRepository {
     }
 
     @Override
-    public Set<ClientId> getClientIds() {
-        List<ClientId> data = CommonDomainRegistry.getJdbcTemplate()
+    public Set<RouterId> getRouterIds() {
+        List<RouterId> data = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                FIND_ALL_CLIENT_ID_SQL,
+                FIND_ALL_ROUTER_ID_SQL,
                 rs -> {
                     if (!rs.next()) {
                         return Collections.emptyList();
                     }
-                    List<ClientId> list = new ArrayList<>();
+                    List<RouterId> list = new ArrayList<>();
                     do {
-                        list.add(new ClientId(rs.getString("client_id")));
+                        list.add(new RouterId(rs.getString("router_id")));
                     } while (rs.next());
                     return list;
                 }
@@ -420,12 +418,12 @@ public class JdbcEndpointRepository implements EndpointRepository {
     }
 
     @Override
-    public boolean checkDuplicate(ClientId clientId, String path, String method) {
+    public boolean checkDuplicate(RouterId routerId, String path, String method) {
         Long query = CommonDomainRegistry.getJdbcTemplate()
             .query(
                 CHECK_DUPLICATE_SQL,
                 new DatabaseUtility.ExtractCount(),
-                clientId.getDomainId(),
+                routerId.getDomainId(),
                 path,
                 method
             );
@@ -456,7 +454,7 @@ public class JdbcEndpointRepository implements EndpointRepository {
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         Checker.notNull(rs.getString("cache_profile_id")) ?
                             new CacheProfileId(rs.getString("cache_profile_id")) : null,
-                        new ClientId(rs.getString("client_id")),
+                        new RouterId(rs.getString("router_id")),
                         Checker.notNull(rs.getString("cors_profile_id")) ?
                             new CorsProfileId(rs.getString("cors_profile_id")) : null,
                         DatabaseUtility.getNullableBoolean(rs, "csrf_enabled"),
